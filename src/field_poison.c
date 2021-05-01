@@ -17,6 +17,8 @@
 #include "constants/field_poison.h"
 #include "constants/party_menu.h"
 
+static const bool8 FLAG_NOTIFY_FIELD_FAINT = TRUE;
+
 static bool32 IsMonValidSpecies(struct Pokemon *pokemon)
 {
     u16 species = GetMonData(pokemon, MON_DATA_SPECIES2);
@@ -42,7 +44,27 @@ static bool32 AllMonsFainted(void)
     return TRUE;
 }
 
-static void FaintFromFieldPoison(u8 partyIdx)
+// Returns TRUE if `mon` faints
+static bool8 ReduceHealth(struct Pokemon *mon, u32 delta)
+{
+    if (GetMonData(mon, MON_DATA_HP) == 0)
+    {
+        return FALSE;
+    }
+
+    u32 newHP = max(GetMonData(mon, MON_DATA_HP) - delta, 0);
+    SetMonData(mon, MON_DATA_HP, &newHP);
+
+    if (newHP == 0)
+    {
+        u32 status = STATUS1_KILLED_OUTSIDE;
+        SetMonData(mon, MON_DATA_STATUS, &status);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static void FaintFromFieldEffect(u8 partyIdx)
 {
     struct Pokemon *pokemon = gPlayerParty + partyIdx;
     u32 status = STATUS1_NONE;
@@ -53,10 +75,12 @@ static void FaintFromFieldPoison(u8 partyIdx)
     StringGetEnd10(gStringVar1);
 }
 
-static bool32 MonFaintedFromPoison(u8 partyIdx)
+static bool32 MonFaintedOutside(u8 partyIdx)
 {
     struct Pokemon *pokemon = gPlayerParty + partyIdx;
-    if (IsMonValidSpecies(pokemon) && GetMonData(pokemon, MON_DATA_HP) == 0 && GetAilmentFromStatus(GetMonData(pokemon, MON_DATA_STATUS)) == AILMENT_PSN)
+    if (IsMonValidSpecies(pokemon) && 
+        GetMonData(pokemon, MON_DATA_HP) == 0 &&
+        GetMonData(pokemon, MON_DATA_STATUS) == STATUS1_KILLED_OUTSIDE)
     {
         return TRUE;
     }
@@ -71,10 +95,12 @@ static void Task_TryFieldPoisonWhiteOut(u8 taskId)
         case 0:
             for (; data[1] < PARTY_SIZE; data[1]++)
             {
-                if (MonFaintedFromPoison(data[1]))
+                if (MonFaintedOutside(data[1]))
                 {
-                    FaintFromFieldPoison(data[1]);
-                    ShowFieldMessage(gText_PkmnFainted3);
+                    FaintFromFieldEffect(data[1]);
+                    if (FLAG_NOTIFY_FIELD_FAINT) {
+                        ShowFieldMessage(gText_PkmnFainted3);
+                    }
                     data[0]++;
                     return;
                 }
@@ -120,43 +146,33 @@ s32 DoPoisonFieldEffect(void)
     int i;
     u32 hp;
     struct Pokemon *pokemon = gPlayerParty;
-    u32 numPoisoned = 0;
-    u32 numFainted = 0;
+    u32 poisonEffect = FALSE;
+    u32 faintEffect = FALSE;
     for (i = 0; i < PARTY_SIZE; i++)
     {
         // Damage from poison
         if (GetMonData(pokemon, MON_DATA_SANITY_HAS_SPECIES) && GetAilmentFromStatus(GetMonData(pokemon, MON_DATA_STATUS)) == AILMENT_PSN)
         {
-            hp = GetMonData(pokemon, MON_DATA_HP);
-            if (hp == 0 || --hp == 0)
-            {
-                numFainted++;
-            }
-            SetMonData(pokemon, MON_DATA_HP, &hp);
-            numPoisoned++;
+            faintEffect |= ReduceHealth(pokemon, 1);
+            poisonEffect |= TRUE;
         }
         // Damage from nuclear fallout
         if (GetMonData(pokemon, MON_DATA_SANITY_HAS_SPECIES))
         {
-            hp = GetMonData(pokemon, MON_DATA_HP);
-            if (hp == 0 || --hp == 0)
-            {
-                numFainted++;
-            }
-            SetMonData(pokemon, MON_DATA_HP, &hp);
-            numPoisoned++;
+            faintEffect |= ReduceHealth(pokemon, 1);
+            poisonEffect |= TRUE;
         }
         pokemon++;
     }
-    if (numFainted != 0 || numPoisoned != 0)
+    if (faintEffect || poisonEffect)
     {
         FldEffPoison_Start();
     }
-    if (numFainted != 0)
+    if (faintEffect)
     {
         return FLDPSN_FNT;
     }
-    if (numPoisoned != 0)
+    if (poisonEffect)
     {
         return FLDPSN_PSN;
     }
