@@ -75,6 +75,8 @@ static const u8 sPkblToEscapeFactor[][3] = {
 static const u8 sGoNearCounterToCatchFactor[] = {4, 3, 2, 1};
 static const u8 sGoNearCounterToEscapeFactor[] = {4, 4, 4, 4};
 
+static const bool8 FLAG_NUCLEAR_TURN_DAMAGE = TRUE;
+
 void HandleAction_UseMove(void)
 {
     u8 side;
@@ -1423,6 +1425,7 @@ enum
     ENDTURN_LEECH_SEED,
     ENDTURN_POISON,
     ENDTURN_BAD_POISON,
+    ENDTURN_NUCLEAR,
     ENDTURN_BURN,
     ENDTURN_NIGHTMARES,
     ENDTURN_CURSE,
@@ -1522,6 +1525,19 @@ u8 DoBattlerEndTurnEffects(void)
                     gBattleMoveDamage *= (gBattleMons[gActiveBattler].status1 & STATUS1_TOXIC_COUNTER) >> 8;
                     BattleScriptExecute(BattleScript_PoisonTurnDmg);
                     effect++;
+                }
+                gBattleStruct->turnEffectsTracker++;
+                break;
+            case ENDTURN_NUCLEAR:  // deal nuclear damage to the player
+                if (FLAG_NUCLEAR_TURN_DAMAGE) {
+                    if (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER &&
+                        gBattleMons[gActiveBattler].hp != 0) {
+                            gBattleMoveDamage = gBattleMons[gActiveBattler].maxHP / 8;
+                            if (gBattleMoveDamage == 0)
+                                gBattleMoveDamage = 1;
+                            BattleScriptExecute(BattleScript_NuclearTurnDmg);
+                            effect++;
+                    }
                 }
                 gBattleStruct->turnEffectsTracker++;
                 break;
