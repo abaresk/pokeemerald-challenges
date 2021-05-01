@@ -17,8 +17,6 @@
 #include "constants/field_poison.h"
 #include "constants/party_menu.h"
 
-static const bool8 FLAG_NOTIFY_FIELD_FAINT = TRUE;
-
 static bool32 IsMonValidSpecies(struct Pokemon *pokemon)
 {
     u16 species = GetMonData(pokemon, MON_DATA_SPECIES2);
@@ -101,7 +99,7 @@ static void Task_TryFieldPoisonWhiteOut(u8 taskId)
                 if (MonFaintedOutside(data[1]))
                 {
                     FaintFromFieldEffect(data[1]);
-                    if (FLAG_NOTIFY_FIELD_FAINT) {
+                    if (!gSaveBlock2Ptr->optionsNotifyFaintOff) {
                         ShowFieldMessage(gText_PkmnFainted3);
                     }
                     data[0]++;
