@@ -47,17 +47,20 @@ static bool32 AllMonsFainted(void)
 // Returns TRUE if `mon` faints
 static bool8 ReduceHealth(struct Pokemon *mon, u32 delta)
 {
+    u32 newHP;
+    u32 status;
+
     if (GetMonData(mon, MON_DATA_HP) == 0)
     {
         return FALSE;
     }
 
-    u32 newHP = max(GetMonData(mon, MON_DATA_HP) - delta, 0);
+    newHP = max(GetMonData(mon, MON_DATA_HP) - delta, 0);
     SetMonData(mon, MON_DATA_HP, &newHP);
 
     if (newHP == 0)
     {
-        u32 status = STATUS1_KILLED_OUTSIDE;
+        status = STATUS1_KILLED_OUTSIDE;
         SetMonData(mon, MON_DATA_STATUS, &status);
         return TRUE;
     }
