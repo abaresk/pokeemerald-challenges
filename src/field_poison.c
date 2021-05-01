@@ -157,7 +157,7 @@ s32 DoPoisonFieldEffect(void)
             faintEffect |= ReduceHealth(pokemon, 1);
             poisonEffect |= TRUE;
         }
-        // Damage from nuclear fallout
+        // Damage from nuclear radiation
         if (GetMonData(pokemon, MON_DATA_SANITY_HAS_SPECIES))
         {
             faintEffect |= ReduceHealth(pokemon, 1);
