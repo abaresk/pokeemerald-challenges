@@ -18,9 +18,9 @@ static const u8 sGreatBallDesc[] = _(
     "than a POKé BALL.");
 
 static const u8 sPokeBallDesc[] = _(
-    "A tool used for\n"
-    "catching wild\n"
-    "POKéMON.");
+    "Made of lead.\n"
+    "What could\n"
+    "go wrong?");
 
 static const u8 sSafariBallDesc[] = _(
     "A special BALL that\n"
