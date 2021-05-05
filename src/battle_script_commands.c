@@ -4352,7 +4352,7 @@ static void Cmd_moveend(void)
                 gLastPrintedMoves[gBattlerAttacker] = gChosenMove;
             }
             if (!(gAbsentBattlerFlags & gBitTable[gBattlerAttacker])
-                && !(gBattleStruct->field_91 & gBitTable[gBattlerAttacker])
+                && !(gBattleStruct->absentFlagsAtTurnStart & gBitTable[gBattlerAttacker])
                 && gBattleMoves[originallyUsedMove].effect != EFFECT_BATON_PASS)
             {
                 if (gHitMarker & HITMARKER_OBEYS)
@@ -4389,7 +4389,7 @@ static void Cmd_moveend(void)
             gBattleScripting.moveendState++;
             break;
         case MOVEEND_MIRROR_MOVE: // mirror move
-            if (!(gAbsentBattlerFlags & gBitTable[gBattlerAttacker]) && !(gBattleStruct->field_91 & gBitTable[gBattlerAttacker])
+            if (!(gAbsentBattlerFlags & gBitTable[gBattlerAttacker]) && !(gBattleStruct->absentFlagsAtTurnStart & gBitTable[gBattlerAttacker])
                 && gBattleMoves[originallyUsedMove].flags & FLAG_MIRROR_MOVE_AFFECTED && gHitMarker & HITMARKER_OBEYS
                 && gBattlerAttacker != gBattlerTarget && !(gHitMarker & HITMARKER_FAINTED(gBattlerTarget))
                 && !(gMoveResultFlags & MOVE_RESULT_NO_EFFECT))
@@ -4813,7 +4813,7 @@ static void ChooseMonToSendOut(u8 slotId)
     MarkBattlerForControllerExec(gActiveBattler);
 }
 
-static void Cmd_openpartyscreen(void)
+static void Cmd_openpartyscreen(void) // Here's where we will force player party screen to use single battle mode
 {
     u32 flags;
     u8 hitmarkerFaintBits;

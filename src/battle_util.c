@@ -82,7 +82,7 @@ void HandleAction_UseMove(void)
 
     gBattlerAttacker = gBattlerByTurnOrder[gCurrentTurnActionNumber];
 
-    if (*(&gBattleStruct->field_91) & gBitTable[gBattlerAttacker])
+    if (*(&gBattleStruct->absentFlagsAtTurnStart) & gBitTable[gBattlerAttacker])
     {
         gCurrentActionFuncId = B_ACTION_FINISHED;
         return;

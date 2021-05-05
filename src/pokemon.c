@@ -4557,6 +4557,7 @@ void RemoveBattleMonPPBonus(struct BattlePokemon *mon, u8 moveIndex)
     mon->ppBonuses &= gPPUpSetMask[moveIndex];
 }
 
+// Here is where party data is copied over for player for revives
 void CopyPlayerPartyMonToBattleData(u8 battlerId, u8 partyIndex)
 {
     u16* hpSwitchout;

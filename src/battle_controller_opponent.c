@@ -545,8 +545,8 @@ static void OpponentHandleGetMonData(void)
     s32 i;
 
     if (gBattleBufferA[gActiveBattler][2] == 0)
-    {
-        size += GetOpponentMonData(gBattlerPartyIndexes[gActiveBattler], monData);
+    {   // gBattlerPartyIndexes points to which party mon are out in battle
+        size += GetOpponentMonData(gBattlerPartyIndexes[gActiveBattler], monData); // This fills monData with enemy data
     }
     else
     {
@@ -558,7 +558,7 @@ static void OpponentHandleGetMonData(void)
             monToCheck >>= 1;
         }
     }
-    BtlController_EmitDataTransfer(1, size, monData);
+    BtlController_EmitDataTransfer(1, size, monData); // This emits the enemy's mon to gBattleBufferB
     OpponentBufferExecCompleted();
 }
 

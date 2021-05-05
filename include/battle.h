@@ -381,7 +381,7 @@ struct BattleStruct
     bool8 selectionScriptFinished[MAX_BATTLERS_COUNT];
     u8 field_58[4];
     u8 monToSwitchIntoId[MAX_BATTLERS_COUNT];
-    u8 field_60[4][3];
+    u8 field_60[4][3]; // I think this is used to indicate which mons to show when you open party menu
     u8 runTries;
     u8 caughtMonNick[POKEMON_NAME_LENGTH + 1];
     u8 unused_2;
@@ -400,7 +400,7 @@ struct BattleStruct
     u8 stringMoveType;
     u8 expGetterBattlerId;
     u8 unused_5;
-    u8 field_91; // related to gAbsentBattlerFlags, possibly absent flags turn ago?
+    u8 absentFlagsAtTurnStart; // gAbsentBattlerFlags at start of turn (I think it checks whether the controller needs to select a move for that mon this turn)
     u8 palaceFlags; // First 4 bits are "is < 50% HP and not asleep" for each battler, last 4 bits are selected moves to pass to AI
     u8 field_93; // related to choosing pokemon?
     u8 wallyBattleState;

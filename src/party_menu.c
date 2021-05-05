@@ -5840,6 +5840,7 @@ static void BufferBattlePartyOrder(u8 *partyBattleOrder, u8 flankId)
 
 void BufferBattlePartyCurrentOrderBySide(u8 battlerId, u8 flankId)
 {
+    // TODO: gBattleStruct->field_60 tracks party order - find out how
     BufferBattlePartyOrderBySide(gBattleStruct->field_60[battlerId], flankId, battlerId);
 }
 

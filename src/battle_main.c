@@ -682,6 +682,7 @@ static void CB2_InitBattleInternal(void)
 
     if (!(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED)))
     {
+        // Here is where we create NPC party. FIND: Where is it copied into gBattleMons?
         CreateNPCTrainerParty(&gEnemyParty[0], gTrainerBattleOpponent_A, TRUE);
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
             CreateNPCTrainerParty(&gEnemyParty[3], gTrainerBattleOpponent_B, FALSE);
@@ -2038,6 +2039,7 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
             }
         }
 
+        // HERE: Check number of enemy mons. If 1, force single battle, else force double battle.
         gBattleTypeFlags |= gTrainers[trainerNum].doubleBattle;
     }
 
@@ -3325,7 +3327,7 @@ static void BattleIntroPrepareBackgroundSlide(void)
     }
 }
 
-static void BattleIntroDrawTrainersOrMonsSprites(void)
+static void BattleIntroDrawTrainersOrMonsSprites(void) // gBattleMons populated here!
 {
     u8 *ptr;
     s32 i;
@@ -3347,7 +3349,7 @@ static void BattleIntroDrawTrainersOrMonsSprites(void)
             u16* hpOnSwitchout;
 
             ptr = (u8 *)&gBattleMons[gActiveBattler];
-            for (i = 0; i < sizeof(struct BattlePokemon); i++)
+            for (i = 0; i < sizeof(struct BattlePokemon); i++) // copy mon data from gBattleBufferB
                 ptr[i] = gBattleBufferB[gActiveBattler][4 + i];
 
             gBattleMons[gActiveBattler].type1 = gBaseStats[gBattleMons[gActiveBattler].species].type1;
@@ -3812,7 +3814,7 @@ static void TryDoEventsBeforeFirstTurn(void)
     }
     TurnValuesCleanUp(FALSE);
     SpecialStatusesClear();
-    *(&gBattleStruct->field_91) = gAbsentBattlerFlags;
+    *(&gBattleStruct->absentFlagsAtTurnStart) = gAbsentBattlerFlags; // Start of each turn, mark which battlers are absent. If it's a player's mon, they don't need to select any move input
     BattlePutTextOnWindow(gText_EmptyString3, 0);
     gBattleMainFunc = HandleTurnActionSelectionState;
     ResetSentPokesToOpponentValue();
@@ -3919,7 +3921,7 @@ void BattleTurnPassed(void)
     for (i = 0; i < MAX_BATTLERS_COUNT; i++)
         *(gBattleStruct->monToSwitchIntoId + i) = PARTY_SIZE;
 
-    *(&gBattleStruct->field_91) = gAbsentBattlerFlags;
+    *(&gBattleStruct->absentFlagsAtTurnStart) = gAbsentBattlerFlags;
     BattlePutTextOnWindow(gText_EmptyString3, 0);
     gBattleMainFunc = HandleTurnActionSelectionState;
     gRandomTurnNumber = Random();
@@ -4058,12 +4060,12 @@ static void HandleTurnActionSelectionState(void)
             *(gBattleStruct->monToSwitchIntoId + gActiveBattler) = PARTY_SIZE;
             if (gBattleTypeFlags & BATTLE_TYPE_MULTI
                 || (position & BIT_FLANK) == B_FLANK_LEFT
-                || gBattleStruct->field_91 & gBitTable[GetBattlerAtPosition(BATTLE_PARTNER(position))]
+                || gBattleStruct->absentFlagsAtTurnStart & gBitTable[GetBattlerAtPosition(BATTLE_PARTNER(position))]
                 || gBattleCommunication[GetBattlerAtPosition(BATTLE_PARTNER(position))] == STATE_WAIT_ACTION_CONFIRMED)
             {
-                if (gBattleStruct->field_91 & gBitTable[gActiveBattler])
+                if (gBattleStruct->absentFlagsAtTurnStart & gBitTable[gActiveBattler])
                 {
-                    gChosenActionByBattler[gActiveBattler] = B_ACTION_NOTHING_FAINTED;
+                    gChosenActionByBattler[gActiveBattler] = B_ACTION_NOTHING_FAINTED; // Here! If mon has fainted, automatically pick "No action" (only applies to player mons)
                     if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI))
                         gBattleCommunication[gActiveBattler] = STATE_WAIT_ACTION_CONFIRMED;
                     else
@@ -4079,7 +4081,7 @@ static void HandleTurnActionSelectionState(void)
                     }
                     else
                     {
-                        BtlController_EmitChooseAction(0, gChosenActionByBattler[0], gBattleBufferB[0][1] | (gBattleBufferB[0][2] << 8));
+                        BtlController_EmitChooseAction(0, gChosenActionByBattler[0], gBattleBufferB[0][1] | (gBattleBufferB[0][2] << 8)); // here's where we let player choose action for a mon. Note, fainted opponent mons still trigger this.
                         MarkBattlerForControllerExec(gActiveBattler);
                         gBattleCommunication[gActiveBattler]++;
                     }
@@ -4387,7 +4389,7 @@ static void HandleTurnActionSelectionState(void)
 
                 if (((gBattleTypeFlags & (BATTLE_TYPE_MULTI | BATTLE_TYPE_DOUBLE)) != BATTLE_TYPE_DOUBLE)
                     || (position & BIT_FLANK) != B_FLANK_LEFT
-                    || (*(&gBattleStruct->field_91) & gBitTable[GetBattlerAtPosition(position ^ BIT_FLANK)]))
+                    || (*(&gBattleStruct->absentFlagsAtTurnStart) & gBitTable[GetBattlerAtPosition(position ^ BIT_FLANK)]))
                 {
                     BtlController_EmitLinkStandbyMsg(0, 0, i);
                 }
@@ -4457,7 +4459,7 @@ static void HandleTurnActionSelectionState(void)
     }
 
     // Check if everyone chose actions.
-    if (gBattleCommunication[ACTIONS_CONFIRMED_COUNT] == gBattlersCount)
+    if (gBattleCommunication[ACTIONS_CONFIRMED_COUNT] == gBattlersCount) // How does this check pass when mons fainted in double battle?
     {
         sub_818603C(1);
         gBattleMainFunc = SetActionsAndBattlersTurnOrder;

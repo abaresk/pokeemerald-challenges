@@ -584,6 +584,7 @@ static void SetBattlePartyIds(void)
 
     if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI))
     {
+        // Seems like gBattlerPartyIndexes marks where in party the on-screen battlers are
         for (i = 0; i < gBattlersCount; i++)
         {
             for (j = 0; j < PARTY_SIZE; j++)
