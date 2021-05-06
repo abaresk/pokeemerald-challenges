@@ -69,6 +69,7 @@ extern const struct WindowTemplate *const gBattleWindowTemplates[];
 
 // this file's functions
 static void CB2_InitBattleInternal(void);
+static u8 CountUsableMons(void);
 static void CB2_PreInitMultiBattle(void);
 static void CB2_PreInitIngamePlayerPartnerBattle(void);
 static void CB2_HandleStartMultiPartnerBattle(void);
@@ -697,7 +698,26 @@ static void CB2_InitBattleInternal(void)
     for (i = 0; i < PARTY_SIZE; i++)
         AdjustFriendship(&gPlayerParty[i], FRIENDSHIP_EVENT_LEAGUE_BATTLE);
 
+    // Store number of player mons
+    gPlayerMonsCount = CountUsableMons();
     gBattleCommunication[MULTIUSE_STATE] = 0;
+}
+
+static u8 CountUsableMons(void)
+{
+    s32 i;
+    u8 aliveCount = 0;
+
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES, NULL) != SPECIES_NONE &&
+            GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2, NULL) != SPECIES_EGG &&
+            GetMonData(&gPlayerParty[i], MON_DATA_HP, NULL) != 0)
+        {
+            aliveCount++;
+        }
+    }
+    return aliveCount;
 }
 
 #define BUFFER_PARTY_VS_SCREEN_STATUS(party, flags, i)              \
