@@ -235,9 +235,11 @@ EWRAM_DATA struct BattleHealthboxInfo *gBattleControllerOpponentFlankHealthboxDa
 EWRAM_DATA u16 gBattleMovePower = 0;
 EWRAM_DATA u16 gMoveToLearn = 0;
 EWRAM_DATA u8 gBattleMonForms[MAX_BATTLERS_COUNT] = {0};
+EWRAM_DATA u8 gPlayerMonsCount = 0;
+EWRAM_DATA u8 gEnemyMonsCount = 0;
 
-// IWRAM common vars
-void (*gPreBattleCallback1)(void);
+    // IWRAM common vars
+    void (*gPreBattleCallback1)(void);
 void (*gBattleMainFunc)(void);
 struct BattleResults gBattleResults;
 u8 gLeveledUpInBattle;
@@ -1956,6 +1958,7 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
         {
             monsCount = gTrainers[trainerNum].partySize;
         }
+        gEnemyMonsCount = monsCount;
 
         for (i = 0; i < monsCount; i++)
         {
@@ -2040,7 +2043,9 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
         }
 
         // HERE: Check number of enemy mons. If 1, force single battle, else force double battle.
-        gBattleTypeFlags |= gTrainers[trainerNum].doubleBattle;
+        if (gEnemyMonsCount > 1) {
+            gBattleTypeFlags |= BATTLE_TYPE_DOUBLE;
+        }
     }
 
     return gTrainers[trainerNum].partySize;
