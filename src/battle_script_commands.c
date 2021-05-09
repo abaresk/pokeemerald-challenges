@@ -4415,7 +4415,7 @@ static void Cmd_moveend(void)
                 && !(gHitMarker & HITMARKER_NO_ATTACKSTRING))
             {
                 u8 battlerId = GetBattlerAtPosition(BATTLE_PARTNER(GetBattlerPosition(gBattlerTarget)));
-                if (gBattleMons[battlerId].hp != 0)
+                if (gBattleMons[battlerId].hp != 0 && !(gBattleTypeFlags & BATTLE_TYPE_DOUBLE))
                 {
                     gBattlerTarget = battlerId;
                     gHitMarker |= HITMARKER_NO_ATTACKSTRING;
