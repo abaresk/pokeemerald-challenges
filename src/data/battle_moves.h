@@ -177,7 +177,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 10,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },
@@ -515,7 +519,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 30,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MAGIC_COAT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -567,7 +575,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 30,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MAGIC_COAT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -593,7 +605,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 40,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MAGIC_COAT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -671,7 +687,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 30,
         .secondaryEffectChance = 10,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -749,7 +769,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 15,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },
@@ -775,7 +799,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 70,
         .pp = 5,
         .secondaryEffectChance = 10,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -983,7 +1011,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 95,
         .pp = 25,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },
@@ -1061,7 +1093,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 95,
         .pp = 40,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MAGIC_COAT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -1685,7 +1721,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 0,
         .pp = 20,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },
@@ -1893,7 +1933,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 30,
         .secondaryEffectChance = 10,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -2049,7 +2093,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 90,
         .pp = 10,
         .secondaryEffectChance = 30,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -2361,7 +2409,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 25,
         .secondaryEffectChance = 10,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -2556,7 +2608,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 95,
         .pp = 15,
         .secondaryEffectChance = 100,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -2998,7 +3054,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 20,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MAGIC_COAT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -3115,7 +3175,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 20,
         .secondaryEffectChance = 20,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },
@@ -3349,7 +3413,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 90,
         .pp = 10,
         .secondaryEffectChance = 10,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -3700,7 +3768,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 5,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },
@@ -3960,7 +4032,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 10,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -4090,7 +4166,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 95,
         .pp = 25,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },
@@ -4207,7 +4287,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 5,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED,
     },
@@ -4298,7 +4382,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 85,
         .pp = 10,
         .secondaryEffectChance = 30,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_BOTH,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },

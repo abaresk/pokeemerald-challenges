@@ -34,4 +34,7 @@
 #endif
 #endif
 
+// Comment out to allow moves to hit multiple opponents
+#define NO_TARGET_BOTH
+
 #endif // GUARD_CONFIG_H
