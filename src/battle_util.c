@@ -907,7 +907,7 @@ void ResetSentPokesToOpponentValue(void)
     gSentPokesToOpponent[1] = 0;
 
     numBattlers = gBattlersCount;
-    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE) {
+    if (DoubleBattleNonMulti()) {
         numBattlers = 2;
     }
 
@@ -925,7 +925,7 @@ void OpponentSwitchInResetSentPokesToOpponentValue(u8 battler)
     u32 bits = 0;
 
     numBattlers = gBattlersCount;
-    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE) {
+    if (DoubleBattleNonMulti()) {
         numBattlers = 2;
     }
 
@@ -2272,7 +2272,7 @@ bool8 HasNoMonsToSwitch(u8 battler, u8 partyIdBattlerOn1, u8 partyIdBattlerOn2)
     if (!(gBattleTypeFlags & BATTLE_TYPE_DOUBLE))
         return FALSE;
 
-    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE && GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT)
+    if (DoubleBattleNonMulti() && GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT)
         return TRUE;
 
     if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER)
@@ -4124,4 +4124,10 @@ u8 IsMonDisobedient(void)
             return 1;
         }
     }
+}
+
+bool8 DoubleBattleNonMulti(void)
+{
+    return (gBattleTypeFlags & BATTLE_TYPE_DOUBLE) && 
+           !(gBattleTypeFlags & BATTLE_TYPE_MULTI);
 }

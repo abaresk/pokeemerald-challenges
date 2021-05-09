@@ -196,7 +196,7 @@ static bool8 LoadBattlerSpriteGfx(u8 battler)
         else if (gBattleTypeFlags & BATTLE_TYPE_WALLY_TUTORIAL && battler == B_POSITION_PLAYER_LEFT) // Should be checking position, not battler.
             DecompressTrainerBackPic(TRAINER_BACK_PIC_WALLY, battler);
         else if (!gBattleSpritesDataPtr->battlerData[battler].behindSubstitute) {
-            if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE && GetBattlerPosition(battler) != B_POSITION_PLAYER_RIGHT)
+            if (!DoubleBattleNonMulti() || GetBattlerPosition(battler) != B_POSITION_PLAYER_RIGHT)
                 BattleLoadPlayerMonSpriteGfx(&gPlayerParty[gBattlerPartyIndexes[battler]], battler);
         }
         else
@@ -258,7 +258,7 @@ static void CreateBattlerSprite(u8 battler)
         {
             if (GetMonData(&gPlayerParty[gBattlerPartyIndexes[battler]], MON_DATA_HP) == 0)
                 return;
-            if (GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT)
+            if (DoubleBattleNonMulti() && GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT)
                 return;
 
             SetMultiuseSpriteTemplateToPokemon(GetMonData(&gPlayerParty[gBattlerPartyIndexes[battler]], MON_DATA_SPECIES), GetBattlerPosition(battler));
@@ -314,7 +314,7 @@ static void CreateHealthboxSprite(u8 battler)
         else if (!(gBattleTypeFlags & BATTLE_TYPE_SAFARI))
         {
             if (GetMonData(&gPlayerParty[gBattlerPartyIndexes[battler]], MON_DATA_HP) == 0 ||
-                GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT)
+                (DoubleBattleNonMulti() && GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT))
                     SetHealthboxSpriteInvisible(healthboxSpriteId);
         }
     }

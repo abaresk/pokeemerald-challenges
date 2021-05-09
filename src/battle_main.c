@@ -3404,7 +3404,9 @@ static void BattleIntroDrawTrainersOrMonsSprites(void) // gBattleMons populated 
         if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
         {
             // Mark the player's second mon as absent.
-            gAbsentBattlerFlags |= gBitTable[B_POSITION_PLAYER_RIGHT];
+            if (DoubleBattleNonMulti()) {
+                gAbsentBattlerFlags |= gBitTable[B_POSITION_PLAYER_RIGHT];
+            }
 
             if (GetBattlerPosition(gActiveBattler) == B_POSITION_OPPONENT_LEFT)
             {
