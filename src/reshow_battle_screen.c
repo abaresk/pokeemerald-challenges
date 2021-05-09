@@ -195,8 +195,10 @@ static bool8 LoadBattlerSpriteGfx(u8 battler)
             DecompressTrainerBackPic(gSaveBlock2Ptr->playerGender, battler);
         else if (gBattleTypeFlags & BATTLE_TYPE_WALLY_TUTORIAL && battler == B_POSITION_PLAYER_LEFT) // Should be checking position, not battler.
             DecompressTrainerBackPic(TRAINER_BACK_PIC_WALLY, battler);
-        else if (!gBattleSpritesDataPtr->battlerData[battler].behindSubstitute)
-            BattleLoadPlayerMonSpriteGfx(&gPlayerParty[gBattlerPartyIndexes[battler]], battler);
+        else if (!gBattleSpritesDataPtr->battlerData[battler].behindSubstitute) {
+            if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE && GetBattlerPosition(battler) != B_POSITION_PLAYER_RIGHT)
+                BattleLoadPlayerMonSpriteGfx(&gPlayerParty[gBattlerPartyIndexes[battler]], battler);
+        }
         else
             BattleLoadSubstituteOrMonSpriteGfx(battler, FALSE);
 
@@ -256,6 +258,8 @@ static void CreateBattlerSprite(u8 battler)
         {
             if (GetMonData(&gPlayerParty[gBattlerPartyIndexes[battler]], MON_DATA_HP) == 0)
                 return;
+            if (GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT)
+                return;
 
             SetMultiuseSpriteTemplateToPokemon(GetMonData(&gPlayerParty[gBattlerPartyIndexes[battler]], MON_DATA_SPECIES), GetBattlerPosition(battler));
             gBattlerSpriteIds[battler] = CreateSprite(&gMultiuseSpriteTemplate, GetBattlerSpriteCoord(battler, 2), posY, GetBattlerSpriteSubpriority(battler));
@@ -266,7 +270,7 @@ static void CreateBattlerSprite(u8 battler)
 
             StartSpriteAnim(&gSprites[gBattlerSpriteIds[battler]], gBattleMonForms[battler]);
             if (gBattleSpritesDataPtr->battlerData[battler].transformSpecies == SPECIES_CASTFORM)
-                gSprites[gBattlerSpriteIds[battler]].anims = gMonFrontAnimsPtrTable[SPECIES_CASTFORM];
+                gSprites[gBattlerSpriteIds[battler]].anims = gMonFrontAnimsPtrTable[SPECIES_CASTFORM];            
         }
 
         gSprites[gBattlerSpriteIds[battler]].invisible = gBattleSpritesDataPtr->battlerData[battler].invisible;
@@ -309,8 +313,9 @@ static void CreateHealthboxSprite(u8 battler)
         }
         else if (!(gBattleTypeFlags & BATTLE_TYPE_SAFARI))
         {
-            if (GetMonData(&gPlayerParty[gBattlerPartyIndexes[battler]], MON_DATA_HP) == 0)
-                SetHealthboxSpriteInvisible(healthboxSpriteId);
+            if (GetMonData(&gPlayerParty[gBattlerPartyIndexes[battler]], MON_DATA_HP) == 0 ||
+                GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT)
+                    SetHealthboxSpriteInvisible(healthboxSpriteId);
         }
     }
 }

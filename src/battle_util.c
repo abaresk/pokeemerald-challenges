@@ -2260,6 +2260,9 @@ bool8 HasNoMonsToSwitch(u8 battler, u8 partyIdBattlerOn1, u8 partyIdBattlerOn2)
     if (!(gBattleTypeFlags & BATTLE_TYPE_DOUBLE))
         return FALSE;
 
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE && GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT)
+        return TRUE;
+
     if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER)
     {
         if (GetBattlerSide(battler) == B_SIDE_PLAYER)

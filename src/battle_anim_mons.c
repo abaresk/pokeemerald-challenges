@@ -801,6 +801,13 @@ u8 GetBattlerPosition(u8 battlerId)
     return GET_BATTLER_POSITION(battlerId);
 }
 
+// In regular trainer battles, gBattlerPositions is:
+// gBattlerPositions = {
+//   B_POSITION_PLAYER_LEFT,
+//   B_POSITION_OPPONENT_LEFT, 
+//   B_POSITION_PLAYER_RIGHT, 
+//   B_POSITION_OPPONENT_RIGHT};
+// gBattlerPositions = {0, 1, 2, 3};
 u8 GetBattlerAtPosition(u8 position)
 {
     u8 i;

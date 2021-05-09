@@ -5687,11 +5687,9 @@ void ChooseMonForWirelessMinigame(void)
 
 static u8 GetPartyLayoutFromBattleType(void)
 {
-    if (IsDoubleBattle() == FALSE)
-        return PARTY_LAYOUT_SINGLE;
     if (IsMultiBattle() == TRUE)
         return PARTY_LAYOUT_MULTI;
-    return PARTY_LAYOUT_DOUBLE;
+    return PARTY_LAYOUT_SINGLE;
 }
 
 void OpenPartyMenuInBattle(u8 partyAction)
@@ -5743,9 +5741,12 @@ static bool8 TrySwitchInPokemon(void)
     {
         if (GetBattlerSide(i) == B_SIDE_PLAYER && GetPartyIdFromBattleSlot(slot) == gBattlerPartyIndexes[i])
         {
-            GetMonNickname(&gPlayerParty[slot], gStringVar1);
-            StringExpandPlaceholders(gStringVar4, gText_PkmnAlreadyInBattle);
-            return FALSE;
+            if (!(gBattleTypeFlags & BATTLE_TYPE_DOUBLE && GetBattlerPosition(i) == B_POSITION_PLAYER_RIGHT)) 
+            {
+                GetMonNickname(&gPlayerParty[slot], gStringVar1);
+                StringExpandPlaceholders(gStringVar4, gText_PkmnAlreadyInBattle);
+                return FALSE;
+            }
         }
     }
     if (GetMonData(&gPlayerParty[slot], MON_DATA_IS_EGG))

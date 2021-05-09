@@ -90,7 +90,7 @@ void InitBattleControllers(void)
     else
         InitSinglePlayerBtlControllers();
 
-    SetBattlePartyIds();
+    SetBattlePartyIds(); // Here is where gBattlerPartyIndexes gets set
 
     if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI))
     {
@@ -642,6 +642,11 @@ static void SetBattlePartyIds(void)
                     }
                 }
             }
+        }
+
+        // If player has one mon, make party index invalid
+        if (gPlayerMonsCount == 1) {
+            gBattlerPartyIndexes[B_POSITION_PLAYER_RIGHT] = 1;
         }
 
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)

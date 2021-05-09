@@ -3376,6 +3376,14 @@ static void BattleIntroDrawTrainersOrMonsSprites(void) // gBattleMons populated 
             ptr = (u8 *)&gBattleMons[gActiveBattler];
             for (i = 0; i < sizeof(struct BattlePokemon); i++) // copy mon data from gBattleBufferB
                 ptr[i] = gBattleBufferB[gActiveBattler][4 + i];
+            
+            // If player has only 1 mon, clear data for second player mon.
+            if (GetBattlerPosition(gActiveBattler) == B_POSITION_PLAYER_RIGHT &&
+                gPlayerMonsCount == 1)
+            {
+                for (i = 0; i < sizeof(struct BattlePokemon); i++)
+                    ptr[i] = 0;
+            }
 
             gBattleMons[gActiveBattler].type1 = gBaseStats[gBattleMons[gActiveBattler].species].type1;
             gBattleMons[gActiveBattler].type2 = gBaseStats[gBattleMons[gActiveBattler].species].type2;
@@ -3395,6 +3403,9 @@ static void BattleIntroDrawTrainersOrMonsSprites(void) // gBattleMons populated 
 
         if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
         {
+            // Mark the player's second mon as absent.
+            gAbsentBattlerFlags |= gBitTable[B_POSITION_PLAYER_RIGHT];
+
             if (GetBattlerPosition(gActiveBattler) == B_POSITION_OPPONENT_LEFT)
             {
                 BtlController_EmitDrawTrainerPic(0);
