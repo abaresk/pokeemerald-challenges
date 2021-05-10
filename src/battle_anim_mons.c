@@ -16,8 +16,6 @@
 #include "util.h"
 #include "constants/battle_anim.h"
 
-#define IS_DOUBLE_BATTLE() ((gBattleTypeFlags & BATTLE_TYPE_DOUBLE))
-
 extern const struct OamData gOamData_AffineNormal_ObjNormal_64x64;
 
 static void sub_80A6FB4(struct Sprite *sprite);
@@ -127,10 +125,10 @@ u8 GetBattlerSpriteCoord(u8 battlerId, u8 coordType)
     {
     case BATTLER_COORD_X:
     case BATTLER_COORD_X_2:
-        retVal = sBattlerCoords[IS_DOUBLE_BATTLE()][GetBattlerPosition(battlerId)].x;
+        retVal = sBattlerCoords[UseDoubleBattleCoords(battlerId)][GetBattlerPosition(battlerId)].x;
         break;
     case BATTLER_COORD_Y:
-        retVal = sBattlerCoords[IS_DOUBLE_BATTLE()][GetBattlerPosition(battlerId)].y;
+        retVal = sBattlerCoords[UseDoubleBattleCoords(battlerId)][GetBattlerPosition(battlerId)].y;
         break;
     case BATTLER_COORD_Y_PIC_OFFSET:
     case BATTLER_COORD_Y_PIC_OFFSET_DEFAULT:
@@ -282,7 +280,7 @@ u8 GetBattlerSpriteFinal_Y(u8 battlerId, u16 species, bool8 a3)
         offset = GetBattlerYDelta(battlerId, species);
         offset -= GetBattlerElevation(battlerId, species);
     }
-    y = offset + sBattlerCoords[IS_DOUBLE_BATTLE()][GetBattlerPosition(battlerId)].y;
+    y = offset + sBattlerCoords[UseDoubleBattleCoords(battlerId)][GetBattlerPosition(battlerId)].y;
     if (a3)
     {
         if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
@@ -853,7 +851,18 @@ bool8 IsBattlerSpritePresent(u8 battlerId)
 
 bool8 IsDoubleBattle(void)
 {
-    return IS_DOUBLE_BATTLE();
+    return gBattleTypeFlags & BATTLE_TYPE_DOUBLE;
+}
+
+bool8 UseDoubleBattleCoords(u8 battlerId) {
+    if (gBattleTypeFlags & BATTLE_TYPE_MULTI) {
+        return TRUE;
+    }
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE &&
+        GetBattlerSide(battlerId) == B_SIDE_OPPONENT) {
+            return TRUE;
+    }
+    return FALSE;
 }
 
 void GetBattleAnimBg1Data(struct BattleAnimBgData *out)
