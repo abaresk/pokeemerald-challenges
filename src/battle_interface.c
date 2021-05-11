@@ -1906,6 +1906,7 @@ static void UpdateNickInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
     u8 *windowTileData;
     u16 species;
     u8 gender;
+    u8 battlerId = gSprites[healthboxSpriteId].hMain_Battler;
 
     StringCopy(gDisplayedStringBattle, gText_HighlightDarkGrey);
     GetMonData(mon, MON_DATA_NICKNAME, nickname);
@@ -1942,7 +1943,7 @@ static void UpdateNickInHealthbox(u8 healthboxSpriteId, struct Pokemon *mon)
     {
         TextIntoHealthboxObject((void*)(OBJ_VRAM0 + 0x40 + spriteTileNum), windowTileData, 6);
         ptr = (void*)(OBJ_VRAM0);
-        if (!IsDoubleBattle())
+        if (!UseDoubleBattleCoords(battlerId))
             ptr += spriteTileNum + 0x800;
         else
             ptr += spriteTileNum + 0x400;
