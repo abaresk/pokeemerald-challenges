@@ -842,6 +842,8 @@ bool8 IsBattlerSpritePresent(u8 battlerId)
         }
         else
         {
+            if (DoubleBattleNonMulti() && GetBattlerPosition(battlerId) == B_POSITION_PLAYER_RIGHT)
+                return FALSE;
             if (GetMonData(&gPlayerParty[gBattlerPartyIndexes[battlerId]], MON_DATA_HP) != 0)
                 return TRUE;
         }
