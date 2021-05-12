@@ -1,3 +1,4 @@
+#include "config.h"
 #include "constants/global.h"
 #include "constants/battle.h"
 #include "constants/pokemon.h"
@@ -424,16 +425,20 @@ BattleScript_ExplosionLoop:
 	resultmessage
 	waitmessage B_WAIT_TIME_LONG
 	tryfaintmon BS_TARGET, FALSE, NULL
+#ifndef NO_TARGET_BOTH
 	moveendto MOVEEND_NEXT_TARGET
 	jumpifnexttargetvalid BattleScript_ExplosionLoop
+#endif
 	tryfaintmon BS_ATTACKER, FALSE, NULL
 	end
 BattleScript_ExplosionMissed:
 	effectivenesssound
 	resultmessage
 	waitmessage B_WAIT_TIME_LONG
+#ifndef NO_TARGET_BOTH
 	moveendto MOVEEND_NEXT_TARGET
 	jumpifnexttargetvalid BattleScript_ExplosionLoop
+#endif
 	tryfaintmon BS_ATTACKER, FALSE, NULL
 	end
 
@@ -1706,7 +1711,9 @@ BattleScript_EffectMagnitude::
 	attackcanceler
 	attackstring
 	ppreduce
+#ifndef NO_TARGET_BOTH
 	selectfirstvalidtarget
+#endif
 	magnitudedamagecalculation
 	pause B_WAIT_TIME_SHORT
 	printstring STRINGID_MAGNITUDESTRENGTH
@@ -1857,7 +1864,9 @@ BattleScript_EffectEarthquake::
 	attackcanceler
 	attackstring
 	ppreduce
+#ifndef NO_TARGET_BOTH
 	selectfirstvalidtarget
+#endif
 BattleScript_HitsAllWithUndergroundBonusLoop::
 	movevaluescleanup
 	jumpifnostatus3 BS_TARGET, STATUS3_UNDERGROUND, BattleScript_HitsAllNoUndergroundBonus
@@ -1887,8 +1896,10 @@ BattleScript_DoHitAllWithUndergroundBonus::
 	printstring STRINGID_EMPTYSTRING3
 	waitmessage 1
 	tryfaintmon BS_TARGET, FALSE, NULL
+#ifndef NO_TARGET_BOTH
 	moveendto MOVEEND_NEXT_TARGET
 	jumpifnexttargetvalid BattleScript_HitsAllWithUndergroundBonusLoop
+#endif
 	end
 BattleScript_HitAllWithUndergroundBonusMissed::
 	pause B_WAIT_TIME_SHORT
@@ -1896,8 +1907,10 @@ BattleScript_HitAllWithUndergroundBonusMissed::
 	effectivenesssound
 	resultmessage
 	waitmessage B_WAIT_TIME_LONG
+#ifndef NO_TARGET_BOTH
 	moveendto MOVEEND_NEXT_TARGET
 	jumpifnexttargetvalid BattleScript_HitsAllWithUndergroundBonusLoop
+#endif
 	end
 
 BattleScript_EffectFutureSight::
@@ -2593,15 +2606,21 @@ BattleScript_EffectTeeterDance::
 	attackcanceler
 	attackstring
 	ppreduce
+#ifndef NO_TARGET_BOTH
 	setbyte gBattlerTarget, 0
+#endif
 BattleScript_TeeterDanceLoop::
 	movevaluescleanup
 	setmoveeffect MOVE_EFFECT_CONFUSION
+#ifndef NO_TARGET_BOTH
 	jumpifbyteequal gBattlerAttacker, gBattlerTarget, BattleScript_TeeterDanceLoopIncrement
+#endif
 	jumpifability BS_TARGET, ABILITY_OWN_TEMPO, BattleScript_TeeterDanceOwnTempoPrevents
 	jumpifstatus2 BS_TARGET, STATUS2_SUBSTITUTE, BattleScript_TeeterDanceSubstitutePrevents
 	jumpifstatus2 BS_TARGET, STATUS2_CONFUSION, BattleScript_TeeterDanceAlreadyConfused
+#ifndef NO_TARGET_BOTH
 	jumpifhasnohp BS_TARGET, BattleScript_TeeterDanceLoopIncrement
+#endif
 	accuracycheck BattleScript_TeeterDanceMissed, ACC_CURR_MOVE
 	jumpifsideaffecting BS_TARGET, SIDE_STATUS_SAFEGUARD, BattleScript_TeeterDanceSafeguardProtected
 	attackanimation
@@ -2610,10 +2629,12 @@ BattleScript_TeeterDanceLoop::
 	resultmessage
 	waitmessage B_WAIT_TIME_LONG
 BattleScript_TeeterDanceDoMoveEndIncrement::
+#ifndef NO_TARGET_BOTH
 	moveendto MOVEEND_NEXT_TARGET
 BattleScript_TeeterDanceLoopIncrement::
 	addbyte gBattlerTarget, 1
 	jumpifbytenotequal gBattlerTarget, gBattlersCount, BattleScript_TeeterDanceLoop
+#endif
 	end
 
 BattleScript_TeeterDanceOwnTempoPrevents::

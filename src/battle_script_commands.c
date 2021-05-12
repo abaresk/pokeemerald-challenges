@@ -6468,16 +6468,18 @@ static void Cmd_setprotectlike(void) // protect and endure
 
 static void Cmd_faintifabilitynotdamp(void)
 {
+    u8 battlerTarget;
+
     if (gBattleControllerExecFlags)
         return;
 
-    for (gBattlerTarget = 0; gBattlerTarget < gBattlersCount; gBattlerTarget++)
+    for (battlerTarget = 0; battlerTarget < gBattlersCount; battlerTarget++)
     {
-        if (gBattleMons[gBattlerTarget].ability == ABILITY_DAMP)
+        if (gBattleMons[battlerTarget].ability == ABILITY_DAMP)
             break;
     }
 
-    if (gBattlerTarget == gBattlersCount)
+    if (battlerTarget == gBattlersCount)
     {
         gActiveBattler = gBattlerAttacker;
         gBattleMoveDamage = gBattleMons[gActiveBattler].hp;
@@ -6485,18 +6487,18 @@ static void Cmd_faintifabilitynotdamp(void)
         MarkBattlerForControllerExec(gActiveBattler);
         gBattlescriptCurrInstr++;
 
-        for (gBattlerTarget = 0; gBattlerTarget < gBattlersCount; gBattlerTarget++)
+        for (battlerTarget = 0; battlerTarget < gBattlersCount; battlerTarget++)
         {
-            if (gBattlerTarget == gBattlerAttacker)
+            if (battlerTarget == gBattlerAttacker)
                 continue;
-            if (!(gAbsentBattlerFlags & gBitTable[gBattlerTarget]))
+            if (!(gAbsentBattlerFlags & gBitTable[battlerTarget]))
                 break;
         }
     }
     else
     {
         gLastUsedAbility = ABILITY_DAMP;
-        RecordAbilityBattle(gBattlerTarget, gBattleMons[gBattlerTarget].ability);
+        RecordAbilityBattle(battlerTarget, gBattleMons[battlerTarget].ability);
         gBattlescriptCurrInstr = BattleScript_DampStopsExplosion;
     }
 }
@@ -8573,6 +8575,7 @@ static void Cmd_magnitudedamagecalculation(void)
 
     PREPARE_BYTE_NUMBER_BUFFER(gBattleTextBuff1, 2, magnitude)
 
+#ifndef NO_TARGET_BOTH
     for (gBattlerTarget = 0; gBattlerTarget < gBattlersCount; gBattlerTarget++)
     {
         if (gBattlerTarget == gBattlerAttacker)
@@ -8580,6 +8583,7 @@ static void Cmd_magnitudedamagecalculation(void)
         if (!(gAbsentBattlerFlags & gBitTable[gBattlerTarget])) // a valid target was found
             break;
     }
+#endif
 
     gBattlescriptCurrInstr++;
 }

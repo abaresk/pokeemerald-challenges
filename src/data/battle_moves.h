@@ -1201,7 +1201,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 10,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_FOES_AND_ALLY,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },
@@ -1604,7 +1608,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 5,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_FOES_AND_ALLY,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },
@@ -2041,7 +2049,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 5,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_FOES_AND_ALLY,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },
@@ -2950,7 +2962,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 30,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_FOES_AND_ALLY,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED | FLAG_MIRROR_MOVE_AFFECTED | FLAG_KINGS_ROCK_AFFECTED,
     },
@@ -3954,7 +3970,11 @@ const struct BattleMove gBattleMoves[MOVES_COUNT] =
         .accuracy = 100,
         .pp = 20,
         .secondaryEffectChance = 0,
+        #ifdef NO_TARGET_BOTH
+        .target = MOVE_TARGET_SELECTED,
+        #else
         .target = MOVE_TARGET_FOES_AND_ALLY,
+        #endif
         .priority = 0,
         .flags = FLAG_PROTECT_AFFECTED,
     },
