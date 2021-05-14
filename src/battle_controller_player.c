@@ -1319,10 +1319,12 @@ static void DestroyExpTaskAndCompleteOnInactiveTextPrinter(u8 taskId)
 static void FreeMonSpriteAfterFaintAnim(void)
 {
     u16 species;
-    if (gSprites[gBattlerSpriteIds[gActiveBattler]].pos1.y + gSprites[gBattlerSpriteIds[gActiveBattler]].pos2.y > DISPLAY_HEIGHT)
+    if (gSprites[gBattlerSpriteIds[gActiveBattler]].pos1.y + gSprites[gBattlerSpriteIds[gActiveBattler]].pos2.y > DISPLAY_HEIGHT) 
+    {
         species = GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_SPECIES);
         FreeMonSpriteAfterFaintAnimInternal(species);
         PlayerBufferExecCompleted();
+    }
 }
 
 // Maybe we can re-use this to remove sprites for the unused second mon
