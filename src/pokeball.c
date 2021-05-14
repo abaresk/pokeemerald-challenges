@@ -780,6 +780,8 @@ static void SpriteCB_ReleaseMonFromBall(struct Sprite *sprite)
 
         if (!IsDoubleBattle() || !gBattleSpritesDataPtr->animationData->introAnimActive)
             wantedCryCase = 0;
+        else if (DoubleBattleNonMulti() && GetBattlerSide(battlerId) == B_SIDE_PLAYER)
+            wantedCryCase = 0;
         else if (battlerId == GetBattlerAtPosition(B_POSITION_PLAYER_LEFT) || battlerId == GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT))
             wantedCryCase = 1;
         else
