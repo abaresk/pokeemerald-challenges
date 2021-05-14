@@ -298,7 +298,7 @@ static void CreateHealthboxSprite(u8 battler)
             UpdateHealthboxAttribute(gHealthboxSpriteIds[battler], &gEnemyParty[gBattlerPartyIndexes[battler]], HEALTHBOX_ALL);
         else if (gBattleTypeFlags & BATTLE_TYPE_SAFARI)
             UpdateHealthboxAttribute(gHealthboxSpriteIds[battler], &gPlayerParty[gBattlerPartyIndexes[battler]], HEALTHBOX_SAFARI_ALL_TEXT);
-        else
+        else if (!(DoubleBattleNonMulti() && GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT))
             UpdateHealthboxAttribute(gHealthboxSpriteIds[battler], &gPlayerParty[gBattlerPartyIndexes[battler]], HEALTHBOX_ALL);
 
         if (GetBattlerPosition(battler) == B_POSITION_OPPONENT_RIGHT || GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT)
