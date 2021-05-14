@@ -1895,6 +1895,8 @@ bool8 HandleFaintedMonActions(void)
             gBattleStruct->faintedActionsState++;
             for (i = 0; i < gBattlersCount; i++)
             {
+                if (DoubleBattleNonMulti() && GetBattlerPosition(i) == B_POSITION_PLAYER_RIGHT)
+                    continue;
                 if (gAbsentBattlerFlags & gBitTable[i] && !HasNoMonsToSwitch(i, PARTY_SIZE, PARTY_SIZE))
                     gAbsentBattlerFlags &= ~(gBitTable[i]);
             }
@@ -2272,9 +2274,6 @@ bool8 HasNoMonsToSwitch(u8 battler, u8 partyIdBattlerOn1, u8 partyIdBattlerOn2)
     if (!(gBattleTypeFlags & BATTLE_TYPE_DOUBLE))
         return FALSE;
 
-    if (DoubleBattleNonMulti() && GetBattlerPosition(battler) == B_POSITION_PLAYER_RIGHT)
-        return TRUE;
-
     if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER)
     {
         if (GetBattlerSide(battler) == B_SIDE_PLAYER)
@@ -2349,6 +2348,25 @@ bool8 HasNoMonsToSwitch(u8 battler, u8 partyIdBattlerOn1, u8 partyIdBattlerOn2)
                 break;
         }
         return (i == id1 + 3);
+    }
+    else if (DoubleBattleNonMulti() && GetBattlerSide(battler) == B_SIDE_PLAYER)
+    {
+        party = gPlayerParty;
+        id1 = GetBattlerPosition(B_POSITION_PLAYER_LEFT);
+
+        if (partyIdBattlerOn1 == PARTY_SIZE)
+            partyIdBattlerOn1 = gBattlerPartyIndexes[id1];
+
+        for (i = 0; i < PARTY_SIZE; i++)
+        {
+            if (GetMonData(&party[i], MON_DATA_HP) != 0
+             && GetMonData(&party[i], MON_DATA_SPECIES2) != SPECIES_NONE
+             && GetMonData(&party[i], MON_DATA_SPECIES2) != SPECIES_EGG
+             && i != partyIdBattlerOn1 
+             && i != gBattleStruct->monToSwitchIntoId[id1])
+                break;
+        }
+        return (i == PARTY_SIZE);
     }
     else
     {
