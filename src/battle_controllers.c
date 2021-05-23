@@ -24,6 +24,7 @@ static void CreateTasksForSendRecvLinkBuffers(void);
 static void InitLinkBtlControllers(void);
 static void InitSinglePlayerBtlControllers(void);
 static void SetBattlePartyIds(void);
+static u8 FirstUnusableMon(void);
 static void Task_HandleSendLinkBuffersData(u8 taskId);
 static void Task_HandleCopyReceivedLinkBuffersData(u8 taskId);
 
@@ -646,12 +647,26 @@ static void SetBattlePartyIds(void)
 
         // If player has one mon, make party index invalid
         if (gPlayerMonsCount == 1) {
-            gBattlerPartyIndexes[B_POSITION_PLAYER_RIGHT] = 1;
+            gBattlerPartyIndexes[B_POSITION_PLAYER_RIGHT] = FirstUnusableMon();
         }
 
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
             gBattlerPartyIndexes[1] = 0, gBattlerPartyIndexes[3] = 3;
     }
+}
+
+static u8 FirstUnusableMon(void) {
+    s32 i;
+
+    for (i = 0; i < PARTY_SIZE; i++) {
+        if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2) == SPECIES_NONE ||
+            GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2) == SPECIES_EGG ||
+            GetMonData(&gPlayerParty[i], MON_DATA_HP) == 0)
+        {
+            return i;
+        }
+    }
+    return 0;
 }
 
 static void PrepareBufferDataTransfer(u8 bufferId, u8 *data, u16 size)
