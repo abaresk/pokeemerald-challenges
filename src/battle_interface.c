@@ -864,15 +864,11 @@ u8 CreateBattlerHealthboxSprites(u8 battlerId)
     u8 healthboxLeftSpriteId, healthboxRightSpriteId;
     u8 healthbarSpriteId;
     struct Sprite *healthBarSpritePtr;
-    // // Fix (maybe): seems to fix random HP bar from hovering over main HP box
-    // if (DoubleBattleNonMulti() && GetBattlerPosition(battlerId) == B_POSITION_PLAYER_RIGHT)
-    //     return B_POSITION_PLAYER_RIGHT;
-
-    // if (!UseDoubleBattleCoords(battlerId))
+    // Single battle healthbox
     if (!IsDoubleBattle() || (DoubleBattleNonMulti() && GetBattlerSide(battlerId) == B_SIDE_PLAYER))
     {
         if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
-        { // BUG (maybe): Creates a healthbox sprite for PLAYER_RIGHT even though we won't use it.
+        {
             healthboxLeftSpriteId = CreateSprite(&sHealthboxPlayerSpriteTemplates[0], DISPLAY_WIDTH, DISPLAY_HEIGHT, 1);
             healthboxRightSpriteId = CreateSpriteAtEnd(&sHealthboxPlayerSpriteTemplates[0], DISPLAY_WIDTH, DISPLAY_HEIGHT, 1);
 

@@ -102,10 +102,10 @@ void HasEnoughMonsForDoubleBattle(void)
     case PLAYER_HAS_TWO_USABLE_MONS:
         gSpecialVar_Result = PLAYER_HAS_TWO_USABLE_MONS;
         break;
-    case PLAYER_HAS_ONE_MON: // One mon is enough
+    case PLAYER_HAS_ONE_MON:
         gSpecialVar_Result = PLAYER_HAS_TWO_USABLE_MONS;
         break;
-    case PLAYER_HAS_ONE_USABLE_MON: // One mon is enough
+    case PLAYER_HAS_ONE_USABLE_MON:
         gSpecialVar_Result = PLAYER_HAS_TWO_USABLE_MONS;
         break;
     }

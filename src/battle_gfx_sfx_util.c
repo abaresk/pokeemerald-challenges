@@ -760,23 +760,6 @@ bool8 BattleLoadAllHealthBoxesGfx(u8 state)
             else
                 retVal = TRUE;
         }
-        // else if (DoubleBattleNonMulti())
-        // {
-        //     if (state == 2)
-        //         LoadCompressedSpriteSheet(&sSpriteSheet_SinglesPlayerHealthbox);
-        //     else if (state == 3)
-        //         LoadCompressedSpriteSheet(&sSpriteSheets_DoublesOpponentHealthbox[0]);
-        //     else if (state == 4)
-        //         LoadCompressedSpriteSheet(&sSpriteSheets_DoublesOpponentHealthbox[1]);
-        //     else if (state == 5)
-        //         LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[B_POSITION_PLAYER_LEFT]]);
-        //     else if (state == 6)
-        //         LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[B_POSITION_OPPONENT_LEFT]]);
-        //     else if (state == 7)
-        //         LoadCompressedSpriteSheet(&sSpriteSheets_HealthBar[gBattlerPositions[B_POSITION_OPPONENT_RIGHT]]);
-        //     else
-        //         retVal = TRUE;
-        // }
         else if (DoubleBattleNonMulti())
         {
             if (state == 2)
@@ -892,7 +875,7 @@ bool8 BattleInitAllSprites(u8 *state1, u8 *battlerId)
         }
         SetHealthboxSpriteInvisible(gHealthboxSpriteIds[*battlerId]);
         (*battlerId)++;
-        if (*battlerId == gBattlersCount) // Might have to change this to 3 in case of double battles?
+        if (*battlerId == gBattlersCount)
         {
             *battlerId = 0;
             (*state1)++;

@@ -4557,7 +4557,6 @@ void RemoveBattleMonPPBonus(struct BattlePokemon *mon, u8 moveIndex)
     mon->ppBonuses &= gPPUpSetMask[moveIndex];
 }
 
-// Here is where party data is copied over for player for revives
 void CopyPlayerPartyMonToBattleData(u8 battlerId, u8 partyIndex)
 {
     u16* hpSwitchout;
@@ -4935,20 +4934,6 @@ bool8 PokemonUseItemEffects(struct Pokemon *mon, u16 item, u8 partyIndex, u8 mov
                                     gBattleResults.numRevivesUsed++;
 
                                 // Reviving a mon should not open up a spot to switch in during double battles
-                                // if (battlerId != MAX_BATTLERS_COUNT)
-                                // {
-                                //     gAbsentBattlerFlags &= ~gBitTable[battlerId];
-                                //     CopyPlayerPartyMonToBattleData(battlerId, GetPartyIdFromBattlePartyId(gBattlerPartyIndexes[battlerId]));
-                                //     if (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER && gBattleResults.numRevivesUsed < 255)
-                                //         gBattleResults.numRevivesUsed++;
-                                // }
-                                // else
-                                // {
-                                //     // If partner was absent (dead) mark it as present
-                                //     gAbsentBattlerFlags &= ~gBitTable[gActiveBattler ^ 2];
-                                //     if (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER && gBattleResults.numRevivesUsed < 255)
-                                //         gBattleResults.numRevivesUsed++;
-                                // }
                             }
                         }
                         else

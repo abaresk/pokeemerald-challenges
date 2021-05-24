@@ -545,8 +545,8 @@ static void OpponentHandleGetMonData(void)
     s32 i;
 
     if (gBattleBufferA[gActiveBattler][2] == 0)
-    {   // gBattlerPartyIndexes points to which party mon are out in battle
-        size += GetOpponentMonData(gBattlerPartyIndexes[gActiveBattler], monData); // This fills monData with enemy data
+    {
+        size += GetOpponentMonData(gBattlerPartyIndexes[gActiveBattler], monData);
     }
     else
     {
@@ -558,7 +558,9 @@ static void OpponentHandleGetMonData(void)
             monToCheck >>= 1;
         }
     }
-    BtlController_EmitDataTransfer(1, size, monData); // This emits the enemy's mon to gBattleBufferB
+
+    // Emits the enemy's mon to gBattleBufferB
+    BtlController_EmitDataTransfer(1, size, monData);
     OpponentBufferExecCompleted();
 }
 
@@ -1173,7 +1175,7 @@ static void StartSendOutAnim(u8 battlerId, bool8 dontClearSubstituteBit)
     BattleLoadOpponentMonSpriteGfx(&gEnemyParty[gBattlerPartyIndexes[battlerId]], battlerId);
     SetMultiuseSpriteTemplateToPokemon(species, GetBattlerPosition(battlerId));
 
-    gBattlerSpriteIds[battlerId] = CreateSprite(&gMultiuseSpriteTemplate, // Right mon is pointing to sprite 0 - maybe that's the issue?
+    gBattlerSpriteIds[battlerId] = CreateSprite(&gMultiuseSpriteTemplate,
                                         GetBattlerSpriteCoord(battlerId, 2),
                                         GetBattlerSpriteDefault_Y(battlerId),
                                         GetBattlerSpriteSubpriority(battlerId));

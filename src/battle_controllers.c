@@ -91,7 +91,7 @@ void InitBattleControllers(void)
     else
         InitSinglePlayerBtlControllers();
 
-    SetBattlePartyIds(); // Here is where gBattlerPartyIndexes gets set
+    SetBattlePartyIds();
 
     if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI))
     {
@@ -585,7 +585,6 @@ static void SetBattlePartyIds(void)
 
     if (!(gBattleTypeFlags & BATTLE_TYPE_MULTI))
     {
-        // Seems like gBattlerPartyIndexes marks where in party the on-screen battlers are
         for (i = 0; i < gBattlersCount; i++)
         {
             for (j = 0; j < PARTY_SIZE; j++)
@@ -645,7 +644,7 @@ static void SetBattlePartyIds(void)
             }
         }
 
-        // If player has one mon, make party index invalid
+        // If player has one mon, find a valid index for second mon.
         if (gPlayerMonsCount == 1) {
             gBattlerPartyIndexes[B_POSITION_PLAYER_RIGHT] = FirstUnusableMon();
         }

@@ -4813,7 +4813,7 @@ static void ChooseMonToSendOut(u8 slotId)
     MarkBattlerForControllerExec(gActiveBattler);
 }
 
-static void Cmd_openpartyscreen(void) // Here's where we will force player party screen to use single battle mode
+static void Cmd_openpartyscreen(void)
 {
     u32 flags;
     u8 hitmarkerFaintBits;
