@@ -52,6 +52,11 @@ struct SpeciesItem
     u16 item;
 };
 
+typedef struct {
+    u16 move;
+    u8 pp;
+} MovePP;
+
 // this file's functions
 static u16 CalculateBoxMonChecksum(struct BoxPokemon *boxMon);
 static union PokemonSubstruct *GetSubstruct(struct BoxPokemon *boxMon, u32 personality, u8 substructType);
@@ -61,6 +66,9 @@ static void Task_PlayMapChosenOrBattleBGM(u8 taskId);
 static bool8 ShouldGetStatBadgeBoost(u16 flagId, u8 battlerId);
 static u16 GiveMoveToBoxMon(struct BoxPokemon *boxMon, u16 move);
 static bool8 ShouldSkipFriendshipChange(void);
+static void EnsureOnlyOneMove(struct Pokemon *);
+static MovePP MostRecentMove(struct Pokemon *);
+static void SetMoveData(struct Pokemon *, MovePP *);
 
 // EWRAM vars
 EWRAM_DATA static u8 sLearningMoveTableID = 0;
@@ -4321,6 +4329,7 @@ u8 GiveMonToPlayer(struct Pokemon *mon)
     SetMonData(mon, MON_DATA_OT_NAME, gSaveBlock2Ptr->playerName);
     SetMonData(mon, MON_DATA_OT_GENDER, &gSaveBlock2Ptr->playerGender);
     SetMonData(mon, MON_DATA_OT_ID, gSaveBlock2Ptr->playerTrainerId);
+    EnsureOnlyOneMove(mon);
 
     for (i = 0; i < PARTY_SIZE; i++)
     {
@@ -6210,6 +6219,40 @@ u8 GetNumberOfRelearnableMoves(struct Pokemon *mon)
     }
 
     return numMoves;
+}
+
+static void EnsureOnlyOneMove(struct Pokemon *mon) {
+    u16 move;
+    MovePP moves[MAX_MON_MOVES] = {0};
+
+    moves[0] = MostRecentMove(mon);
+    SetMoveData(mon, moves);
+}
+
+static MovePP MostRecentMove(struct Pokemon *mon) {
+    s32 i;
+    u16 move;
+    u8 pp;
+    MovePP lastMove = {0};
+    
+    for (i = 0; i < MAX_MON_MOVES; i++) {
+        move = GetMonData(mon, MON_DATA_MOVE1 + i, NULL);
+        pp = GetMonData(mon, MON_DATA_PP1 + i, NULL);
+        if (move == MOVE_NONE) {
+            break;
+        }
+        lastMove = (MovePP) { .move = move, .pp = pp };
+    }
+    return lastMove;
+}
+
+static void SetMoveData(struct Pokemon *mon, MovePP *moves) {
+    s32 i;
+    
+    for (i = 0; i < MAX_MON_MOVES; i++) {
+        SetMonData(mon, MON_DATA_MOVE1 + i, &moves[i].move);
+        SetMonData(mon, MON_DATA_PP1 + i, &moves[i].pp);
+    }
 }
 
 u16 SpeciesToPokedexNum(u16 species)
