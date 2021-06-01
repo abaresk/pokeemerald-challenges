@@ -52,11 +52,6 @@ struct SpeciesItem
     u16 item;
 };
 
-typedef struct {
-    u16 move;
-    u8 pp;
-} MovePP;
-
 // this file's functions
 static u16 CalculateBoxMonChecksum(struct BoxPokemon *boxMon);
 static union PokemonSubstruct *GetSubstruct(struct BoxPokemon *boxMon, u32 personality, u8 substructType);

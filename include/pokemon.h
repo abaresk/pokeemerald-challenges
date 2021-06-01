@@ -247,6 +247,11 @@ struct Evolution
     | (((personality) & 0x00000003) >> 0)  \
 ) % NUM_UNOWN_FORMS)
 
+typedef struct {
+    u16 move;
+    u8 pp;
+} MovePP;
+
 extern u8 gPlayerPartyCount;
 extern struct Pokemon gPlayerParty[PARTY_SIZE];
 extern u8 gEnemyPartyCount;
