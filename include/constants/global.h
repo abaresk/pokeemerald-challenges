@@ -59,6 +59,7 @@
 
 #define TRAINER_ID_LENGTH 4
 #define MAX_MON_MOVES 4
+#define PLAYER_MAX_MON_MOVES 1
 #define NUM_STATS 6
 
 #define CONTESTANT_COUNT 4

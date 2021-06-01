@@ -4680,7 +4680,7 @@ void ItemUseCB_TMHM(u8 taskId, TaskFunc task)
         return;
     }
 
-    if (GiveMoveToMon(mon, move[0]) != MON_HAS_MAX_MOVES)
+    if (GiveMoveToMon(mon, move[0], PLAYER_MAX_MON_MOVES) != MON_HAS_MAX_MOVES)
     {
         gTasks[taskId].func = Task_LearnedMove;
     }
@@ -5260,7 +5260,7 @@ static void TryTutorSelectedMon(u8 taskId)
             DisplayLearnMoveMessageAndClose(taskId, gText_PkmnAlreadyKnows);
             return;
         default:
-            if (GiveMoveToMon(mon, gPartyMenu.data1) != MON_HAS_MAX_MOVES)
+            if (GiveMoveToMon(mon, gPartyMenu.data1, PLAYER_MAX_MON_MOVES) != MON_HAS_MAX_MOVES)
             {
                 Task_LearnedMove(taskId);
                 return;

@@ -64,7 +64,7 @@ static void EncryptBoxMon(struct BoxPokemon *boxMon);
 static void DecryptBoxMon(struct BoxPokemon *boxMon);
 static void Task_PlayMapChosenOrBattleBGM(u8 taskId);
 static bool8 ShouldGetStatBadgeBoost(u16 flagId, u8 battlerId);
-static u16 GiveMoveToBoxMon(struct BoxPokemon *boxMon, u16 move);
+static u16 GiveMoveToBoxMon(struct BoxPokemon *boxMon, u16 move, u8 maxMoves);
 static bool8 ShouldSkipFriendshipChange(void);
 static void EnsureOnlyOneMove(struct Pokemon *);
 static MovePP MostRecentMove(struct Pokemon *);
@@ -2893,15 +2893,15 @@ u8 GetLevelFromBoxMonExp(struct BoxPokemon *boxMon)
     return level - 1;
 }
 
-u16 GiveMoveToMon(struct Pokemon *mon, u16 move)
+u16 GiveMoveToMon(struct Pokemon *mon, u16 move, u8 maxMoves)
 {
-    return GiveMoveToBoxMon(&mon->box, move);
+    return GiveMoveToBoxMon(&mon->box, move, maxMoves);
 }
 
-static u16 GiveMoveToBoxMon(struct BoxPokemon *boxMon, u16 move)
+static u16 GiveMoveToBoxMon(struct BoxPokemon *boxMon, u16 move, u8 maxMoves)
 {
     s32 i;
-    for (i = 0; i < MAX_MON_MOVES; i++)
+    for (i = 0; i < maxMoves; i++)
     {
         u16 existingMove = GetBoxMonData(boxMon, MON_DATA_MOVE1 + i, NULL);
         if (existingMove == MOVE_NONE)
@@ -2968,7 +2968,7 @@ void GiveBoxMonInitialMoveset(struct BoxPokemon *boxMon)
 
         move = (gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID);
 
-        if (GiveMoveToBoxMon(boxMon, move) == MON_HAS_MAX_MOVES)
+        if (GiveMoveToBoxMon(boxMon, move, MAX_MON_MOVES) == MON_HAS_MAX_MOVES)
             DeleteFirstMoveAndGiveMoveToBoxMon(boxMon, move);
     }
 }
@@ -2999,37 +2999,20 @@ u16 MonTryLearningNewMove(struct Pokemon *mon, bool8 firstMove)
     {
         gMoveToLearn = (gLevelUpLearnsets[species][sLearningMoveTableID] & LEVEL_UP_MOVE_ID);
         sLearningMoveTableID++;
-        retVal = GiveMoveToMon(mon, gMoveToLearn);
+        retVal = GiveMoveToMon(mon, gMoveToLearn, PLAYER_MAX_MON_MOVES);
     }
 
     return retVal;
 }
 
-void DeleteFirstMoveAndGiveMoveToMon(struct Pokemon *mon, u16 move)
+void SetOnlyMove(struct Pokemon *mon, u16 move)
 {
-    s32 i;
-    u16 moves[MAX_MON_MOVES];
-    u8 pp[MAX_MON_MOVES];
-    u8 ppBonuses;
+    MovePP moves[MAX_MON_MOVES] = {0};
 
-    for (i = 0; i < MAX_MON_MOVES - 1; i++)
-    {
-        moves[i] = GetMonData(mon, MON_DATA_MOVE2 + i, NULL);
-        pp[i] = GetMonData(mon, MON_DATA_PP2 + i, NULL);
-    }
+    moves[0].move = move;
+    moves[0].pp = gBattleMoves[move].pp;
 
-    ppBonuses = GetMonData(mon, MON_DATA_PP_BONUSES, NULL);
-    ppBonuses >>= 2;
-    moves[3] = move;
-    pp[3] = gBattleMoves[move].pp;
-
-    for (i = 0; i < MAX_MON_MOVES; i++)
-    {
-        SetMonData(mon, MON_DATA_MOVE1 + i, &moves[i]);
-        SetMonData(mon, MON_DATA_PP1 + i, &pp[i]);
-    }
-
-    SetMonData(mon, MON_DATA_PP_BONUSES, &ppBonuses);
+    SetMoveData(mon, moves);
 }
 
 void DeleteFirstMoveAndGiveMoveToBoxMon(struct BoxPokemon *boxMon, u16 move)

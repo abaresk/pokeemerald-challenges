@@ -227,7 +227,7 @@ static void ApplyDaycareExperience(struct Pokemon *mon)
             {
                 firstMove = FALSE;
                 if (learnedMove == MON_HAS_MAX_MOVES)
-                    DeleteFirstMoveAndGiveMoveToMon(mon, gMoveToLearn);
+                    SetOnlyMove(mon, gMoveToLearn);
             }
         }
         else
@@ -666,8 +666,8 @@ static void BuildEggMoveset(struct Pokemon *egg, struct BoxPokemon *father, stru
             {
                 if (sHatchedEggFatherMoves[i] == sHatchedEggEggMoves[j])
                 {
-                    if (GiveMoveToMon(egg, sHatchedEggFatherMoves[i]) == MON_HAS_MAX_MOVES)
-                        DeleteFirstMoveAndGiveMoveToMon(egg, sHatchedEggFatherMoves[i]);
+                    if (GiveMoveToMon(egg, sHatchedEggFatherMoves[i], PLAYER_MAX_MON_MOVES) == MON_HAS_MAX_MOVES)
+                        SetOnlyMove(egg, sHatchedEggFatherMoves[i]);
                     break;
                 }
             }
@@ -685,8 +685,8 @@ static void BuildEggMoveset(struct Pokemon *egg, struct BoxPokemon *father, stru
             {
                 if (sHatchedEggFatherMoves[i] == ItemIdToBattleMoveId(ITEM_TM01_FOCUS_PUNCH + j) && CanMonLearnTMHM(egg, j))
                 {
-                    if (GiveMoveToMon(egg, sHatchedEggFatherMoves[i]) == MON_HAS_MAX_MOVES)
-                        DeleteFirstMoveAndGiveMoveToMon(egg, sHatchedEggFatherMoves[i]);
+                    if (GiveMoveToMon(egg, sHatchedEggFatherMoves[i], PLAYER_MAX_MON_MOVES) == MON_HAS_MAX_MOVES)
+                        SetOnlyMove(egg, sHatchedEggFatherMoves[i]);
                 }
             }
         }
@@ -710,8 +710,8 @@ static void BuildEggMoveset(struct Pokemon *egg, struct BoxPokemon *father, stru
         {
             if (sHatchedEggLevelUpMoves[j] != MOVE_NONE && sHatchedEggFinalMoves[i] == sHatchedEggLevelUpMoves[j])
             {
-                if (GiveMoveToMon(egg, sHatchedEggFinalMoves[i]) == MON_HAS_MAX_MOVES)
-                    DeleteFirstMoveAndGiveMoveToMon(egg, sHatchedEggFinalMoves[i]);
+                if (GiveMoveToMon(egg, sHatchedEggFinalMoves[i], PLAYER_MAX_MON_MOVES) == MON_HAS_MAX_MOVES)
+                    SetOnlyMove(egg, sHatchedEggFinalMoves[i]);
                 break;
             }
         }
@@ -755,8 +755,8 @@ static void GiveVoltTackleIfLightBall(struct Pokemon *mon, struct DayCare *dayca
 
     if (motherItem == ITEM_LIGHT_BALL || fatherItem == ITEM_LIGHT_BALL)
     {
-        if (GiveMoveToMon(mon, MOVE_VOLT_TACKLE) == MON_HAS_MAX_MOVES)
-            DeleteFirstMoveAndGiveMoveToMon(mon, MOVE_VOLT_TACKLE);
+        if (GiveMoveToMon(mon, MOVE_VOLT_TACKLE, PLAYER_MAX_MON_MOVES) == MON_HAS_MAX_MOVES)
+            SetOnlyMove(mon, MOVE_VOLT_TACKLE);
     }
 }
 
