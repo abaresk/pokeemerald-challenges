@@ -20,4 +20,6 @@ u16 Random2(void);
 void SeedRng(u16 seed);
 void SeedRng2(u16 seed);
 
+u32 AdvanceSeed(u32 seed, u32 frames);
+
 #endif // GUARD_RANDOM_H

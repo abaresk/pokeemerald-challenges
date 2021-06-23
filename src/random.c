@@ -31,3 +31,13 @@ u16 Random2(void)
     gRng2Value = ISO_RANDOMIZE1(gRng2Value);
     return gRng2Value >> 16;
 }
+
+u32 AdvanceSeed(u32 seed, u32 frames) {
+    s32 i;
+    u32 value = seed;
+
+    for (i = 0; i < frames; i++) {
+        value = ISO_RANDOMIZE1(value);
+    }
+    return value;
+}

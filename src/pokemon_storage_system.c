@@ -9668,6 +9668,16 @@ bool32 AnyStorageMonWithMove(u16 moveId)
     return FALSE;
 }
 
+void BoxMons_ForEach(void (*f)(BoxPokemon *, void *), void *data) {
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < TOTAL_BOXES_COUNT; i++) {
+        for (j = 0; j < IN_BOX_COUNT; j++) {
+            f(&gPokemonStoragePtr->boxes[i][j], data);
+        }
+    }
+}
 
 //------------------------------------------------------------------------------
 //  SECTION: Walda

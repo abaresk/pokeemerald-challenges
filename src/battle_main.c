@@ -34,11 +34,13 @@
 #include "pokeball.h"
 #include "pokedex.h"
 #include "pokemon.h"
+#include "pokemon_storage_system.h"
 #include "random.h"
 #include "recorded_battle.h"
 #include "roamer.h"
 #include "safari_zone.h"
 #include "scanline_effect.h"
+#include "script_pokemon_util.h"
 #include "sound.h"
 #include "sprite.h"
 #include "string_util.h"
@@ -76,6 +78,16 @@ static void CB2_HandleStartMultiBattle(void);
 static void CB2_HandleStartBattle(void);
 static void TryCorrectShedinjaLanguage(struct Pokemon *mon);
 static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 firstTrainer);
+static void StealMonFromPlayer(u16 trainerId);
+static void StealFromParty(u32 trainerPersonality, Pokemon *dest);
+static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest);
+static void GiveMonToOpponent(Pokemon *mon);
+static Pokemon *FavoritePartyMon(u32 trainerPersonality);
+static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality);
+static void FavoriteBoxMon_iter(BoxPokemon *mon, void * data);
+static void LeastFavoriteBoxMon_iter(BoxPokemon *mon, void * data);
+static u8 CountPlayerPartyMons(void);
+static u32 GetTrainerPersonality(u16 trainerId);
 static void BattleMainCB1(void);
 static void sub_8038538(struct Sprite *sprite);
 static void CB2_EndLinkBattle(void);
@@ -246,6 +258,12 @@ u8 gHealthboxSpriteIds[MAX_BATTLERS_COUNT];
 u8 gMultiUsePlayerCursor;
 u8 gNumberOfMovesToChoose;
 u8 gBattleControllerData[MAX_BATTLERS_COUNT]; // Used by the battle controllers to store misc sprite/task IDs for each battler
+
+typedef struct {
+    u32 trainerPersonality; // Immutable
+    BoxPokemon *mon;        // Mutable
+    u32 value;              // Mutable
+} BoxMonIter;
 
 // rom const data
 static const struct ScanlineEffectParams sIntroScanlineParams16Bit =
@@ -682,9 +700,17 @@ static void CB2_InitBattleInternal(void)
 
     if (!(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED)))
     {
+        // Create enemy party here
         CreateNPCTrainerParty(&gEnemyParty[0], gTrainerBattleOpponent_A, TRUE);
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
             CreateNPCTrainerParty(&gEnemyParty[3], gTrainerBattleOpponent_B, FALSE);
+        
+        // Take mon from player and give to opponent
+        StealMonFromPlayer(gTrainerBattleOpponent_A);
+        if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) {
+            StealMonFromPlayer(gTrainerBattleOpponent_B);
+        }
+
         SetWildMonHeldItem();
     }
 
@@ -1958,27 +1984,13 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
 
         for (i = 0; i < monsCount; i++)
         {
-
-            if (gTrainers[trainerNum].doubleBattle == TRUE)
-                personalityValue = 0x80;
-            else if (gTrainers[trainerNum].encounterMusic_gender & 0x80)
-                personalityValue = 0x78;
-            else
-                personalityValue = 0x88;
-
-            for (j = 0; gTrainers[trainerNum].trainerName[j] != EOS; j++)
-                nameHash += gTrainers[trainerNum].trainerName[j];
-
+            personalityValue = Random32();
             switch (gTrainers[trainerNum].partyFlags)
             {
             case 0:
             {
                 const struct TrainerMonNoItemDefaultMoves *partyData = gTrainers[trainerNum].party.NoItemDefaultMoves;
 
-                for (j = 0; gSpeciesNames[partyData[i].species][j] != EOS; j++)
-                    nameHash += gSpeciesNames[partyData[i].species][j];
-
-                personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
                 CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
                 break;
@@ -1987,10 +1999,6 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
             {
                 const struct TrainerMonNoItemCustomMoves *partyData = gTrainers[trainerNum].party.NoItemCustomMoves;
 
-                for (j = 0; gSpeciesNames[partyData[i].species][j] != EOS; j++)
-                    nameHash += gSpeciesNames[partyData[i].species][j];
-
-                personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
                 CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
 
@@ -2005,10 +2013,6 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
             {
                 const struct TrainerMonItemDefaultMoves *partyData = gTrainers[trainerNum].party.ItemDefaultMoves;
 
-                for (j = 0; gSpeciesNames[partyData[i].species][j] != EOS; j++)
-                    nameHash += gSpeciesNames[partyData[i].species][j];
-
-                personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
                 CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
 
@@ -2019,10 +2023,6 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
             {
                 const struct TrainerMonItemCustomMoves *partyData = gTrainers[trainerNum].party.ItemCustomMoves;
 
-                for (j = 0; gSpeciesNames[partyData[i].species][j] != EOS; j++)
-                    nameHash += gSpeciesNames[partyData[i].species][j];
-
-                personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
                 CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
 
@@ -2042,6 +2042,147 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
     }
 
     return gTrainers[trainerNum].partySize;
+}
+
+static void StealMonFromPlayer(u16 trainerId) {
+    Pokemon *mon = NULL;
+    u32 trainerPersonality = GetTrainerPersonality(trainerId);
+
+    if (CountPlayerPartyMons() > 1) {
+        StealFromParty(trainerPersonality, mon);
+    } else {
+        StealFromBoxes(trainerPersonality, mon);
+    }
+
+    HealPokemon(mon);
+    GiveMonToOpponent(mon);
+}
+
+static void StealFromParty(u32 trainerPersonality, Pokemon *dest) {
+    // Pick a mon
+    Pokemon *mon = FavoritePartyMon(trainerPersonality);
+
+    // Copy mon data
+    *dest = *mon;
+
+    // Remove mon from party
+    ZeroMonData(mon);
+}
+
+static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest) {
+    BoxPokemon *mon;
+    BoxMonIter iter = {
+        .trainerPersonality = trainerPersonality,
+        .mon = NULL,
+        .value = 0
+    };
+
+    // Pick a mon
+    BoxMons_ForEach(FavoriteBoxMon_iter, &iter);
+    mon = iter.mon;
+
+    // Copy mon data
+    BoxMonToMon(mon, dest);
+
+    // Remove mon from box
+    ZeroBoxMonData(mon);
+}
+
+// gEnemyParty has already been initialized
+static void GiveMonToOpponent(Pokemon *mon) {
+    if (mon == NULL) {
+        return;
+    }
+
+    // TODO: Allow party sizes greater than 6. Add to party instead of
+    // overwriting.
+
+    // NOTE: The location it's inserted into should depend on 
+    // trainerPersonality.
+
+    gEnemyParty[0] = *mon;
+}
+
+static Pokemon *FavoritePartyMon(u32 trainerPersonality) {
+    u32 bestValue = 0;
+    Pokemon *bestMon = NULL;
+    s32 i;
+    u32 value;
+
+    for (i = 0; i < PARTY_SIZE; i++) {
+        Pokemon *mon = &gPlayerParty[i];
+        if (GetMonData(mon, MON_DATA_SPECIES, NULL) == SPECIES_NONE &&
+            GetMonData(mon, MON_DATA_SPECIES2, NULL) == SPECIES_EGG) {
+                continue;
+            }
+        value = GetMonData(mon, MON_DATA_PERSONALITY, NULL) ^ trainerPersonality;
+        if (value > bestValue) {
+            bestValue = value;
+            bestMon = mon;
+        }
+    }
+
+    return bestMon;
+}
+
+static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality) {
+    u32 worstValue = -1;
+    Pokemon *worstMon = NULL;
+    s32 i;
+    u32 value;
+
+    for (i = 0; i < PARTY_SIZE; i++) {
+        Pokemon *mon = &gPlayerParty[i];
+        if (GetMonData(mon, MON_DATA_SPECIES, NULL) == SPECIES_NONE &&
+            GetMonData(mon, MON_DATA_SPECIES2, NULL) == SPECIES_EGG) {
+                continue;
+            }
+        value = GetMonData(mon, MON_DATA_PERSONALITY, NULL) ^ trainerPersonality;
+        if (value < worstValue) {
+            worstValue = value;
+            worstMon = mon;
+        }
+    }
+
+    return worstMon;
+}
+
+static void FavoriteBoxMon_iter(BoxPokemon *mon, void * data) {
+    BoxMonIter *iter = (BoxMonIter *) data;
+
+    u32 value = GetBoxMonData(mon, MON_DATA_PERSONALITY) ^ iter->trainerPersonality;
+    if (value > iter->value) {
+        iter->mon = mon;
+        iter->value = value;
+    }
+}
+
+static void LeastFavoriteBoxMon_iter(BoxPokemon *mon, void * data) {
+    BoxMonIter *iter = (BoxMonIter *) data;
+
+    u32 value = GetBoxMonData(mon, MON_DATA_PERSONALITY) ^ iter->trainerPersonality;
+    if (value < iter->value) {
+        iter->mon = mon;
+        iter->value = value;
+    }
+}
+
+static u8 CountPlayerPartyMons(void) {
+    s32 i;
+    u8 aliveCount = 0;
+
+    for (i = 0; i < PARTY_SIZE; i++) {
+        if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES, NULL) != SPECIES_NONE &&
+            GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2, NULL) != SPECIES_EGG) {
+            aliveCount++;
+        }
+    }
+    return aliveCount;
+}
+
+static u32 GetTrainerPersonality(u16 trainerId) {
+    u32 seed = gSaveBlock2Ptr->trainerPersonalitySeed;
+    return AdvanceSeed(seed, trainerId);
 }
 
 void sub_8038A04(void) // unused

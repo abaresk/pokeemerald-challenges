@@ -122,6 +122,9 @@ struct Pokemon
     u16 spDefense;
 };
 
+typedef struct Pokemon Pokemon;
+typedef struct BoxPokemon BoxPokemon;
+
 struct Unknown_806F160_Struct
 {
     u32 field_0_0:4;

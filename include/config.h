@@ -34,4 +34,7 @@
 #endif
 #endif
 
+// Uncomment to stop trainers from giving you a mon back after battle.
+#define REPLACE_MONS
+
 #endif // GUARD_CONFIG_H
