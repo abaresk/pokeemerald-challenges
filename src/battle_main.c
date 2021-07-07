@@ -86,7 +86,6 @@ static Pokemon *FavoritePartyMon(u32 trainerPersonality);
 static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality);
 static void FavoriteBoxMon_iter(BoxPokemon *mon, void * data);
 static void LeastFavoriteBoxMon_iter(BoxPokemon *mon, void * data);
-static u8 CountPlayerPartyMons(void);
 static u32 GetTrainerPersonality(u16 trainerId);
 static void BattleMainCB1(void);
 static void sub_8038538(struct Sprite *sprite);
@@ -2048,7 +2047,7 @@ static void StealMonFromPlayer(u16 trainerId) {
     Pokemon *mon = NULL;
     u32 trainerPersonality = GetTrainerPersonality(trainerId);
 
-    if (CountPlayerPartyMons() > 1) {
+    if (CountPlayerBattleMons() > 1) {
         StealFromParty(trainerPersonality, mon);
     } else {
         StealFromBoxes(trainerPersonality, mon);
@@ -2165,19 +2164,6 @@ static void LeastFavoriteBoxMon_iter(BoxPokemon *mon, void * data) {
         iter->mon = mon;
         iter->value = value;
     }
-}
-
-static u8 CountPlayerPartyMons(void) {
-    s32 i;
-    u8 aliveCount = 0;
-
-    for (i = 0; i < PARTY_SIZE; i++) {
-        if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES, NULL) != SPECIES_NONE &&
-            GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2, NULL) != SPECIES_EGG) {
-            aliveCount++;
-        }
-    }
-    return aliveCount;
 }
 
 static u32 GetTrainerPersonality(u16 trainerId) {

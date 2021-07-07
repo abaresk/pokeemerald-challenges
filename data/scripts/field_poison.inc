@@ -21,6 +21,18 @@ EventScript_FieldWhiteOut:: @ 82736D9
 	waitstate
 	end
 
+EventScript_TrainerEncounterWhiteOut:: @ 82736D9
+	message gText_TrainerEncounterWhiteOut
+	waitmessage
+	waitbuttonpress
+	special Script_FadeOutMapMusic
+	waitstate
+	fadescreen FADE_TO_BLACK
+	call_if_set FLAG_WHITEOUT_TO_LAVARIDGE, EventScript_SetRespawnLavaridgePkmnCenter
+	special SetCB2WhiteOut
+	waitstate
+	end
+
 EventScript_SetRespawnLavaridgePkmnCenter:: @ 82736F4
 	setrespawn HEAL_LOCATION_LAVARIDGE_TOWN
 	return

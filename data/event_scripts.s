@@ -885,6 +885,11 @@ gText_PlayerWhitedOut:: @ 8272DE3
 	.string "{PLAYER} is out of usable\n"
 	.string "POKéMON!\p{PLAYER} whited out!$"
 
+gText_TrainerEncounterWhiteOut:: @ 8272DE3
+	.string "{PLAYER} does not have enough\n"
+	.string "POKéMON to battle!\p"
+	.string "{PLAYER} whited out!$"
+
 gText_RegisteredTrainerinPokeNav:: @ 8272E0F
 	.string "Registered {STR_VAR_1} {STR_VAR_2}\n"
 	.string "in the POKéNAV.$"

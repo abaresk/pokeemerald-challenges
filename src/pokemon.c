@@ -4396,6 +4396,32 @@ u8 CalculateEnemyPartyCount(void)
     return gEnemyPartyCount;
 }
 
+u8 CountPlayerBattleMons(void) {
+    s32 i;
+    u8 count = 0;
+
+    for (i = 0; i < PARTY_SIZE; i++) {
+        if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES, NULL) != SPECIES_NONE &&
+            GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2, NULL) != SPECIES_EGG) {
+            count++;
+        }
+    }
+    return count;
+}
+
+u8 CountEnemyBattleMons(void) {
+    s32 i;
+    u8 count = 0;
+
+    for (i = 0; i < PARTY_SIZE; i++) {
+        if (GetMonData(&gEnemyParty[i], MON_DATA_SPECIES, NULL) != SPECIES_NONE &&
+            GetMonData(&gEnemyParty[i], MON_DATA_SPECIES2, NULL) != SPECIES_EGG) {
+            count++;
+        }
+    }
+    return count;
+}
+
 u8 GetMonsStateToDoubles(void)
 {
     s32 aliveCount = 0;
