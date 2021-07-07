@@ -37,6 +37,9 @@ static u8 GetTrainerApproachDistanceEast(struct ObjectEvent *trainerObj, s16 ran
 
 static bool8 TrainerSeeIdle(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj);
 static bool8 TrainerExclamationMark(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj);
+static void StartTrainerExclamation(struct ObjectEvent *trainerObj, bool8 whiteOut);
+static void StartPlayerExclamation(struct ObjectEvent *trainerObj);
+static void StartPlayerFaceAway(struct ObjectEvent *trainerObj);
 static bool8 WaitTrainerExclamationMark(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj);
 static bool8 TryTrainerMoveToPlayer(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj);
 static bool8 PlayerFaceApproachingTrainer(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj);
@@ -51,6 +54,7 @@ static bool8 PlayerExclamationMark(u8 taskId, struct Task *task, struct ObjectEv
 static bool8 WaitPlayerExclamationMark(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj);
 static bool8 PlayerFaceAway(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj);
 static bool8 WaitPlayerFaceAway(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj);
+static bool8 WaitExclamationAndFaceAway(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj);
 
 static void SpriteCB_TrainerIcons(struct Sprite *sprite);
 
@@ -95,6 +99,7 @@ enum
     TRSEE_PLAYER_EXCLAMATION_WAIT,
     TRSEE_PLAYER_FACE_AWAY,
     TRSEE_PLAYER_FACE_AWAY_WAIT,
+    TRSEE_EXCLAMATION_FACE_AWAY_WAIT,
 };
 
 static bool8 (*const sTrainerSeeFuncList[])(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj) =
@@ -115,6 +120,7 @@ static bool8 (*const sTrainerSeeFuncList[])(u8 taskId, struct Task *task, struct
     [TRSEE_PLAYER_EXCLAMATION_WAIT] = WaitPlayerExclamationMark,
     [TRSEE_PLAYER_FACE_AWAY]        = PlayerFaceAway,
     [TRSEE_PLAYER_FACE_AWAY_WAIT]   = WaitPlayerFaceAway,
+    [TRSEE_EXCLAMATION_FACE_AWAY_WAIT] = WaitExclamationAndFaceAway,
 };
 
 static bool8 (*const sTrainerSeeFuncList2[])(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj) =
@@ -421,6 +427,7 @@ static u8 CheckPathBetweenTrainerAndPlayer(struct ObjectEvent *trainerObj, u8 ap
 }
 
 #define tFuncId             data[0]
+#define tTimer              data[2]
 #define tTrainerRange       data[3]
 #define tOutOfAshSpriteId   data[4]
 #define tNotEnoughMons      data[5]
@@ -482,14 +489,59 @@ static bool8 TrainerSeeIdle(u8 taskId, struct Task *task, struct ObjectEvent *tr
 // TRSEE_EXCLAMATION
 static bool8 TrainerExclamationMark(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj)
 {
+    if (!task->tNotEnoughMons) {
+        StartTrainerExclamation(trainerObj, task->tNotEnoughMons);
+        task->tFuncId = TRSEE_EXCLAMATION_WAIT;
+        return TRUE;
+    }
+
+    if (task->tTimer == 0) {
+        StartTrainerExclamation(trainerObj, task->tNotEnoughMons);
+    } else if (task->tTimer == 14) {
+        StartPlayerExclamation(trainerObj);
+    } else if (task->tTimer == 26) {
+        task->tFuncId = TRSEE_PLAYER_FACE_AWAY;
+    }
+
+    task->tTimer++;
+    return FALSE;
+}
+
+static void StartTrainerExclamation(struct ObjectEvent *trainerObj, bool8 whiteOut) {
     u8 direction;
 
     ObjectEventGetLocalIdAndMap(trainerObj, &gFieldEffectArguments[0], &gFieldEffectArguments[1], &gFieldEffectArguments[2]);
     FieldEffectStart(FLDEFF_EXCLAMATION_MARK_ICON);
+
+    if (!whiteOut) {
+        direction = GetFaceDirectionMovementAction(trainerObj->facingDirection);
+        ObjectEventSetHeldMovement(trainerObj, direction);
+    }
+}
+
+static void StartPlayerExclamation(struct ObjectEvent *trainerObj) {
+    u8 direction;
+
+    // Set field args corresponding to player object
+    gFieldEffectArguments[0] = OBJ_EVENT_ID_PLAYER;
+    gFieldEffectArguments[1] = 0;
+    gFieldEffectArguments[2] = 0;
+
+    FieldEffectStart(FLDEFF_EXCLAMATION_MARK_ICON);
     direction = GetFaceDirectionMovementAction(trainerObj->facingDirection);
     ObjectEventSetHeldMovement(trainerObj, direction);
-    task->tFuncId++; // TRSEE_EXCLAMATION_WAIT
-    return TRUE;
+}
+
+static void StartPlayerFaceAway(struct ObjectEvent *trainerObj) {
+    struct ObjectEvent *playerObj = &gObjectEvents[gPlayerAvatar.objectEventId];
+
+    // // Set trainer's movement type so they stop and remain facing that direction
+    // SetTrainerMovementType(trainerObj, GetTrainerFacingDirectionMovementType(trainerObj->facingDirection));
+    // TryOverrideTemplateCoordsForObjectEvent(trainerObj, GetTrainerFacingDirectionMovementType(trainerObj->facingDirection));
+    // OverrideTemplateCoordsForObjectEvent(trainerObj);
+
+    // sub_808BCE8();
+    ObjectEventSetHeldMovement(&gObjectEvents[gPlayerAvatar.objectEventId], GetFaceDirectionMovementAction(trainerObj->facingDirection));
 }
 
 // TRSEE_EXCLAMATION_WAIT
@@ -506,6 +558,10 @@ static bool8 WaitTrainerExclamationMark(u8 taskId, struct Task *task, struct Obj
             task->tFuncId = TRSEE_REVEAL_DISGUISE;
         if (trainerObj->movementType == MOVEMENT_TYPE_BURIED)
             task->tFuncId = TRSEE_REVEAL_BURIED;
+        if (task->tNotEnoughMons) {
+            task->tFuncId = TRSEE_PLAYER_FACE_AWAY;
+            SwitchTaskToFollowupFunc(taskId);
+        }
         return TRUE;
     }
 }
@@ -513,12 +569,6 @@ static bool8 WaitTrainerExclamationMark(u8 taskId, struct Task *task, struct Obj
 // TRSEE_MOVE_TO_PLAYER
 static bool8 TryTrainerMoveToPlayer(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj)
 {
-    // If player has one mon
-    if (task->tNotEnoughMons) {
-        task->tFuncId = TRSEE_PLAYER_EXCLAMATION;
-        return TRUE;
-    }
-
     if (!ObjectEventIsMovementOverridden(trainerObj) || ObjectEventClearHeldMovementIfFinished(trainerObj))
     {
         if (task->tTrainerRange)
@@ -695,7 +745,7 @@ static bool8 PlayerFaceAway(u8 taskId, struct Task *task, struct ObjectEvent *tr
 
     sub_808BCE8();
     ObjectEventSetHeldMovement(&gObjectEvents[gPlayerAvatar.objectEventId], GetFaceDirectionMovementAction(trainerObj->facingDirection));
-    task->tFuncId = TRSEE_PLAYER_FACE_AWAY_WAIT;
+    task->tFuncId = TRSEE_EXCLAMATION_FACE_AWAY_WAIT;
     return FALSE;
 }
 
@@ -710,8 +760,23 @@ static bool8 WaitPlayerFaceAway(u8 taskId, struct Task *task, struct ObjectEvent
     return FALSE;
 }
 
+// TRSEE_EXCLAMATION_FACE_AWAY_WAIT
+static bool8 WaitExclamationAndFaceAway(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj)
+{
+    struct ObjectEvent *playerObj = &gObjectEvents[gPlayerAvatar.objectEventId];
+
+    if ((!ObjectEventIsMovementOverridden(playerObj) || 
+        ObjectEventClearHeldMovementIfFinished(playerObj)) &&
+        !FieldEffectActiveListContains(FLDEFF_EXCLAMATION_MARK_ICON)) {
+            SwitchTaskToFollowupFunc(taskId);
+        }
+    return FALSE;
+}
+
 #undef tTrainerRange
+#undef tTimer
 #undef tOutOfAshSpriteId
+#undef tNotEnoughMons
 #undef tTrainerObjectEventId
 
 #define tObjEvent data[1]
