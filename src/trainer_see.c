@@ -25,9 +25,6 @@ static u8 CheckTrainer(u8 objectEventId);
 static u8 GetTrainerApproachDistance(struct ObjectEvent *trainerObj);
 static u8 CheckPathBetweenTrainerAndPlayer(struct ObjectEvent *trainerObj, u8 approachDistance, u8 direction);
 static void InitTrainerApproachTask(struct ObjectEvent *trainerObj, u8 range);
-static void Task_RunTrainerSeeFuncList(u8 taskId);
-static void Task_TrainerEncounterWhiteOut(u8 taskId);
-static void Task_EndTrainerApproach(u8 taskId);
 static void SetIconSpriteData(struct Sprite *sprite, u16 fldEffId, u8 spriteAnimNum);
 
 static u8 GetTrainerApproachDistanceSouth(struct ObjectEvent *trainerObj, s16 range, s16 x, s16 y);
@@ -75,24 +72,6 @@ static u8 (*const sDirectionalApproachDistanceFuncs[])(struct ObjectEvent *train
     GetTrainerApproachDistanceNorth,
     GetTrainerApproachDistanceWest,
     GetTrainerApproachDistanceEast,
-};
-
-enum
-{
-    TRSEE_NONE,
-    TRSEE_EXCLAMATION,
-    TRSEE_EXCLAMATION_WAIT,
-    TRSEE_MOVE_TO_PLAYER,
-    TRSEE_PLAYER_FACE,
-    TRSEE_PLAYER_FACE_WAIT,
-    TRSEE_REVEAL_DISGUISE,
-    TRSEE_REVEAL_DISGUISE_WAIT,
-    TRSEE_REVEAL_BURIED,
-    TRSEE_BURIED_POP_OUT,
-    TRSEE_BURIED_JUMP,
-    TRSEE_REVEAL_BURIED_WAIT,
-    TRSEE_PLAYER_FACE_AWAY,
-    TRSEE_EXCLAMATION_FACE_AWAY_WAIT,
 };
 
 static bool8 (*const sTrainerSeeFuncList[])(u8 taskId, struct Task *task, struct ObjectEvent *trainerObj) =
@@ -456,7 +435,7 @@ static void StartTrainerApproach(TaskFunc followupFunc)
     taskFunc(taskId);
 }
 
-static void Task_RunTrainerSeeFuncList(u8 taskId)
+void Task_RunTrainerSeeFuncList(u8 taskId)
 {
     struct Task *task = &gTasks[taskId];
     struct ObjectEvent *trainerObj = &gObjectEvents[task->tTrainerObjectEventId];
@@ -749,14 +728,14 @@ void DoTrainerApproach(void)
     StartTrainerApproach(Task_EndTrainerApproach);
 }
 
-static void Task_TrainerEncounterWhiteOut(u8 taskId) {
+void Task_TrainerEncounterWhiteOut(u8 taskId) {
     ScriptContext1_SetupScript(EventScript_TrainerEncounterWhiteOut);
 
     DestroyTask(taskId);
     EnableBothScriptContexts();
 }
 
-static void Task_EndTrainerApproach(u8 taskId)
+void Task_EndTrainerApproach(u8 taskId)
 {
     DestroyTask(taskId);
     EnableBothScriptContexts();

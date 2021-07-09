@@ -17,6 +17,7 @@ EventScript_TryDoNormalTrainerBattle:: @ 8271362
 	goto_if_ne EventScript_NoNormalTrainerBattle
 	special PlayTrainerEncounterMusic
 	special SetTrainerFacingDirection
+	gotonative CheckPlayerWhiteOut
 	goto EventScript_ShowTrainerIntroMsg
 
 EventScript_NoNormalTrainerBattle:: @ 8271389
@@ -34,6 +35,7 @@ EventScript_TryDoDoubleTrainerBattle:: @ 827138A
 	goto_if_ne EventScript_NotEnoughMonsForDoubleBattle
 	special PlayTrainerEncounterMusic
 	special SetTrainerFacingDirection
+	gotonative CheckPlayerWhiteOut
 	goto EventScript_ShowTrainerIntroMsg
 
 EventScript_NotEnoughMonsForDoubleBattle:: @ 82713BA
@@ -50,6 +52,7 @@ EventScript_DoNoIntroTrainerBattle:: @ 82713C2
 	applymovement VAR_LAST_TALKED, Movement_RevealTrainer
 	waitmovement 0
 	special PlayTrainerEncounterMusic
+	gotonative CheckPlayerWhiteOut
 	trainerbattlebegin
 	gotopostbattlescript
 
@@ -60,6 +63,7 @@ EventScript_TryDoRematchBattle:: @ 82713D1
 	goto_if_eq EventScript_NoRematchTrainerBattle
 	special PlayTrainerEncounterMusic
 	special SetTrainerFacingDirection
+	gotonative CheckPlayerWhiteOut
 	special ShowTrainerIntroSpeech
 	waitmessage
 	waitbuttonpress
@@ -80,6 +84,7 @@ EventScript_TryDoDoubleRematchBattle:: @ 82713F8
 	goto_if_ne EventScript_NotEnoughMonsForDoubleRematchBattle
 	special PlayTrainerEncounterMusic
 	special SetTrainerFacingDirection
+	gotonative CheckPlayerWhiteOut
 	special ShowTrainerIntroSpeech
 	waitmessage
 	waitbuttonpress

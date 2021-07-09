@@ -102,6 +102,7 @@ EWRAM_DATA static u8 *sTrainerABattleScriptRetAddr = NULL;
 EWRAM_DATA static u8 *sTrainerBBattleScriptRetAddr = NULL;
 EWRAM_DATA static bool8 sShouldCheckTrainerBScript = FALSE;
 EWRAM_DATA static u8 sNoOfPossibleTrainerRetScripts = 0;
+EWRAM_DATA static bool8 sAwaitingWhiteout = FALSE;
 
 // const rom data
 
@@ -1228,6 +1229,54 @@ void SetTrainerFacingDirection(void)
     struct ObjectEvent *objectEvent = &gObjectEvents[gSelectedObjectEvent];
     SetTrainerMovementType(objectEvent, GetTrainerFacingDirectionMovementType(objectEvent->facingDirection));
 }
+
+#define tFuncId             data[0]
+#define tTimer              data[2]
+#define tTrainerRange       data[3]
+#define tOutOfAshSpriteId   data[4]
+#define tNotEnoughMons      data[5]
+#define tTrainerObjectEventId data[7]
+
+bool8 CheckPlayerWhiteOut(void) {
+    u8 taskId;
+    // ObjectEvent for trainer
+    struct ObjectEvent *objectEvent = &gObjectEvents[gSelectedObjectEvent];
+    bool8 whiteOut = CountPlayerBattleMons() < 2;
+
+    // No whiteout required, allow script to progress.
+    if (!whiteOut) return TRUE;
+
+    // If we haven't initiated the whiteout tasks
+    if (!FuncIsActiveTask(Task_RunTrainerSeeFuncList) &&
+        !FuncIsActiveTask(Task_TrainerEncounterWhiteOut)) {
+            // Initiate task to make player face away from the trainer and white out.
+            taskId = CreateTask(TaskDummy, 80);
+            SetTaskFuncWithFollowupFunc(taskId, Task_RunTrainerSeeFuncList, Task_TrainerEncounterWhiteOut);
+            gTasks[taskId].tFuncId = TRSEE_PLAYER_FACE_AWAY;
+            gTasks[taskId].tTrainerObjectEventId =
+                GetObjectEventIdByLocalIdAndMap(objectEvent->localId, objectEvent->mapNum, objectEvent->mapGroup);
+            
+            Task_RunTrainerSeeFuncList(taskId);
+            sAwaitingWhiteout = TRUE;
+            return FALSE;
+    }
+
+    // Once tasks have finished completing, reset sAwaitingWhiteout and allow
+    // script to progress.
+    if ((!FuncIsActiveTask(Task_RunTrainerSeeFuncList) &&
+        !FuncIsActiveTask(Task_TrainerEncounterWhiteOut)) && sAwaitingWhiteout) {
+            sAwaitingWhiteout = FALSE;
+            return TRUE;
+        }
+
+    return FALSE;
+}
+
+#undef tTrainerRange
+#undef tTimer
+#undef tOutOfAshSpriteId
+#undef tNotEnoughMons
+#undef tTrainerObjectEventId
 
 u8 GetTrainerBattleMode(void)
 {
