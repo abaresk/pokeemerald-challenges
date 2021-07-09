@@ -2066,6 +2066,8 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest) {
 
     // Remove mon from party
     ZeroMonData(mon);
+    CompactPartySlots();
+    CalculatePlayerPartyCount();
 }
 
 static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest) {
