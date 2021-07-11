@@ -1,6 +1,8 @@
 #ifndef GUARD_RANDOM_H
 #define GUARD_RANDOM_H
 
+extern u32 *gTrainerPersonalitySeed;
+
 extern u32 gRngValue;
 extern u32 gRng2Value;
 

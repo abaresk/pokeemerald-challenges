@@ -87,10 +87,6 @@ static void InitPlayerTrainerId(void)
     SetTrainerId(trainerId, gSaveBlock2Ptr->playerTrainerId);
 }
 
-static void InitTrainerPersonality(void) {
-    gSaveBlock2Ptr->trainerPersonalitySeed = Random32();
-}
-
 // L=A isnt set here for some reason.
 static void SetDefaultOptions(void)
 {
@@ -166,7 +162,6 @@ void NewGameInitData(void)
     gSaveBlock2Ptr->specialSaveWarpFlags = 0;
     gSaveBlock2Ptr->gcnLinkFlags = 0;
     InitPlayerTrainerId();
-    InitTrainerPersonality();
     PlayTimeCounter_Reset();
     ClearPokedexFlags();
     InitEventData();
