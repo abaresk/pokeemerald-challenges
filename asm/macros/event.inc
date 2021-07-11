@@ -1627,6 +1627,11 @@
 	.2byte \quantity
 	.endm
 
+	.macro setseed addr:req
+	.byte 0xe3
+	.4byte \addr
+	.endm
+
 
 @ Supplementary
 

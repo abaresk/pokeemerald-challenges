@@ -81,6 +81,7 @@ static void ReadKeys(void);
 void InitIntrHandlers(void);
 static void WaitForVBlank(void);
 void EnableVCountIntrAtLine150(void);
+static void SetupEwramConsts(void);
 
 #define B_START_SELECT (B_BUTTON | START_BUTTON | SELECT_BUTTON)
 
@@ -94,6 +95,8 @@ void AgbMain()
     *(vu16 *)BG_PLTT = RGB_WHITE; // Set the backdrop to white on startup
     InitGpuRegManager();
     REG_WAITCNT = WAITCNT_PREFETCH_ENABLE | WAITCNT_WS0_S_1 | WAITCNT_WS0_N_3;
+    StartTimer1();
+    StartTimer2();
     InitKeys();
     InitIntrHandlers();
     m4aSoundInit();
@@ -108,6 +111,7 @@ void AgbMain()
     ResetBgs();
     SetDefaultFontsPointer();
     InitHeap(gHeap, HEAP_SIZE);
+    SetupEwramConsts();
 
     gSoftResetDisabled = FALSE;
 
@@ -191,14 +195,19 @@ void SetMainCallback2(MainCallback callback)
 
 void StartTimer1(void)
 {
+    // Prescalar selection set to F, where F = System Clock (16.78MHz).
     REG_TM1CNT_H = 0x80;
+}
+
+void StartTimer2(void) {
+    // Prescalar selection set to F/64, where F = System Clock (16.78MHz).
+    REG_TM2CNT_H = 0x81;
 }
 
 void SeedRngAndSetTrainerId(void)
 {
     u16 val = REG_TM1CNT_L;
     SeedRng(val);
-    REG_TM1CNT_H = 0;
     gTrainerId = val;
 }
 
@@ -427,4 +436,8 @@ void DoSoftReset(void)
 void ClearPokemonCrySongs(void)
 {
     CpuFill16(0, gPokemonCrySongs, MAX_POKEMON_CRIES * sizeof(struct PokemonCrySong));
+}
+
+static void SetupEwramConsts(void) {
+    gTrainerPersonalitySeed = &gSaveBlock2Ptr->trainerPersonalitySeed;
 }
