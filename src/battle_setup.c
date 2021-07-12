@@ -1278,11 +1278,19 @@ bool8 CheckPlayerWhiteOut(void) {
 #undef tTrainerObjectEventId
 
 bool8 ShouldPlayerWhiteout(void) {
-    return FlagGet(FLAG_SYS_POKEDEX_GET) && !EnoughMonsToBattle();
+    bool8 enoughMons = IsTrainerBattleDouble(GetTrainerBattleMode()) ? 
+        EnoughMonsForDoubleBattle() : PlayerHasMoreThanOneMon();
+    return FlagGet(FLAG_SYS_POKEDEX_GET) && !enoughMons;
 }
 
-bool8 EnoughMonsToBattle(void) {
+bool8 PlayerHasMoreThanOneMon(void) {
     return CountPlayerBattleMons() > 1;
+}
+
+// Two mons get stolen and game requires two mons for double battle. Therefore,
+// double battles require the player to have 4 mons.
+bool8 EnoughMonsForDoubleBattle(void) {
+    return CountPlayerBattleMons() > 3;
 }
 
 u8 GetTrainerBattleMode(void)
@@ -1942,4 +1950,11 @@ u16 CountBattledRematchTeams(u16 trainerId)
     }
 
     return i;
+}
+
+bool8 IsTrainerBattleDouble(u16 battleMode) {
+    return battleMode == TRAINER_BATTLE_DOUBLE ||
+           battleMode == TRAINER_BATTLE_REMATCH_DOUBLE ||
+           battleMode == TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE ||
+           battleMode == TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE_NO_MUSIC;
 }

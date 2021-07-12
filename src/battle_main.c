@@ -707,8 +707,12 @@ static void CB2_InitBattleInternal(void)
         if (gBattleTypeFlags & BATTLE_TYPE_TRAINER) {
             // Take mon from player and give to opponent
             TryStealMonFromPlayer(gTrainerBattleOpponent_A);
+
+            // TODO: Add to correct enemy party if two opponents
             if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) {
                 TryStealMonFromPlayer(gTrainerBattleOpponent_B);
+            } else if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE) {
+                TryStealMonFromPlayer(gTrainerBattleOpponent_A);
             }
         }
 
@@ -2049,7 +2053,7 @@ static void TryStealMonFromPlayer(u16 trainerId) {
     Pokemon mon;
     u32 trainerPersonality = GetTrainerPersonality(trainerId);
 
-    if (!EnoughMonsToBattle()) return;
+    if (!PlayerHasMoreThanOneMon()) return;
 
     StealFromParty(trainerPersonality, &mon);
     HealPokemon(&mon);

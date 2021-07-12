@@ -195,15 +195,18 @@ bool8 CheckForTrainersWantingBattle(void)
             continue;
 
         numTrainers = CheckTrainer(i);
-        if (numTrainers == 2)
+        if (numTrainers == 2) // Double battle
             break;
 
         if (numTrainers == 0)
             continue;
 
-        if (gNoOfApproachingTrainers > 1)
+        if (gNoOfApproachingTrainers > 1) // Two opponents
             break;
-        if (GetMonsStateToDoubles_2() != 0) // one trainer found and cant have a double battle
+
+        // Avoid multiple opponent battles if the player does not have enough
+        // mons. Instead breaks up multiple opponents into single battles.
+        if (!EnoughMonsForDoubleBattle())
             break;
     }
 
@@ -270,8 +273,14 @@ static u8 CheckTrainer(u8 objectEventId)
             || scriptPtr[1] == TRAINER_BATTLE_REMATCH_DOUBLE
             || scriptPtr[1] == TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE)
         {
-            if (GetMonsStateToDoubles_2() != 0)
-                return 0;
+            // This usually prevents double battle encounters when the player 
+            // does not have enough mons (e.g. twins).
+            //
+            // Disable since player now whites out if they don't have enough
+            // mons. Also prevents player from being able to skip double 
+            // battles.
+            // if (GetMonsStateToDoubles_2() != 0)
+            //     return 0;
 
             numTrainers = 2;
         }

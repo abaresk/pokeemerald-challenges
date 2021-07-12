@@ -40,7 +40,8 @@ bool32 GetTrainerFlagFromScriptPointer(const u8 *data);
 void SetTrainerFacingDirection(void);
 bool8 CheckPlayerWhiteOut(void);
 bool8 ShouldPlayerWhiteout(void);
-bool8 EnoughMonsToBattle(void);
+bool8 PlayerHasMoreThanOneMon(void);
+bool8 EnoughMonsForDoubleBattle(void);
 u8 GetTrainerBattleMode(void);
 bool8 GetTrainerFlag(void);
 bool8 HasTrainerBeenFought(u16 trainerId);
@@ -66,5 +67,6 @@ bool8 ShouldTryRematchBattle(void);
 bool8 IsTrainerReadyForRematch(void);
 void ShouldTryGetTrainerScript(void);
 u16 CountBattledRematchTeams(u16 trainerId);
+bool8 IsTrainerBattleDouble(u16 battleMode);
 
 #endif // GUARD_BATTLE_SETUP_H

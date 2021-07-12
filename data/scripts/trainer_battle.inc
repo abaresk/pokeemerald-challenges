@@ -30,9 +30,6 @@ EventScript_TryDoDoubleTrainerBattle:: @ 827138A
 	specialvar VAR_RESULT, GetTrainerFlag
 	compare VAR_RESULT, FALSE
 	goto_if_ne EventScript_NoDoubleTrainerBattle
-	special HasEnoughMonsForDoubleBattle
-	compare VAR_RESULT, PLAYER_HAS_TWO_USABLE_MONS
-	goto_if_ne EventScript_NotEnoughMonsForDoubleBattle
 	special PlayTrainerEncounterMusic
 	special SetTrainerFacingDirection
 	gotonative CheckPlayerWhiteOut
@@ -79,9 +76,6 @@ EventScript_TryDoDoubleRematchBattle:: @ 82713F8
 	specialvar VAR_RESULT, IsTrainerReadyForRematch
 	compare VAR_RESULT, FALSE
 	goto_if_eq EventScript_NoDoubleRematchTrainerBattle
-	special HasEnoughMonsForDoubleBattle
-	compare VAR_RESULT, PLAYER_HAS_TWO_USABLE_MONS
-	goto_if_ne EventScript_NotEnoughMonsForDoubleRematchBattle
 	special PlayTrainerEncounterMusic
 	special SetTrainerFacingDirection
 	gotonative CheckPlayerWhiteOut
