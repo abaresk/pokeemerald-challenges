@@ -4402,7 +4402,8 @@ u8 CountPlayerBattleMons(void) {
 
     for (i = 0; i < PARTY_SIZE; i++) {
         if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES, NULL) != SPECIES_NONE &&
-            GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2, NULL) != SPECIES_EGG) {
+            GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2, NULL) != SPECIES_EGG && 
+            GetMonData(&gPlayerParty[i], MON_DATA_HP, NULL) != 0) {
             count++;
         }
     }

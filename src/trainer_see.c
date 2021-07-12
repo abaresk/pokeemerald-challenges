@@ -416,7 +416,7 @@ static void StartTrainerApproach(TaskFunc followupFunc)
 {
     u8 taskId;
     TaskFunc taskFunc;
-    bool8 whiteOut = !HasEnoughMonsToBattle();
+    bool8 whiteOut = ShouldPlayerWhiteout();
 
     if (gApproachingTrainerId == 0)
         taskId = gApproachingTrainers[0].taskId;

@@ -1243,7 +1243,7 @@ bool8 CheckPlayerWhiteOut(void) {
     struct ObjectEvent *objectEvent = &gObjectEvents[gSelectedObjectEvent];
 
     // No whiteout required, allow script to progress.
-    if (HasEnoughMonsToBattle()) return TRUE;
+    if (!ShouldPlayerWhiteout()) return TRUE;
 
     // If we haven't initiated the whiteout tasks
     if (!FuncIsActiveTask(Task_RunTrainerSeeFuncList) &&
@@ -1277,9 +1277,11 @@ bool8 CheckPlayerWhiteOut(void) {
 #undef tNotEnoughMons
 #undef tTrainerObjectEventId
 
-bool8 HasEnoughMonsToBattle(void) {
-    if (!FlagGet(FLAG_SYS_POKEDEX_GET)) return TRUE;
+bool8 ShouldPlayerWhiteout(void) {
+    return FlagGet(FLAG_SYS_POKEDEX_GET) && !EnoughMonsToBattle();
+}
 
+bool8 EnoughMonsToBattle(void) {
     return CountPlayerBattleMons() > 1;
 }
 

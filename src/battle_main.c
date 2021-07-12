@@ -78,7 +78,7 @@ static void CB2_HandleStartMultiBattle(void);
 static void CB2_HandleStartBattle(void);
 static void TryCorrectShedinjaLanguage(struct Pokemon *mon);
 static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 firstTrainer);
-static void StealMonFromPlayer(u16 trainerId);
+static void TryStealMonFromPlayer(u16 trainerId);
 static void StealFromParty(u32 trainerPersonality, Pokemon *dest);
 static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest);
 static void GiveMonToOpponent(Pokemon *mon);
@@ -704,10 +704,12 @@ static void CB2_InitBattleInternal(void)
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
             CreateNPCTrainerParty(&gEnemyParty[3], gTrainerBattleOpponent_B, FALSE);
         
-        // Take mon from player and give to opponent
-        StealMonFromPlayer(gTrainerBattleOpponent_A);
-        if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) {
-            StealMonFromPlayer(gTrainerBattleOpponent_B);
+        if (gBattleTypeFlags & BATTLE_TYPE_TRAINER) {
+            // Take mon from player and give to opponent
+            TryStealMonFromPlayer(gTrainerBattleOpponent_A);
+            if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) {
+                TryStealMonFromPlayer(gTrainerBattleOpponent_B);
+            }
         }
 
         SetWildMonHeldItem();
@@ -2043,18 +2045,15 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
     return gTrainers[trainerNum].partySize;
 }
 
-static void StealMonFromPlayer(u16 trainerId) {
-    Pokemon *mon = NULL;
+static void TryStealMonFromPlayer(u16 trainerId) {
+    Pokemon mon;
     u32 trainerPersonality = GetTrainerPersonality(trainerId);
 
-    if (CountPlayerBattleMons() > 1) {
-        StealFromParty(trainerPersonality, mon);
-    } else {
-        StealFromBoxes(trainerPersonality, mon);
-    }
+    if (!EnoughMonsToBattle()) return;
 
-    HealPokemon(mon);
-    GiveMonToOpponent(mon);
+    StealFromParty(trainerPersonality, &mon);
+    HealPokemon(&mon);
+    GiveMonToOpponent(&mon);
 }
 
 static void StealFromParty(u32 trainerPersonality, Pokemon *dest) {
@@ -2091,9 +2090,7 @@ static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest) {
 
 // gEnemyParty has already been initialized
 static void GiveMonToOpponent(Pokemon *mon) {
-    if (mon == NULL) {
-        return;
-    }
+    if (mon == NULL) return;
 
     // TODO: Allow party sizes greater than 6. Add to party instead of
     // overwriting.
@@ -2112,7 +2109,7 @@ static Pokemon *FavoritePartyMon(u32 trainerPersonality) {
 
     for (i = 0; i < PARTY_SIZE; i++) {
         Pokemon *mon = &gPlayerParty[i];
-        if (GetMonData(mon, MON_DATA_SPECIES, NULL) == SPECIES_NONE &&
+        if (GetMonData(mon, MON_DATA_SPECIES, NULL) == SPECIES_NONE ||
             GetMonData(mon, MON_DATA_SPECIES2, NULL) == SPECIES_EGG) {
                 continue;
             }
@@ -2134,7 +2131,7 @@ static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality) {
 
     for (i = 0; i < PARTY_SIZE; i++) {
         Pokemon *mon = &gPlayerParty[i];
-        if (GetMonData(mon, MON_DATA_SPECIES, NULL) == SPECIES_NONE &&
+        if (GetMonData(mon, MON_DATA_SPECIES, NULL) == SPECIES_NONE ||
             GetMonData(mon, MON_DATA_SPECIES2, NULL) == SPECIES_EGG) {
                 continue;
             }
