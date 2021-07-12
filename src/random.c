@@ -1,4 +1,5 @@
 #include "global.h"
+#include "main.h"
 #include "random.h"
 
 EWRAM_DATA static u8 sUnknown = 0;
@@ -42,4 +43,15 @@ u32 AdvanceSeed(u32 seed, u32 frames) {
         value = ISO_RANDOMIZE1(value);
     }
     return value;
+}
+
+void EnableTimerRNG(void) {
+    StartTimer1();
+    StartTimer2();
+}
+
+// Generate a random u32 using the GBA timer registers. For sufficient entropy,
+// do not call consecutively without some player input in between.
+u32 TimerRNG(void) {
+    return (REG_TM2CNT_L << 16) | REG_TM1CNT_L;
 }

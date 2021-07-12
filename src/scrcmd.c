@@ -1598,9 +1598,8 @@ bool8 ScrCmd_bufferitemnameplural(struct ScriptContext *ctx)
 
 bool8 ScrCmd_setseed(struct ScriptContext *ctx) {
     u32 **ptr = (u32 **)ScriptReadWord(ctx);
-    u32 val = (REG_TM2CNT_L << 16) | REG_TM1CNT_L;
     if (ptr != NULL && *ptr != NULL) {
-        **ptr = val;
+        **ptr = TimerRNG();
     }
     return FALSE;
 }
