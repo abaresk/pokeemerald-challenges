@@ -1990,6 +1990,11 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
         for (i = 0; i < monsCount; i++)
         {
             personalityValue = Random32();
+            if (gTrainers[trainerNum].encounterMusic_gender & 0x80)
+                personalityValue &= ~0x80;
+            else
+                personalityValue |= 0x80;
+
             switch (gTrainers[trainerNum].partyFlags)
             {
             case 0:
