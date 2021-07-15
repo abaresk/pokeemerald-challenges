@@ -6770,6 +6770,33 @@ s16 CompactPartySlots(void)
     return retVal;
 }
 
+s16 CompactEnemyPartySlots(void)
+{
+    s16 retVal = -1;
+    u16 i, last;
+
+    // TODO: Update this to OPPONENT_PARTY_SIZE!
+    for (i = 0, last = 0; i < PARTY_SIZE; i++)
+    {
+        u16 species = GetMonData(&gEnemyParty[i], MON_DATA_SPECIES);
+        if (species != SPECIES_NONE)
+        {
+            if (i != last)
+                gEnemyParty[last] = gEnemyParty[i];
+            last++;
+        }
+        else if (retVal == -1)
+        {
+            retVal = i;
+        }
+    }
+    // TODO: Update this to OPPONENT_PARTY_SIZE!
+    for (; last < PARTY_SIZE; last++)
+        ZeroMonData(&gEnemyParty[last]);
+
+    return retVal;
+}
+
 static void SetMonMarkings(u8 markings)
 {
     sStorage->displayMonMarkings = markings;

@@ -2102,7 +2102,10 @@ static void GiveMonToOpponent(Pokemon *mon) {
     // NOTE: The location it's inserted into should depend on 
     // trainerPersonality.
 
-    gEnemyParty[0] = *mon;
+    // For now, add to end of party
+    gEnemyParty[5] = *mon;
+    CompactEnemyPartySlots();
+    CalculateEnemyPartyCount();
 }
 
 static Pokemon *FavoritePartyMon(u32 trainerPersonality) {
