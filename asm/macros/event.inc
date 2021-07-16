@@ -1627,9 +1627,9 @@
 	.2byte \quantity
 	.endm
 
-	.macro setseed addr:req
+	.macro setseed seedID:req
 	.byte 0xe3
-	.4byte \addr
+	.2byte \seedID
 	.endm
 
 

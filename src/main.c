@@ -81,7 +81,6 @@ static void ReadKeys(void);
 void InitIntrHandlers(void);
 static void WaitForVBlank(void);
 void EnableVCountIntrAtLine150(void);
-static void SetupEwramConsts(void);
 
 #define B_START_SELECT (B_BUTTON | START_BUTTON | SELECT_BUTTON)
 
@@ -110,7 +109,6 @@ void AgbMain()
     ResetBgs();
     SetDefaultFontsPointer();
     InitHeap(gHeap, HEAP_SIZE);
-    SetupEwramConsts();
 
     gSoftResetDisabled = FALSE;
 
@@ -435,8 +433,4 @@ void DoSoftReset(void)
 void ClearPokemonCrySongs(void)
 {
     CpuFill16(0, gPokemonCrySongs, MAX_POKEMON_CRIES * sizeof(struct PokemonCrySong));
-}
-
-static void SetupEwramConsts(void) {
-    gTrainerPersonalitySeed = &gSaveBlock2Ptr->trainerPersonalitySeed;
 }

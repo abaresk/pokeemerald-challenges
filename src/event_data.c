@@ -236,3 +236,37 @@ bool8 FlagGet(u16 id)
 
     return TRUE;
 }
+
+u32 *GetSeedPointer(u16 id)
+{
+    if (id < SEEDS_START)
+        return NULL;
+    else
+        return &gSaveBlock1Ptr->seeds[id - SEEDS_START];
+}
+
+u32 SeedSet(u16 id, u32 val)
+{
+    u32 *ptr = GetSeedPointer(id);
+    if (ptr)
+        *ptr = val;
+    return 0;
+}
+
+u32 SeedClear(u16 id)
+{
+    u32 *ptr = GetSeedPointer(id);
+    if (ptr)
+        *ptr = 0;
+    return 0;
+}
+
+u32 SeedGet(u16 id)
+{
+    u32 *ptr = GetSeedPointer(id);
+
+    if (!ptr)
+        return id;
+    
+    return *ptr;
+}

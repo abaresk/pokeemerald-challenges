@@ -7,6 +7,7 @@
 #include "gba/gba.h"
 #include "constants/global.h"
 #include "constants/flags.h"
+#include "constants/seeds.h"
 #include "constants/vars.h"
 #include "constants/species.h"
 #include "constants/berry.h"
@@ -492,8 +493,7 @@ struct SaveBlock2
     /*0x57C*/ struct RankingHall2P hallRecords2P[2][3]; // From record mixing.
     /*0x624*/ u16 contestLinkResults[CONTEST_CATEGORIES_COUNT][CONTESTANT_COUNT];
     /*0x64C*/ struct BattleFrontier frontier;
-    /*0x650*/ u32 trainerPersonalitySeed;
-}; // sizeof=0xF30
+}; // sizeof=0xF2C
 
 extern struct SaveBlock2 *gSaveBlock2Ptr;
 
@@ -989,6 +989,7 @@ struct SaveBlock1
     /*0xC70*/ struct ObjectEventTemplate objectEventTemplates[OBJECT_EVENT_TEMPLATES_COUNT];
     /*0x1270*/ u8 flags[NUM_FLAG_BYTES];
     /*0x139C*/ u16 vars[VARS_COUNT];
+    /*0x139C*/ u32 seeds[SEEDS_COUNT];
     /*0x159C*/ u32 gameStats[NUM_GAME_STATS];
     /*0x169C*/ struct BerryTree berryTrees[BERRY_TREES_COUNT];
     /*0x1A9C*/ struct SecretBase secretBases[SECRET_BASES_COUNT];

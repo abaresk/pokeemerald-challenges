@@ -43,6 +43,7 @@
 #include "constants/roulette.h"
 #include "constants/script_menu.h"
 #include "constants/secret_bases.h"
+#include "constants/seeds.h"
 #include "constants/songs.h"
 #include "constants/species.h"
 #include "constants/trade.h"

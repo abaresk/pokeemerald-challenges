@@ -117,7 +117,7 @@ LittlerootTown_ProfessorBirchsLab_OnFrame: @ 81F9DB9
 @ This is just where the game tells you its yours and lets you nickname it
 LittlerootTown_ProfessorBirchsLab_EventScript_GiveStarterEvent:: @ 81F9DDB
 	lockall
-	setseed gTrainerPersonalitySeed
+	setseed SEED_TRAINER_PERSONALITY
 	bufferleadmonspeciesname 0
 	message LittlerootTown_ProfessorBirchsLab_Text_LikeYouToHavePokemon
 	waitmessage

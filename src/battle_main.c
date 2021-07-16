@@ -59,6 +59,7 @@
 #include "constants/moves.h"
 #include "constants/party_menu.h"
 #include "constants/rgb.h"
+#include "constants/seeds.h"
 #include "constants/songs.h"
 #include "constants/trainers.h"
 #include "cable_club.h"
@@ -1989,7 +1990,9 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
 
         for (i = 0; i < monsCount; i++)
         {
-            personalityValue = Random32();
+            personalityValue =
+                AdvanceSeed(SeedGet(SEED_TRAINER_MON_A), trainerNum) ^
+                AdvanceSeed(SeedGet(SEED_TRAINER_MON_B), i);
             if (gTrainers[trainerNum].encounterMusic_gender & 0x80)
                 personalityValue &= ~0x80;
             else
@@ -2178,8 +2181,7 @@ static void LeastFavoriteBoxMon_iter(BoxPokemon *mon, void * data) {
 }
 
 static u32 GetTrainerPersonality(u16 trainerId) {
-    u32 seed = gSaveBlock2Ptr->trainerPersonalitySeed;
-    return AdvanceSeed(seed, trainerId);
+    return AdvanceSeed(SeedGet(SEED_TRAINER_PERSONALITY), trainerId);
 }
 
 void sub_8038A04(void) // unused

@@ -260,6 +260,7 @@ OldaleTown_EventScript_RivalTrigger3:: @ 81E90C6
 
 OldaleTown_EventScript_ShowRivalMessage:: @ 81E90E6
 	checkplayergender
+	setseed SEED_TRAINER_MON_B
 	compare VAR_RESULT, MALE
 	goto_if_eq OldaleTown_EventScript_ShowMayMessage
 	compare VAR_RESULT, FEMALE

@@ -21,6 +21,7 @@ Route103_EventScript_OpenAlteringCave:: @ 81EC3AE
 
 Route103_EventScript_Rival:: @ 81EC3C1
 	lockall
+	setseed SEED_TRAINER_MON_A
 	checkplayergender
 	compare VAR_RESULT, MALE
 	goto_if_eq Route103_EventScript_RivalMay
