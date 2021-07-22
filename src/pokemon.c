@@ -67,7 +67,7 @@ EWRAM_DATA static u8 sLearningMoveTableID = 0;
 EWRAM_DATA u8 gPlayerPartyCount = 0;
 EWRAM_DATA u8 gEnemyPartyCount = 0;
 EWRAM_DATA struct Pokemon gPlayerParty[PARTY_SIZE] = {0};
-EWRAM_DATA struct Pokemon gEnemyParty[PARTY_SIZE] = {0};
+EWRAM_DATA struct Pokemon gEnemyParty[OPPONENT_PARTY_SIZE] = {0};
 EWRAM_DATA struct SpriteTemplate gMultiuseSpriteTemplate = {0};
 EWRAM_DATA struct Unknown_806F160_Struct *gUnknown_020249B4[2] = {NULL};
 
@@ -2148,7 +2148,7 @@ void ZeroPlayerPartyMons(void)
 void ZeroEnemyPartyMons(void)
 {
     s32 i;
-    for (i = 0; i < PARTY_SIZE; i++)
+    for (i = 0; i < OPPONENT_PARTY_SIZE; i++)
         ZeroMonData(&gEnemyParty[i]);
 }
 
@@ -4387,7 +4387,7 @@ u8 CalculateEnemyPartyCount(void)
 {
     gEnemyPartyCount = 0;
 
-    while (gEnemyPartyCount < PARTY_SIZE
+    while (gEnemyPartyCount < OPPONENT_PARTY_SIZE
         && GetMonData(&gEnemyParty[gEnemyPartyCount], MON_DATA_SPECIES, NULL) != SPECIES_NONE)
     {
         gEnemyPartyCount++;
@@ -4414,7 +4414,7 @@ u8 CountEnemyBattleMons(void) {
     s32 i;
     u8 count = 0;
 
-    for (i = 0; i < PARTY_SIZE; i++) {
+    for (i = 0; i < OPPONENT_PARTY_SIZE; i++) {
         if (GetMonData(&gEnemyParty[i], MON_DATA_SPECIES, NULL) != SPECIES_NONE &&
             GetMonData(&gEnemyParty[i], MON_DATA_SPECIES2, NULL) != SPECIES_EGG) {
             count++;

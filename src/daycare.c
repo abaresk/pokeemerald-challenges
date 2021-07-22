@@ -177,7 +177,7 @@ static void StorePokemonInDaycare(struct Pokemon *mon, struct DaycareMon *daycar
     BoxMonRestorePP(&daycareMon->mon);
     daycareMon->steps = 0;
     ZeroMonData(mon);
-    CompactPartySlots();
+    CompactPlayerPartySlots();
     CalculatePlayerPartyCount();
 }
 
@@ -266,7 +266,7 @@ static u16 TakeSelectedPokemonFromDaycare(struct DaycareMon *daycareMon)
 
     ZeroBoxMonData(&daycareMon->mon);
     daycareMon->steps = 0;
-    CompactPartySlots();
+    CompactPlayerPartySlots();
     CalculatePlayerPartyCount();
     return species;
 }
@@ -821,7 +821,7 @@ static void _GiveEggFromDaycare(struct DayCare *daycare)
     isEgg = TRUE;
     SetMonData(&egg, MON_DATA_IS_EGG, &isEgg);
     gPlayerParty[PARTY_SIZE - 1] = egg;
-    CompactPartySlots();
+    CompactPlayerPartySlots();
     CalculatePlayerPartyCount();
     RemoveEggFromDayCare(daycare);
 }

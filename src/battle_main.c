@@ -79,10 +79,10 @@ static void CB2_HandleStartMultiBattle(void);
 static void CB2_HandleStartBattle(void);
 static void TryCorrectShedinjaLanguage(struct Pokemon *mon);
 static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 firstTrainer);
-static void TryStealMonFromPlayer(u16 trainerId);
+static void TryStealMonFromPlayer(u16 trainerId, OpponentType type);
 static void StealFromParty(u32 trainerPersonality, Pokemon *dest);
 static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest);
-static void GiveMonToOpponent(Pokemon *mon);
+static void GiveMonToOpponent(Pokemon *mon, OpponentType type);
 static Pokemon *FavoritePartyMon(u32 trainerPersonality);
 static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality);
 static void FavoriteBoxMon_iter(BoxPokemon *mon, void * data);
@@ -703,18 +703,16 @@ static void CB2_InitBattleInternal(void)
         // Create enemy party here
         CreateNPCTrainerParty(&gEnemyParty[0], gTrainerBattleOpponent_A, TRUE);
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
-            CreateNPCTrainerParty(&gEnemyParty[3], gTrainerBattleOpponent_B, FALSE);
+            CreateNPCTrainerParty(&gEnemyParty[4], gTrainerBattleOpponent_B, FALSE);
         
-        if (gBattleTypeFlags & BATTLE_TYPE_TRAINER) {
-            // Take mon from player and give to opponent
-            TryStealMonFromPlayer(gTrainerBattleOpponent_A);
-
-            // TODO: Add to correct enemy party if two opponents
-            if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) {
-                TryStealMonFromPlayer(gTrainerBattleOpponent_B);
-            } else if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE) {
-                TryStealMonFromPlayer(gTrainerBattleOpponent_A);
-            }
+        if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) {
+            TryStealMonFromPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT);
+            TryStealMonFromPlayer(gTrainerBattleOpponent_A, SECOND_OPPONENT);
+        } else if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE) {
+            TryStealMonFromPlayer(gTrainerBattleOpponent_A, ONLY_OPPONENT);
+            TryStealMonFromPlayer(gTrainerBattleOpponent_B, ONLY_OPPONENT);
+        } else {
+            TryStealMonFromPlayer(gTrainerBattleOpponent_A, ONLY_OPPONENT);
         }
 
         SetWildMonHeldItem();
@@ -2057,7 +2055,7 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
     return gTrainers[trainerNum].partySize;
 }
 
-static void TryStealMonFromPlayer(u16 trainerId) {
+static void TryStealMonFromPlayer(u16 trainerId, OpponentType type) {
     Pokemon mon;
     u32 trainerPersonality = GetTrainerPersonality(trainerId);
 
@@ -2065,7 +2063,7 @@ static void TryStealMonFromPlayer(u16 trainerId) {
 
     StealFromParty(trainerPersonality, &mon);
     HealPokemon(&mon);
-    GiveMonToOpponent(&mon);
+    GiveMonToOpponent(&mon, type);
 }
 
 static void StealFromParty(u32 trainerPersonality, Pokemon *dest) {
@@ -2077,7 +2075,7 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest) {
 
     // Remove mon from party
     ZeroMonData(mon);
-    CompactPartySlots();
+    CompactPlayerPartySlots();
     CalculatePlayerPartyCount();
 }
 
@@ -2101,18 +2099,15 @@ static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest) {
 }
 
 // gEnemyParty has already been initialized
-static void GiveMonToOpponent(Pokemon *mon) {
+static void GiveMonToOpponent(Pokemon *mon, OpponentType type) {
+    u16 slot;
     if (mon == NULL) return;
 
-    // TODO: Allow party sizes greater than 6. Add to party instead of
-    // overwriting.
-
-    // NOTE: The location it's inserted into should depend on 
+    // TODO: The location it's inserted into should depend on
     // trainerPersonality.
-
-    // For now, add to end of party
-    gEnemyParty[5] = *mon;
-    CompactEnemyPartySlots();
+    slot = (type == FIRST_OPPONENT) ? 3 : 7;
+    gEnemyParty[slot] = *mon;
+    CompactEnemyPartySlots(type);
     CalculateEnemyPartyCount();
 }
 
@@ -3206,7 +3201,7 @@ static void BattleStartClearSetData(void)
 
     for (i = 0; i < MAX_BATTLERS_COUNT; i++)
     {
-        *(gBattleStruct->AI_monToSwitchIntoId + i) = PARTY_SIZE;
+        *(gBattleStruct->AI_monToSwitchIntoId + i) = OPPONENT_PARTY_SIZE;
     }
 
     gBattleStruct->givenExpMons = 0;
@@ -3946,7 +3941,7 @@ static void TryDoEventsBeforeFirstTurn(void)
     }
     for (i = 0; i < MAX_BATTLERS_COUNT; i++)
     {
-        *(gBattleStruct->monToSwitchIntoId + i) = PARTY_SIZE;
+        *(gBattleStruct->monToSwitchIntoId + i) = OPPONENT_PARTY_SIZE;
         gChosenActionByBattler[i] = B_ACTION_NONE;
         gChosenMoveByBattler[i] = MOVE_NONE;
     }
@@ -4057,7 +4052,7 @@ void BattleTurnPassed(void)
     }
 
     for (i = 0; i < MAX_BATTLERS_COUNT; i++)
-        *(gBattleStruct->monToSwitchIntoId + i) = PARTY_SIZE;
+        *(gBattleStruct->monToSwitchIntoId + i) = OPPONENT_PARTY_SIZE;
 
     *(&gBattleStruct->field_91) = gAbsentBattlerFlags;
     BattlePutTextOnWindow(gText_EmptyString3, 0);
@@ -4195,7 +4190,7 @@ static void HandleTurnActionSelectionState(void)
             gBattleCommunication[gActiveBattler] = STATE_BEFORE_ACTION_CHOSEN;
             break;
         case STATE_BEFORE_ACTION_CHOSEN: // Choose an action.
-            *(gBattleStruct->monToSwitchIntoId + gActiveBattler) = PARTY_SIZE;
+            *(gBattleStruct->monToSwitchIntoId + gActiveBattler) = OPPONENT_PARTY_SIZE;
             if (gBattleTypeFlags & BATTLE_TYPE_MULTI
                 || (position & BIT_FLANK) == B_FLANK_LEFT
                 || gBattleStruct->field_91 & gBitTable[GetBattlerAtPosition(BATTLE_PARTNER(position))]
@@ -4469,6 +4464,7 @@ static void HandleTurnActionSelectionState(void)
                     }
                     break;
                 case B_ACTION_SWITCH:
+                    // Check if we should update this...
                     if (gBattleBufferB[gActiveBattler][1] == PARTY_SIZE)
                     {
                         gBattleCommunication[gActiveBattler] = STATE_BEFORE_ACTION_CHOSEN;

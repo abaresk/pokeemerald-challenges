@@ -3487,6 +3487,7 @@ static void Cmd_getexp(void)
     }
 }
 
+// Set battle outcome based on who has mons with HP
 static void Cmd_unknown_24(void)
 {
     u16 HP_count = 0;
@@ -3520,7 +3521,7 @@ static void Cmd_unknown_24(void)
     
     HP_count = 0;
 
-    for (i = 0; i < PARTY_SIZE; i++)
+    for (i = 0; i < OPPONENT_PARTY_SIZE; i++)
     {
         if (GetMonData(&gEnemyParty[i], MON_DATA_SPECIES) && !GetMonData(&gEnemyParty[i], MON_DATA_IS_EGG)
             && (!(gBattleTypeFlags & BATTLE_TYPE_ARENA) || !(gBattleStruct->arenaLostOpponentMons & gBitTable[i])))
@@ -4654,6 +4655,8 @@ static void Cmd_jumpifcantswitch(void)
     s32 i;
     s32 lastMonId;
     struct Pokemon *party;
+    s32 partySize;
+    s32 individualPartySize;
 
     gActiveBattler = GetBattlerForBattleScript(gBattlescriptCurrInstr[1] & ~(SWITCH_IGNORE_ESCAPE_PREVENTION));
 
@@ -4665,16 +4668,22 @@ static void Cmd_jumpifcantswitch(void)
     }
     else if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER)
     {
-        if (GetBattlerSide(gActiveBattler) == B_SIDE_OPPONENT)
+        if (GetBattlerSide(gActiveBattler) == B_SIDE_OPPONENT) {
             party = gEnemyParty;
-        else
+            partySize = OPPONENT_PARTY_SIZE;
+            individualPartySize = OPPONENT_PARTY_SIZE / 2;
+        }
+        else {
             party = gPlayerParty;
+            partySize = PARTY_SIZE;
+            individualPartySize = PARTY_SIZE / 2;
+        }
 
         lastMonId = 0;
         if (gActiveBattler & 2)
-            lastMonId = 3;
+            lastMonId = individualPartySize;
 
-        for (i = lastMonId; i < lastMonId + 3; i++)
+        for (i = lastMonId; i < lastMonId + individualPartySize; i++)
         {
             if (GetMonData(&party[i], MON_DATA_SPECIES) != SPECIES_NONE
              && !GetMonData(&party[i], MON_DATA_IS_EGG)
@@ -4683,7 +4692,7 @@ static void Cmd_jumpifcantswitch(void)
                 break;
         }
 
-        if (i == lastMonId + 3)
+        if (i == lastMonId + individualPartySize)
             gBattlescriptCurrInstr = T1_READ_PTR(gBattlescriptCurrInstr + 2);
         else
             gBattlescriptCurrInstr += 6;
@@ -4695,6 +4704,7 @@ static void Cmd_jumpifcantswitch(void)
             if (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER)
             {
                 party = gPlayerParty;
+                partySize = PARTY_SIZE;
 
                 lastMonId = 0;
                 if (GetLinkTrainerFlankId(GetBattlerMultiplayerId(gActiveBattler)) == TRUE)
@@ -4703,6 +4713,7 @@ static void Cmd_jumpifcantswitch(void)
             else
             {
                 party = gEnemyParty;
+                partySize = OPPONENT_PARTY_SIZE;
 
                 if (gActiveBattler == 1)
                     lastMonId = 0;
@@ -4712,10 +4723,14 @@ static void Cmd_jumpifcantswitch(void)
         }
         else
         {
-            if (GetBattlerSide(gActiveBattler) == B_SIDE_OPPONENT)
+            if (GetBattlerSide(gActiveBattler) == B_SIDE_OPPONENT) {
                 party = gEnemyParty;
-            else
+                partySize = OPPONENT_PARTY_SIZE;
+            }
+            else {
                 party = gPlayerParty;
+                party = gPlayerParty;
+            }
 
             lastMonId = 0;
             if (GetLinkTrainerFlankId(GetBattlerMultiplayerId(gActiveBattler)) == TRUE)
@@ -4739,12 +4754,13 @@ static void Cmd_jumpifcantswitch(void)
     else if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS && GetBattlerSide(gActiveBattler) == B_SIDE_OPPONENT)
     {
         party = gEnemyParty;
+        partySize = OPPONENT_PARTY_SIZE;
 
         lastMonId = 0;
         if (gActiveBattler == B_POSITION_OPPONENT_RIGHT)
-            lastMonId = 3;
+            lastMonId = OPPONENT_PARTY_SIZE / 2;
 
-        for (i = lastMonId; i < lastMonId + 3; i++)
+        for (i = lastMonId; i < lastMonId + OPPONENT_PARTY_SIZE / 2; i++)
         {
             if (GetMonData(&party[i], MON_DATA_SPECIES) != SPECIES_NONE
              && !GetMonData(&party[i], MON_DATA_IS_EGG)
@@ -4753,7 +4769,7 @@ static void Cmd_jumpifcantswitch(void)
                 break;
         }
 
-        if (i == lastMonId + 3)
+        if (i == lastMonId + OPPONENT_PARTY_SIZE / 2)
             gBattlescriptCurrInstr = T1_READ_PTR(gBattlescriptCurrInstr + 2);
         else
             gBattlescriptCurrInstr += 6;
@@ -4772,6 +4788,7 @@ static void Cmd_jumpifcantswitch(void)
                 battlerIn2 = battlerIn1;
 
             party = gEnemyParty;
+            partySize = OPPONENT_PARTY_SIZE;
         }
         else
         {
@@ -4783,9 +4800,10 @@ static void Cmd_jumpifcantswitch(void)
                 battlerIn2 = battlerIn1;
 
             party = gPlayerParty;
+            partySize = PARTY_SIZE;
         }
 
-        for (i = 0; i < PARTY_SIZE; i++)
+        for (i = 0; i < partySize; i++)
         {
             if (GetMonData(&party[i], MON_DATA_HP) != 0
              && GetMonData(&party[i], MON_DATA_SPECIES) != SPECIES_NONE
@@ -4794,7 +4812,7 @@ static void Cmd_jumpifcantswitch(void)
                 break;
         }
 
-        if (i == PARTY_SIZE)
+        if (i == partySize)
             gBattlescriptCurrInstr = T1_READ_PTR(gBattlescriptCurrInstr + 2);
         else
             gBattlescriptCurrInstr += 6;
@@ -4819,6 +4837,7 @@ static void Cmd_openpartyscreen(void)
     u8 hitmarkerFaintBits;
     u8 battlerId;
     const u8 *jumpPtr;
+    s32 partySize;
 
     battlerId = 0;
     flags = 0;
@@ -4832,7 +4851,8 @@ static void Cmd_openpartyscreen(void)
             {
                 if (gHitMarker & HITMARKER_FAINTED(gActiveBattler))
                 {
-                    if (HasNoMonsToSwitch(gActiveBattler, PARTY_SIZE, PARTY_SIZE))
+                    partySize = (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER) ? PARTY_SIZE : OPPONENT_PARTY_SIZE;
+                    if (HasNoMonsToSwitch(gActiveBattler, partySize, partySize))
                     {
                         gAbsentBattlerFlags |= gBitTable[gActiveBattler];
                         gHitMarker &= ~(HITMARKER_FAINTED(gActiveBattler));
@@ -4861,7 +4881,8 @@ static void Cmd_openpartyscreen(void)
             if (gBitTable[0] & hitmarkerFaintBits)
             {
                 gActiveBattler = 0;
-                if (HasNoMonsToSwitch(0, PARTY_SIZE, PARTY_SIZE))
+                partySize = (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER) ? PARTY_SIZE : OPPONENT_PARTY_SIZE;
+                if (HasNoMonsToSwitch(0, partySize, partySize))
                 {
                     gAbsentBattlerFlags |= gBitTable[gActiveBattler];
                     gHitMarker &= ~(HITMARKER_FAINTED(gActiveBattler));
@@ -4883,7 +4904,8 @@ static void Cmd_openpartyscreen(void)
             if (gBitTable[2] & hitmarkerFaintBits && !(gBitTable[0] & hitmarkerFaintBits))
             {
                 gActiveBattler = 2;
-                if (HasNoMonsToSwitch(2, PARTY_SIZE, PARTY_SIZE))
+                partySize = (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER) ? PARTY_SIZE : OPPONENT_PARTY_SIZE;
+                if (HasNoMonsToSwitch(2, partySize, partySize))
                 {
                     gAbsentBattlerFlags |= gBitTable[gActiveBattler];
                     gHitMarker &= ~(HITMARKER_FAINTED(gActiveBattler));
@@ -4904,7 +4926,8 @@ static void Cmd_openpartyscreen(void)
             if (gBitTable[1] & hitmarkerFaintBits)
             {
                 gActiveBattler = 1;
-                if (HasNoMonsToSwitch(1, PARTY_SIZE, PARTY_SIZE))
+                partySize = (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER) ? PARTY_SIZE : OPPONENT_PARTY_SIZE;
+                if (HasNoMonsToSwitch(1, partySize, partySize))
                 {
                     gAbsentBattlerFlags |= gBitTable[gActiveBattler];
                     gHitMarker &= ~(HITMARKER_FAINTED(gActiveBattler));
@@ -4926,7 +4949,8 @@ static void Cmd_openpartyscreen(void)
             if (gBitTable[3] & hitmarkerFaintBits && !(gBitTable[1] & hitmarkerFaintBits))
             {
                 gActiveBattler = 3;
-                if (HasNoMonsToSwitch(3, PARTY_SIZE, PARTY_SIZE))
+                partySize = (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER) ? PARTY_SIZE : OPPONENT_PARTY_SIZE;
+                if (HasNoMonsToSwitch(3, partySize, partySize))
                 {
                     gAbsentBattlerFlags |= gBitTable[gActiveBattler];
                     gHitMarker &= ~(HITMARKER_FAINTED(gActiveBattler));
@@ -4989,7 +5013,8 @@ static void Cmd_openpartyscreen(void)
                 if (gBitTable[2] & hitmarkerFaintBits && gBitTable[0] & hitmarkerFaintBits)
                 {
                     gActiveBattler = 2;
-                    if (HasNoMonsToSwitch(2, gBattleBufferB[0][1], PARTY_SIZE))
+                    partySize = (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER) ? PARTY_SIZE : OPPONENT_PARTY_SIZE;
+                    if (HasNoMonsToSwitch(2, gBattleBufferB[0][1], partySize)) // Not sure when this fires
                     {
                         gAbsentBattlerFlags |= gBitTable[gActiveBattler];
                         gHitMarker &= ~(HITMARKER_FAINTED(gActiveBattler));
@@ -5005,7 +5030,8 @@ static void Cmd_openpartyscreen(void)
                 if (gBitTable[3] & hitmarkerFaintBits && hitmarkerFaintBits & gBitTable[1])
                 {
                     gActiveBattler = 3;
-                    if (HasNoMonsToSwitch(3, gBattleBufferB[1][1], PARTY_SIZE))
+                    partySize = (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER) ? PARTY_SIZE : OPPONENT_PARTY_SIZE;
+                    if (HasNoMonsToSwitch(3, gBattleBufferB[1][1], partySize))
                     {
                         gAbsentBattlerFlags |= gBitTable[gActiveBattler];
                         gHitMarker &= ~(HITMARKER_FAINTED(gActiveBattler));
@@ -5048,11 +5074,12 @@ static void Cmd_openpartyscreen(void)
             hitmarkerFaintBits = PARTY_ACTION_SEND_OUT;
 
         battlerId = GetBattlerForBattleScript(gBattlescriptCurrInstr[1] & ~(PARTY_SCREEN_OPTIONAL));
+        partySize = GetBattlerSide(battlerId) == B_SIDE_PLAYER ? PARTY_SIZE : OPPONENT_PARTY_SIZE;
         if (gSpecialStatuses[battlerId].flag40)
         {
             gBattlescriptCurrInstr += 6;
         }
-        else if (HasNoMonsToSwitch(battlerId, PARTY_SIZE, PARTY_SIZE))
+        else if (HasNoMonsToSwitch(battlerId, partySize, partySize))
         {
             gActiveBattler = battlerId;
             gAbsentBattlerFlags |= gBitTable[gActiveBattler];
@@ -5062,8 +5089,9 @@ static void Cmd_openpartyscreen(void)
         else
         {
             gActiveBattler = battlerId;
-            *(gBattleStruct->field_58 + gActiveBattler) = gBattlerPartyIndexes[gActiveBattler];
-            *(gBattleStruct->monToSwitchIntoId + gActiveBattler) = 6;
+            partySize = GetBattlerSide(battlerId) == B_SIDE_PLAYER ? PARTY_SIZE : OPPONENT_PARTY_SIZE;
+            gBattleStruct->field_58[gActiveBattler] = gBattlerPartyIndexes[gActiveBattler];
+            gBattleStruct->monToSwitchIntoId[gActiveBattler] = partySize;
             gBattleStruct->field_93 &= ~(gBitTable[gActiveBattler]);
 
             BtlController_EmitChoosePokemon(0, hitmarkerFaintBits, *(gBattleStruct->monToSwitchIntoId + (gActiveBattler ^ 2)), ABILITY_NONE, gBattleStruct->field_60[gActiveBattler]);
@@ -8249,14 +8277,20 @@ static void Cmd_healpartystatus(void)
     if (gCurrentMove == MOVE_HEAL_BELL)
     {
         struct Pokemon *party;
+        s32 partySize;
         s32 i;
 
         gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_BELL;
 
-        if (GetBattlerSide(gBattlerAttacker) == B_SIDE_PLAYER)
+        if (GetBattlerSide(gBattlerAttacker) == B_SIDE_PLAYER) {
             party = gPlayerParty;
-        else
+            partySize = PARTY_SIZE;
+        }
+
+        else {
             party = gEnemyParty;
+            partySize = OPPONENT_PARTY_SIZE;
+        }
 
         if (gBattleMons[gBattlerAttacker].ability != ABILITY_SOUNDPROOF)
         {
@@ -8288,7 +8322,7 @@ static void Cmd_healpartystatus(void)
 
         // Because the above MULTISTRING_CHOOSER are ORd, if both are set then it will be B_MSG_BELL_BOTH_SOUNDPROOF
 
-        for (i = 0; i < PARTY_SIZE; i++)
+        for (i = 0; i < partySize; i++)
         {
             u16 species = GetMonData(&party[i], MON_DATA_SPECIES2);
             u8 abilityNum = GetMonData(&party[i], MON_DATA_ABILITY_NUM);
@@ -8820,11 +8854,16 @@ static void Cmd_trysetfutureattack(void)
 static void Cmd_trydobeatup(void)
 {
     struct Pokemon *party;
+    s32 partySize;
 
-    if (GetBattlerSide(gBattlerAttacker) == B_SIDE_PLAYER)
+    if (GetBattlerSide(gBattlerAttacker) == B_SIDE_PLAYER) {
         party = gPlayerParty;
-    else
+        partySize = PARTY_SIZE;
+    }
+    else {
         party = gEnemyParty;
+        partySize = OPPONENT_PARTY_SIZE;
+    }
 
     if (gBattleMons[gBattlerTarget].hp == 0)
     {
@@ -8833,7 +8872,7 @@ static void Cmd_trydobeatup(void)
     else
     {
         u8 beforeLoop = gBattleCommunication[0];
-        for (;gBattleCommunication[0] < PARTY_SIZE; gBattleCommunication[0]++)
+        for (;gBattleCommunication[0] < partySize; gBattleCommunication[0]++)
         {
             if (GetMonData(&party[gBattleCommunication[0]], MON_DATA_HP)
                 && GetMonData(&party[gBattleCommunication[0]], MON_DATA_SPECIES2)
@@ -8841,7 +8880,7 @@ static void Cmd_trydobeatup(void)
                 && !GetMonData(&party[gBattleCommunication[0]], MON_DATA_STATUS))
                     break;
         }
-        if (gBattleCommunication[0] < PARTY_SIZE)
+        if (gBattleCommunication[0] < partySize)
         {
             PREPARE_MON_NICK_WITH_PREFIX_BUFFER(gBattleTextBuff1, gBattlerAttacker, gBattleCommunication[0])
 
@@ -9334,15 +9373,20 @@ static void Cmd_assistattackselect(void)
 {
     s32 chooseableMovesNo = 0;
     struct Pokemon* party;
+    s32 partySize;
     s32 monId, moveId;
     u16* movesArray = gBattleStruct->assistPossibleMoves;
 
-    if (GET_BATTLER_SIDE(gBattlerAttacker) != B_SIDE_PLAYER)
+    if (GET_BATTLER_SIDE(gBattlerAttacker) != B_SIDE_PLAYER) {
         party = gEnemyParty;
-    else
+        partySize = OPPONENT_PARTY_SIZE;
+    }
+    else {
         party = gPlayerParty;
+        partySize = PARTY_SIZE;
+    }
 
-    for (monId = 0; monId < PARTY_SIZE; monId++)
+    for (monId = 0; monId < partySize; monId++)
     {
         if (monId == gBattlerPartyIndexes[gBattlerAttacker])
             continue;

@@ -551,7 +551,7 @@ static void OpponentHandleGetMonData(void)
     else
     {
         monToCheck = gBattleBufferA[gActiveBattler][2];
-        for (i = 0; i < PARTY_SIZE; i++)
+        for (i = 0; i < OPPONENT_PARTY_SIZE; i++)
         {
             if (monToCheck & 1)
                 size += GetOpponentMonData(i, monData + size);
@@ -894,7 +894,7 @@ static void OpponentHandleSetMonData(void)
     else
     {
         monToCheck = gBattleBufferA[gActiveBattler][2];
-        for (i = 0; i < PARTY_SIZE; i++)
+        for (i = 0; i < OPPONENT_PARTY_SIZE; i++)
         {
             if (monToCheck & 1)
                 SetOpponentMonData(i);
@@ -1619,11 +1619,11 @@ static void OpponentHandleChoosePokemon(void)
 {
     s32 chosenMonId;
 
-    if (*(gBattleStruct->AI_monToSwitchIntoId + gActiveBattler) == PARTY_SIZE)
+    if (*(gBattleStruct->AI_monToSwitchIntoId + gActiveBattler) == OPPONENT_PARTY_SIZE)
     {
         chosenMonId = GetMostSuitableMonToSwitchInto();
 
-        if (chosenMonId == PARTY_SIZE)
+        if (chosenMonId == OPPONENT_PARTY_SIZE)
         {
             s32 battler1, battler2, firstId, lastId;
 
@@ -1640,13 +1640,13 @@ static void OpponentHandleChoosePokemon(void)
             if (gBattleTypeFlags & (BATTLE_TYPE_TWO_OPPONENTS | BATTLE_TYPE_TOWER_LINK_MULTI))
             {
                 if (gActiveBattler == 1)
-                    firstId = 0, lastId = 3;
+                    firstId = 0, lastId = 4;
                 else
-                    firstId = 3, lastId = 6;
+                    firstId = 4, lastId = OPPONENT_PARTY_SIZE;
             }
             else
             {
-                firstId = 0, lastId = 6;
+                firstId = 0, lastId = OPPONENT_PARTY_SIZE;
             }
 
             for (chosenMonId = firstId; chosenMonId < lastId; chosenMonId++)
@@ -1663,7 +1663,7 @@ static void OpponentHandleChoosePokemon(void)
     else
     {
         chosenMonId = *(gBattleStruct->AI_monToSwitchIntoId + gActiveBattler);
-        *(gBattleStruct->AI_monToSwitchIntoId + gActiveBattler) = PARTY_SIZE;
+        *(gBattleStruct->AI_monToSwitchIntoId + gActiveBattler) = OPPONENT_PARTY_SIZE;
     }
 
 

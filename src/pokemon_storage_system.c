@@ -2900,7 +2900,7 @@ static void Task_DepositMenu(u8 taskId)
         }
         break;
     case 2:
-        CompactPartySlots();
+        CompactPlayerPartySlots();
         CompactPartySprites();
         sStorage->state++;
         break;
@@ -2987,7 +2987,7 @@ static void Task_ReleaseMon(u8 taskId)
             ClearBottomWindow();
             if (sInPartyMenu)
             {
-                CompactPartySlots();
+                CompactPlayerPartySlots();
                 CompactPartySprites();
                 sStorage->state++;
             }
@@ -3348,7 +3348,7 @@ static void Task_HandleMovingMonFromParty(u8 taskId)
     switch (sStorage->state)
     {
     case 0:
-        CompactPartySlots();
+        CompactPlayerPartySlots();
         CompactPartySprites();
         sStorage->state++;
         break;
@@ -4140,7 +4140,7 @@ static bool8 HidePartyMenu(void)
         {
             sInPartyMenu = FALSE;
             DestroyAllPartyMonIcons();
-            CompactPartySlots();
+            CompactPlayerPartySlots();
 
             // The close box button gets partially covered by
             // the party menu, restore it
@@ -6745,44 +6745,33 @@ static void SetSelectionAfterSummaryScreen(void)
         sCursorPosition = gLastViewedMonIndex;
 }
 
-s16 CompactPartySlots(void)
+s16 CompactPlayerPartySlots(void)
 {
-    s16 retVal = -1;
-    u16 i, last;
-
-    for (i = 0, last = 0; i < PARTY_SIZE; i++)
-    {
-        u16 species = GetMonData(&gPlayerParty[i], MON_DATA_SPECIES);
-        if (species != SPECIES_NONE)
-        {
-            if (i != last)
-                gPlayerParty[last] = gPlayerParty[i];
-            last++;
-        }
-        else if (retVal == -1)
-        {
-            retVal = i;
-        }
-    }
-    for (; last < PARTY_SIZE; last++)
-        ZeroMonData(&gPlayerParty[last]);
-
-    return retVal;
+    return CompactPartySlots(gPlayerParty, 0, PARTY_SIZE);
 }
 
-s16 CompactEnemyPartySlots(void)
-{
+void CompactEnemyPartySlots(OpponentType type) {
+    if (type == ONLY_OPPONENT) {
+        CompactPartySlots(gEnemyParty, 0, OPPONENT_PARTY_SIZE);
+    } else if (type == FIRST_OPPONENT) {
+        CompactPartySlots(gEnemyParty, 0, OPPONENT_PARTY_SIZE / 2);
+    } else { // SECOND_OPPONENT
+        CompactPartySlots(gEnemyParty, OPPONENT_PARTY_SIZE / 2, OPPONENT_PARTY_SIZE);
+    }
+}
+
+s16 CompactPartySlots(Pokemon *party, u16 firstSlot, u16 lastSlot) {
     s16 retVal = -1;
     u16 i, last;
 
-    // TODO: Update this to OPPONENT_PARTY_SIZE!
-    for (i = 0, last = 0; i < PARTY_SIZE; i++)
+    i = firstSlot; last = firstSlot;
+    for (; i < lastSlot; i++)
     {
-        u16 species = GetMonData(&gEnemyParty[i], MON_DATA_SPECIES);
+        u16 species = GetMonData(&party[i], MON_DATA_SPECIES);
         if (species != SPECIES_NONE)
         {
             if (i != last)
-                gEnemyParty[last] = gEnemyParty[i];
+                party[last] = party[i];
             last++;
         }
         else if (retVal == -1)
@@ -6790,9 +6779,8 @@ s16 CompactEnemyPartySlots(void)
             retVal = i;
         }
     }
-    // TODO: Update this to OPPONENT_PARTY_SIZE!
-    for (; last < PARTY_SIZE; last++)
-        ZeroMonData(&gEnemyParty[last]);
+    for (; last < lastSlot; last++)
+        ZeroMonData(&party[last]);
 
     return retVal;
 }

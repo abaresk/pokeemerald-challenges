@@ -24,6 +24,7 @@ static void CreateTasksForSendRecvLinkBuffers(void);
 static void InitLinkBtlControllers(void);
 static void InitSinglePlayerBtlControllers(void);
 static void SetBattlePartyIds(void);
+static s32 FindNthUsableMon(Pokemon *party, u16 partySize, u16 n);
 static void Task_HandleSendLinkBuffersData(u8 taskId);
 static void Task_HandleCopyReceivedLinkBuffersData(u8 taskId);
 
@@ -586,66 +587,35 @@ static void SetBattlePartyIds(void)
     {
         for (i = 0; i < gBattlersCount; i++)
         {
-            for (j = 0; j < PARTY_SIZE; j++)
-            {
-                if (i < 2)
-                {
-                    if (GET_BATTLER_SIDE2(i) == B_SIDE_PLAYER)
-                    {
-                        if (GetMonData(&gPlayerParty[j], MON_DATA_HP) != 0
-                         && GetMonData(&gPlayerParty[j], MON_DATA_SPECIES2) != SPECIES_NONE
-                         && GetMonData(&gPlayerParty[j], MON_DATA_SPECIES2) != SPECIES_EGG
-                         && GetMonData(&gPlayerParty[j], MON_DATA_IS_EGG) == 0)
-                        {
-                            gBattlerPartyIndexes[i] = j;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        if (GetMonData(&gEnemyParty[j], MON_DATA_HP) != 0
-                         && GetMonData(&gEnemyParty[j], MON_DATA_SPECIES2) != SPECIES_NONE
-                         && GetMonData(&gEnemyParty[j], MON_DATA_SPECIES2) != SPECIES_EGG
-                         && GetMonData(&gEnemyParty[j], MON_DATA_IS_EGG) == 0)
-                        {
-                            gBattlerPartyIndexes[i] = j;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    if (GET_BATTLER_SIDE2(i) == B_SIDE_PLAYER)
-                    {
-                        if (GetMonData(&gPlayerParty[j], MON_DATA_HP) != 0
-                         && GetMonData(&gPlayerParty[j], MON_DATA_SPECIES) != SPECIES_NONE  // Probably a typo by Game Freak. The rest use SPECIES2.
-                         && GetMonData(&gPlayerParty[j], MON_DATA_SPECIES2) != SPECIES_EGG
-                         && GetMonData(&gPlayerParty[j], MON_DATA_IS_EGG) == 0
-                         && gBattlerPartyIndexes[i - 2] != j)
-                        {
-                            gBattlerPartyIndexes[i] = j;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        if (GetMonData(&gEnemyParty[j], MON_DATA_HP) != 0
-                         && GetMonData(&gEnemyParty[j], MON_DATA_SPECIES2) != SPECIES_NONE
-                         && GetMonData(&gEnemyParty[j], MON_DATA_SPECIES2) != SPECIES_EGG
-                         && GetMonData(&gEnemyParty[j], MON_DATA_IS_EGG) == 0
-                         && gBattlerPartyIndexes[i - 2] != j)
-                        {
-                            gBattlerPartyIndexes[i] = j;
-                            break;
-                        }
-                    }
-                }
+            if (GET_BATTLER_SIDE2(i) == B_SIDE_PLAYER) {
+                gBattlerPartyIndexes[i] = FindNthUsableMon(gPlayerParty, PARTY_SIZE, i / 2 + 1);
+            } else {
+                gBattlerPartyIndexes[i] = FindNthUsableMon(gEnemyParty, OPPONENT_PARTY_SIZE, i / 2 + 1);
             }
         }
 
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
-            gBattlerPartyIndexes[1] = 0, gBattlerPartyIndexes[3] = 3;
+            gBattlerPartyIndexes[1] = 0, gBattlerPartyIndexes[3] = 4;
     }
+}
+
+// Return the index of the n-th usable mon in a party.
+// First usable mon: n = 1,
+// Second usable mon: n = 2, etc.
+static s32 FindNthUsableMon(Pokemon *party, u16 partySize, u16 n) {
+    s32 i;
+    s32 usableMons = 0;
+
+    for (i = 0; i < partySize; i++) {
+        if (GetMonData(&party[i], MON_DATA_HP) != 0 &&
+            GetMonData(&party[i], MON_DATA_SPECIES2) != SPECIES_NONE &&
+            GetMonData(&party[i], MON_DATA_SPECIES2) != SPECIES_EGG &&
+            GetMonData(&party[i], MON_DATA_IS_EGG) == 0) {
+                usableMons++;
+                if (usableMons == n) return i;
+            }
+    }
+    return -1;
 }
 
 static void PrepareBufferDataTransfer(u8 bufferId, u8 *data, u16 size)

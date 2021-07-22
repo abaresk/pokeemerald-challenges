@@ -1292,6 +1292,7 @@ static void Cmd_count_usable_party_mons(void)
     u8 battlerOnField1, battlerOnField2;
     struct Pokemon *party;
     s32 i;
+    s32 partySize;
 
     AI_THINKING_STRUCT->funcResult = 0;
 
@@ -1300,10 +1301,14 @@ static void Cmd_count_usable_party_mons(void)
     else
         battlerId = gBattlerTarget;
 
-    if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
+    if (GetBattlerSide(battlerId) == B_SIDE_PLAYER) {
         party = gPlayerParty;
-    else
+        partySize = PARTY_SIZE;
+    }
+    else {
         party = gEnemyParty;
+        partySize = OPPONENT_PARTY_SIZE;
+    }
 
     if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
     {
@@ -1318,7 +1323,7 @@ static void Cmd_count_usable_party_mons(void)
         battlerOnField2 = gBattlerPartyIndexes[battlerId];
     }
 
-    for (i = 0; i < PARTY_SIZE; i++)
+    for (i = 0; i < partySize; i++)
     {
         if (i != battlerOnField1 && i != battlerOnField2
          && GetMonData(&party[i], MON_DATA_HP) != 0
@@ -1550,6 +1555,7 @@ static void Cmd_nop_33(void)
 static void Cmd_if_status_in_party(void)
 {
     struct Pokemon *party;
+    s32 partySize;
     s32 i;
     u32 statusToCompareTo;
     u8 battlerId;
@@ -1565,10 +1571,11 @@ static void Cmd_if_status_in_party(void)
     }
 
     party = (GetBattlerSide(battlerId) == B_SIDE_PLAYER) ? gPlayerParty : gEnemyParty;
+    partySize = (GetBattlerSide(battlerId) == B_SIDE_PLAYER) ? PARTY_SIZE : OPPONENT_PARTY_SIZE;
 
     statusToCompareTo = T1_READ_32(gAIScriptPtr + 2);
 
-    for (i = 0; i < PARTY_SIZE; i++)
+    for (i = 0; i < partySize; i++)
     {
         u16 species = GetMonData(&party[i], MON_DATA_SPECIES);
         u16 hp = GetMonData(&party[i], MON_DATA_HP);
@@ -1587,6 +1594,7 @@ static void Cmd_if_status_in_party(void)
 static void Cmd_if_status_not_in_party(void)
 {
     struct Pokemon *party;
+    s32 partySize;
     s32 i;
     u32 statusToCompareTo;
     u8 battlerId;
@@ -1602,10 +1610,11 @@ static void Cmd_if_status_not_in_party(void)
     }
 
     party = (GetBattlerSide(battlerId) == B_SIDE_PLAYER) ? gPlayerParty : gEnemyParty;
+    partySize = (GetBattlerSide(battlerId) == B_SIDE_PLAYER) ? PARTY_SIZE : OPPONENT_PARTY_SIZE;
 
     statusToCompareTo = T1_READ_32(gAIScriptPtr + 2);
 
-    for (i = 0; i < PARTY_SIZE; i++)
+    for (i = 0; i < partySize; i++)
     {
         u16 species = GetMonData(&party[i], MON_DATA_SPECIES);
         u16 hp = GetMonData(&party[i], MON_DATA_HP);

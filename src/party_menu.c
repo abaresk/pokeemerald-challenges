@@ -5843,6 +5843,7 @@ void BufferBattlePartyCurrentOrderBySide(u8 battlerId, u8 flankId)
     BufferBattlePartyOrderBySide(gBattleStruct->field_60[battlerId], flankId, battlerId);
 }
 
+// Probably need to update this function...
 // when GetBattlerSide(battlerId) == B_SIDE_PLAYER, this function is identical the one above
 static void BufferBattlePartyOrderBySide(u8 *partyBattleOrder, u8 flankId, u8 battlerId)
 {
