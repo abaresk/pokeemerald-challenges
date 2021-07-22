@@ -5632,6 +5632,9 @@ static u8 GetMaxBattleEntries(void)
 
 static u8 GetMinBattleEntries(void)
 {
+    if (gPartyMenu.menuType == PARTY_MENU_TYPE_CHOOSE_HALF) {
+        return 2;
+    }
     switch (VarGet(VAR_FRONTIER_FACILITY))
     {
     case FACILITY_MULTI_OR_EREADER:
