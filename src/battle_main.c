@@ -80,10 +80,10 @@ static void CB2_HandleStartBattle(void);
 static void TryCorrectShedinjaLanguage(struct Pokemon *mon);
 static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 firstTrainer);
 static void TryStealMonFromPlayer(u16 trainerId, OpponentType type);
-static void StealFromParty(u32 trainerPersonality, Pokemon *dest);
+static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType type);
 static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest);
 static void GiveMonToOpponent(Pokemon *mon, OpponentType type);
-static Pokemon *FavoritePartyMon(u32 trainerPersonality);
+static Pokemon *FavoritePartyMon(u32 trainerPersonality, u16 first, u16 last);
 static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality);
 static void FavoriteBoxMon_iter(BoxPokemon *mon, void * data);
 static void LeastFavoriteBoxMon_iter(BoxPokemon *mon, void * data);
@@ -707,10 +707,10 @@ static void CB2_InitBattleInternal(void)
         
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) {
             TryStealMonFromPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT);
-            TryStealMonFromPlayer(gTrainerBattleOpponent_A, SECOND_OPPONENT);
+            TryStealMonFromPlayer(gTrainerBattleOpponent_B, SECOND_OPPONENT);
         } else if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE) {
             TryStealMonFromPlayer(gTrainerBattleOpponent_A, ONLY_OPPONENT);
-            TryStealMonFromPlayer(gTrainerBattleOpponent_B, ONLY_OPPONENT);
+            TryStealMonFromPlayer(gTrainerBattleOpponent_A, ONLY_OPPONENT);
         } else {
             TryStealMonFromPlayer(gTrainerBattleOpponent_A, ONLY_OPPONENT);
         }
@@ -2061,21 +2061,28 @@ static void TryStealMonFromPlayer(u16 trainerId, OpponentType type) {
 
     if (!PlayerHasMoreThanOneMon()) return;
 
-    StealFromParty(trainerPersonality, &mon);
+    StealFromParty(trainerPersonality, &mon, type);
     HealPokemon(&mon);
     GiveMonToOpponent(&mon, type);
 }
 
-static void StealFromParty(u32 trainerPersonality, Pokemon *dest) {
+static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType type) {
     // Pick a mon
-    Pokemon *mon = FavoritePartyMon(trainerPersonality);
+    Pokemon *mon;
+    u16 first = 0; u16 last = PARTY_SIZE;
+
+    if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) {
+        first = type == FIRST_OPPONENT ? 0              : PARTY_SIZE / 2;
+        last = type == FIRST_OPPONENT  ? PARTY_SIZE / 2 : PARTY_SIZE;
+    }
+    mon = FavoritePartyMon(trainerPersonality, first, last);
 
     // Copy mon data
     *dest = *mon;
 
     // Remove mon from party
     ZeroMonData(mon);
-    CompactPlayerPartySlots();
+    CompactPartySlots(gPlayerParty, first, last);
     CalculatePlayerPartyCount();
 }
 
@@ -2111,13 +2118,13 @@ static void GiveMonToOpponent(Pokemon *mon, OpponentType type) {
     CalculateEnemyPartyCount();
 }
 
-static Pokemon *FavoritePartyMon(u32 trainerPersonality) {
+static Pokemon *FavoritePartyMon(u32 trainerPersonality, u16 first, u16 last) {
     u32 bestValue = 0;
     Pokemon *bestMon = NULL;
     s32 i;
     u32 value;
 
-    for (i = 0; i < PARTY_SIZE; i++) {
+    for (i = first; i < last; i++) {
         Pokemon *mon = &gPlayerParty[i];
         if (GetMonData(mon, MON_DATA_SPECIES, NULL) == SPECIES_NONE ||
             GetMonData(mon, MON_DATA_SPECIES2, NULL) == SPECIES_EGG) {
