@@ -2131,6 +2131,7 @@ static Pokemon *FavoritePartyMon(u32 trainerPersonality, u16 first, u16 last) {
                 continue;
             }
         value = GetMonData(mon, MON_DATA_PERSONALITY, NULL) ^ trainerPersonality;
+        value = HIHALF(value) ^ LOHALF(value);
         if (value > bestValue) {
             bestValue = value;
             bestMon = mon;
@@ -2153,6 +2154,7 @@ static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality) {
                 continue;
             }
         value = GetMonData(mon, MON_DATA_PERSONALITY, NULL) ^ trainerPersonality;
+        value = HIHALF(value) ^ LOHALF(value);
         if (value < worstValue) {
             worstValue = value;
             worstMon = mon;
@@ -2166,6 +2168,7 @@ static void FavoriteBoxMon_iter(BoxPokemon *mon, void * data) {
     BoxMonIter *iter = (BoxMonIter *) data;
 
     u32 value = GetBoxMonData(mon, MON_DATA_PERSONALITY) ^ iter->trainerPersonality;
+    value = HIHALF(value) ^ LOHALF(value);
     if (value > iter->value) {
         iter->mon = mon;
         iter->value = value;
@@ -2176,6 +2179,7 @@ static void LeastFavoriteBoxMon_iter(BoxPokemon *mon, void * data) {
     BoxMonIter *iter = (BoxMonIter *) data;
 
     u32 value = GetBoxMonData(mon, MON_DATA_PERSONALITY) ^ iter->trainerPersonality;
+    value = HIHALF(value) ^ LOHALF(value);
     if (value < iter->value) {
         iter->mon = mon;
         iter->value = value;
