@@ -179,6 +179,8 @@ void LoadPlayerParty(void)
 
     for (i = 0; i < PARTY_SIZE; i++)
         gPlayerParty[i] = gSaveBlock1Ptr->playerParty[i];
+
+    CompactPlayerPartySlots();
 }
 
 void SaveObjectEvents(void)
