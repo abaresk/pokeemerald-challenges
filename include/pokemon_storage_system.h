@@ -37,7 +37,7 @@ u8 *StringCopyAndFillWithSpaces(u8 *dst, const u8 *src, u16 n);
 void ShowPokemonStorageSystemPC(void);
 void ResetPokemonStorageSystem(void);
 s16 CompactPlayerPartySlots(void);
-void CompactEnemyPartySlots(OpponentType type);
+s16 CompactEnemyPartySlots(OpponentType type);
 s16 CompactPartySlots(Pokemon *party, u16 firstSlot, u16 lastSlot);
 u8 StorageGetCurrentBox(void);
 u32 GetBoxMonDataAt(u8 boxId, u8 boxPosition, s32 request);

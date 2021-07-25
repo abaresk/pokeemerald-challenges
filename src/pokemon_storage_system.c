@@ -6751,20 +6751,20 @@ s16 CompactPlayerPartySlots(void)
     return CompactPartySlots(gPlayerParty, 0, PARTY_SIZE);
 }
 
-void CompactEnemyPartySlots(OpponentType type) {
+s16 CompactEnemyPartySlots(OpponentType type) {
 
     if (!(gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)) {
-        CompactPartySlots(gEnemyParty, 0, OPPONENT_PARTY_SIZE);
-        return;
+        return CompactPartySlots(gEnemyParty, 0, OPPONENT_PARTY_SIZE);
     }
 
     if (type == FIRST_OPPONENT) {
-        CompactPartySlots(gEnemyParty, 0, OPPONENT_PARTY_SIZE / 2);
+        return CompactPartySlots(gEnemyParty, 0, OPPONENT_PARTY_SIZE / 2);
     } else {
-        CompactPartySlots(gEnemyParty, OPPONENT_PARTY_SIZE / 2, OPPONENT_PARTY_SIZE);
+        return CompactPartySlots(gEnemyParty, OPPONENT_PARTY_SIZE / 2, OPPONENT_PARTY_SIZE);
     }
 }
 
+// Return the index after the final mon (post-compaction). 
 s16 CompactPartySlots(Pokemon *party, u16 firstSlot, u16 lastSlot) {
     s16 retVal = -1;
     u16 i, last;
@@ -6784,6 +6784,8 @@ s16 CompactPartySlots(Pokemon *party, u16 firstSlot, u16 lastSlot) {
             retVal = i;
         }
     }
+
+    retVal = last;
     for (; last < lastSlot; last++)
         ZeroMonData(&party[last]);
 

@@ -1135,7 +1135,7 @@ bool8 IsMultiBattle(void)
         return FALSE;
 }
 
-static void SwapPartyPokemon(struct Pokemon *mon1, struct Pokemon *mon2)
+void SwapPartyPokemon(struct Pokemon *mon1, struct Pokemon *mon2)
 {
     struct Pokemon *temp = Alloc(sizeof(struct Pokemon));
 

@@ -82,7 +82,7 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
 static void TryStealMonFromPlayer(u16 trainerId, OpponentType type);
 static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType type);
 static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest);
-static void GiveMonToOpponent(Pokemon *mon, OpponentType type);
+static void GiveMonToOpponent(Pokemon *mon, OpponentType type, u32 trainerPersonality);
 static void GetMonToReturn(u32 trainerPersonality, Pokemon *dest, OpponentType type, bool8 playerWon);
 static void GiveTrainerMonToPlayer(Pokemon *mon);
 static Pokemon *FavoritePartyMon(u32 trainerPersonality, u16 first, u16 last);
@@ -2071,7 +2071,7 @@ static void TryStealMonFromPlayer(u16 trainerId, OpponentType type) {
 
     StealFromParty(trainerPersonality, &mon, type);
     HealPokemon(&mon);
-    GiveMonToOpponent(&mon, type);
+    GiveMonToOpponent(&mon, type, trainerPersonality);
 }
 
 static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType type) {
@@ -2119,18 +2119,26 @@ static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest) {
 }
 
 // gEnemyParty has already been initialized
-static void GiveMonToOpponent(Pokemon *mon, OpponentType type) {
-    u16 slot;
+static void GiveMonToOpponent(Pokemon *mon, OpponentType type, u32 trainerPersonality) {
+    u16 numSlots;
+    u16 startingSlot;
+    u16 insertSlot;
+    s16 finalSlot;
+    u16 newSlot;
+
     if (mon == NULL) return;
 
-    // TODO: The location it's inserted into should depend on
-    // trainerPersonality.
-    slot = OPPONENT_PARTY_SIZE - 1;
-    if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS && type == FIRST_OPPONENT) {
-        slot = OPPONENT_PARTY_SIZE / 2 - 1;
-    }
-    gEnemyParty[slot] = *mon;
-    CompactEnemyPartySlots(type);
+    numSlots = (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) ? OPPONENT_PARTY_SIZE / 2 : OPPONENT_PARTY_SIZE;
+    startingSlot = (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS && type == SECOND_OPPONENT) ? OPPONENT_PARTY_SIZE / 2 : 0;
+    insertSlot = startingSlot + numSlots;
+
+    gEnemyParty[insertSlot - 1] = *mon;
+    finalSlot = CompactEnemyPartySlots(type);
+
+    // Shuffle new Pokémon into a random spot in compacted party.
+    newSlot = startingSlot + trainerPersonality % (finalSlot - startingSlot);
+    SwapPartyPokemon(&gEnemyParty[newSlot], &gEnemyParty[finalSlot - 1]);
+
     CalculateEnemyPartyCount();
 }
 
