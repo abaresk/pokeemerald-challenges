@@ -68,5 +68,6 @@ bool8 IsTrainerReadyForRematch(void);
 void ShouldTryGetTrainerScript(void);
 u16 CountBattledRematchTeams(u16 trainerId);
 bool8 IsTrainerBattleDouble(u16 battleMode);
+bool32 IsPlayerDefeated(u32 battleOutcome);
 
 #endif // GUARD_BATTLE_SETUP_H

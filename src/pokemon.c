@@ -68,6 +68,11 @@ EWRAM_DATA u8 gPlayerPartyCount = 0;
 EWRAM_DATA u8 gEnemyPartyCount = 0;
 EWRAM_DATA struct Pokemon gPlayerParty[PARTY_SIZE] = {0};
 EWRAM_DATA struct Pokemon gEnemyParty[OPPONENT_PARTY_SIZE] = {0};
+
+// The opponent's original party, before adding stolen mons.
+EWRAM_DATA struct Pokemon gEnemyPartyOriginal[OPPONENT_PARTY_SIZE] = {0};
+// Mons stolen from the player.
+EWRAM_DATA struct Pokemon gStolenMons[2] = {0};
 EWRAM_DATA struct SpriteTemplate gMultiuseSpriteTemplate = {0};
 EWRAM_DATA struct Unknown_806F160_Struct *gUnknown_020249B4[2] = {NULL};
 

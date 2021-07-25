@@ -254,6 +254,8 @@ extern u8 gPlayerPartyCount;
 extern struct Pokemon gPlayerParty[PARTY_SIZE];
 extern u8 gEnemyPartyCount;
 extern struct Pokemon gEnemyParty[OPPONENT_PARTY_SIZE];
+extern struct Pokemon gEnemyPartyOriginal[OPPONENT_PARTY_SIZE];
+extern struct Pokemon gStolenMons[2];
 extern struct SpriteTemplate gMultiuseSpriteTemplate;
 
 extern const struct BattleMove gBattleMoves[];

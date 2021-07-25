@@ -83,8 +83,10 @@ static void TryStealMonFromPlayer(u16 trainerId, OpponentType type);
 static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType type);
 static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest);
 static void GiveMonToOpponent(Pokemon *mon, OpponentType type);
+static void GetMonToReturn(u32 trainerPersonality, Pokemon *dest, OpponentType type, bool8 playerWon);
+static void GiveTrainerMonToPlayer(Pokemon *mon);
 static Pokemon *FavoritePartyMon(u32 trainerPersonality, u16 first, u16 last);
-static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality);
+static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality, u16 first, u16 last);
 static void FavoriteBoxMon_iter(BoxPokemon *mon, void * data);
 static void LeastFavoriteBoxMon_iter(BoxPokemon *mon, void * data);
 static u32 GetTrainerPersonality(u16 trainerId);
@@ -704,15 +706,21 @@ static void CB2_InitBattleInternal(void)
         CreateNPCTrainerParty(&gEnemyParty[0], gTrainerBattleOpponent_A, TRUE);
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
             CreateNPCTrainerParty(&gEnemyParty[4], gTrainerBattleOpponent_B, FALSE);
+
+        // Backup trainer's original party
+        for (i = 0; i < OPPONENT_PARTY_SIZE; i++) {
+            gEnemyPartyOriginal[i] = gEnemyParty[i];
+        }
         
+        // Steal mons from player
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) {
             TryStealMonFromPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT);
             TryStealMonFromPlayer(gTrainerBattleOpponent_B, SECOND_OPPONENT);
         } else if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE) {
-            TryStealMonFromPlayer(gTrainerBattleOpponent_A, ONLY_OPPONENT);
-            TryStealMonFromPlayer(gTrainerBattleOpponent_A, ONLY_OPPONENT);
+            TryStealMonFromPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT);
+            TryStealMonFromPlayer(gTrainerBattleOpponent_A, SECOND_OPPONENT);
         } else {
-            TryStealMonFromPlayer(gTrainerBattleOpponent_A, ONLY_OPPONENT);
+            TryStealMonFromPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT);
         }
 
         SetWildMonHeldItem();
@@ -2070,6 +2078,7 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType t
     // Pick a mon
     Pokemon *mon;
     u16 first = 0; u16 last = PARTY_SIZE;
+    u16 slot;
 
     if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) {
         first = type == FIRST_OPPONENT ? 0              : PARTY_SIZE / 2;
@@ -2079,6 +2088,10 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType t
 
     // Copy mon data
     *dest = *mon;
+
+    // Store stolen mon in case we return to player
+    slot = type == SECOND_OPPONENT ? 1 : 0;
+    gStolenMons[slot] = *mon;
 
     // Remove mon from party
     ZeroMonData(mon);
@@ -2112,10 +2125,61 @@ static void GiveMonToOpponent(Pokemon *mon, OpponentType type) {
 
     // TODO: The location it's inserted into should depend on
     // trainerPersonality.
-    slot = (type == FIRST_OPPONENT) ? 3 : 7;
+    slot = OPPONENT_PARTY_SIZE - 1;
+    if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS && type == FIRST_OPPONENT) {
+        slot = OPPONENT_PARTY_SIZE / 2 - 1;
+    }
     gEnemyParty[slot] = *mon;
     CompactEnemyPartySlots(type);
     CalculateEnemyPartyCount();
+}
+
+void TryReturnMonToPlayer(u32 trainerId, OpponentType type, bool8 playerWon) {
+    Pokemon mon;
+    u32 trainerPersonality = GetTrainerPersonality(trainerId);
+
+    GetMonToReturn(trainerPersonality, &mon, type, playerWon);
+    HealPokemon(&mon);
+    GiveTrainerMonToPlayer(&mon);    
+}
+
+static void GetMonToReturn(u32 trainerPersonality, Pokemon *dest, OpponentType type, bool8 playerWon) {
+    Pokemon *mon;
+    u16 first = 0; u16 last = OPPONENT_PARTY_SIZE;
+    u16 slot;
+
+    if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) {
+        first = type == FIRST_OPPONENT ? 0                       : OPPONENT_PARTY_SIZE / 2;
+        last = type == FIRST_OPPONENT  ? OPPONENT_PARTY_SIZE / 2 : OPPONENT_PARTY_SIZE;
+    }
+
+    mon = LeastFavoritePartyMon(trainerPersonality, first, last);
+
+    // Return trainer's original mon if they lost. Otherwise, there's still a
+    // small chance (1/32) that the trainer returns the original mon anyway.
+    if (!playerWon || Random() % 32 == 0) {
+        slot = type == SECOND_OPPONENT ? 1 : 0;
+        mon = &gStolenMons[slot];
+    }
+
+    // Copy mon data
+    *dest = *mon;
+
+    // Remove mon from party
+    ZeroMonData(mon);
+}
+
+static void GiveTrainerMonToPlayer(Pokemon *mon) {
+    u16 slot;
+
+    if (mon == NULL) return;
+
+    slot = (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) ?
+           PARTY_SIZE / 2 - 1 : PARTY_SIZE - 1;
+
+    gPlayerParty[slot] = *mon;
+    CompactPlayerPartySlots();
+    CalculatePlayerPartyCount();
 }
 
 static Pokemon *FavoritePartyMon(u32 trainerPersonality, u16 first, u16 last) {
@@ -2141,14 +2205,14 @@ static Pokemon *FavoritePartyMon(u32 trainerPersonality, u16 first, u16 last) {
     return bestMon;
 }
 
-static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality) {
+static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality, u16 first, u16 last) {
     u32 worstValue = -1;
     Pokemon *worstMon = NULL;
     s32 i;
     u32 value;
 
-    for (i = 0; i < PARTY_SIZE; i++) {
-        Pokemon *mon = &gPlayerParty[i];
+    for (i = first; i < last; i++) {
+        Pokemon *mon = &gEnemyPartyOriginal[i];
         if (GetMonData(mon, MON_DATA_SPECIES, NULL) == SPECIES_NONE ||
             GetMonData(mon, MON_DATA_SPECIES2, NULL) == SPECIES_EGG) {
                 continue;

@@ -78,7 +78,6 @@ static void CB2_GiveStarter(void);
 static void CB2_StartFirstBattle(void);
 static void CB2_EndFirstBattle(void);
 static void CB2_EndTrainerBattle(void);
-static bool32 IsPlayerDefeated(u32 battleOutcome);
 static u16 GetRematchTrainerId(u16 trainerId);
 static void RegisterTrainerInMatchCall(void);
 static void HandleRematchVarsOnBattleEnd(void);
@@ -994,7 +993,7 @@ static u16 GetTrainerBFlag(void)
     return TRAINER_FLAGS_START + gTrainerBattleOpponent_B;
 }
 
-static bool32 IsPlayerDefeated(u32 battleOutcome)
+bool32 IsPlayerDefeated(u32 battleOutcome)
 {
     switch (battleOutcome)
     {
@@ -1392,6 +1391,8 @@ void BattleSetup_StartTrainerBattle(void)
 
 static void CB2_EndTrainerBattle(void)
 {
+    bool8 playerWon = !IsPlayerDefeated(gBattleOutcome);
+
     if (gTrainerBattleOpponent_A == TRAINER_SECRET_BASE)
     {
         SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic);
@@ -1400,8 +1401,9 @@ static void CB2_EndTrainerBattle(void)
     {
         if (InBattlePyramid() || InTrainerHillChallenge())
             SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic);
-        else
+        else {
             SetMainCallback2(CB2_WhiteOut);
+        }
     }
     else
     {
@@ -1412,6 +1414,20 @@ static void CB2_EndTrainerBattle(void)
             SetBattledTrainersFlags();
         }
     }
+        
+    #ifdef REPLACE_MONS
+    // If you win, replace stolen mon with one of theirs. If you lose, get your
+    // mon back.
+    if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) {
+        TryReturnMonToPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT, playerWon);
+        TryReturnMonToPlayer(gTrainerBattleOpponent_B, SECOND_OPPONENT, playerWon);
+    } else if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE) {
+        TryReturnMonToPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT, playerWon);
+        TryReturnMonToPlayer(gTrainerBattleOpponent_A, SECOND_OPPONENT, playerWon);
+    } else {
+        TryReturnMonToPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT, playerWon);
+    }
+    #endif
 }
 
 static void CB2_EndRematchBattle(void)

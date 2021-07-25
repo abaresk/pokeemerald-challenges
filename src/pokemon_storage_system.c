@@ -1,5 +1,6 @@
 #include "global.h"
 #include "malloc.h"
+#include "battle.h"
 #include "bg.h"
 #include "data.h"
 #include "decompress.h"
@@ -6751,11 +6752,15 @@ s16 CompactPlayerPartySlots(void)
 }
 
 void CompactEnemyPartySlots(OpponentType type) {
-    if (type == ONLY_OPPONENT) {
+
+    if (!(gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)) {
         CompactPartySlots(gEnemyParty, 0, OPPONENT_PARTY_SIZE);
-    } else if (type == FIRST_OPPONENT) {
+        return;
+    }
+
+    if (type == FIRST_OPPONENT) {
         CompactPartySlots(gEnemyParty, 0, OPPONENT_PARTY_SIZE / 2);
-    } else { // SECOND_OPPONENT
+    } else {
         CompactPartySlots(gEnemyParty, OPPONENT_PARTY_SIZE / 2, OPPONENT_PARTY_SIZE);
     }
 }

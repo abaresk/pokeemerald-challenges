@@ -1946,6 +1946,7 @@ static void GetOpponentIntroSpeech(void)
 static void HandleSpecialTrainerBattleEnd(void)
 {
     s32 i;
+    bool8 playerWon = !IsPlayerDefeated(gBattleOutcome);
 
     RecordedBattle_SaveBattleOutcome();
     switch (gBattleScripting.specialTrainerBattleType)
@@ -1980,6 +1981,10 @@ static void HandleSpecialTrainerBattleEnd(void)
         CopyEReaderTrainerFarewellMessage();
         break;
     }
+
+    #ifdef REPLACE_MONS
+    TryReturnMonToPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT, playerWon);
+    #endif
 
     SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic);
 }

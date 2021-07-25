@@ -44,7 +44,6 @@ struct UnknownPokemonStruct4
 #define BOUNCE_HEALTHBOX    0x1
 
 typedef enum {
-    ONLY_OPPONENT,
     FIRST_OPPONENT,
     SECOND_OPPONENT,
 } OpponentType;
@@ -87,6 +86,7 @@ void RunBattleScriptCommands_PopCallbacksStack(void);
 void RunBattleScriptCommands(void);
 bool8 TryRunFromBattle(u8 battlerId);
 void SpecialStatusesClear(void);
+void TryReturnMonToPlayer(u32 trainerId, OpponentType type, bool8 playerWon);
 
 extern struct UnknownPokemonStruct4 gMultiPartnerParty[MULTI_PARTY_SIZE];
 
