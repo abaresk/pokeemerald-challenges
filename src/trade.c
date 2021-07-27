@@ -4523,6 +4523,7 @@ static void _CreateInGameTradePokemon(u8 whichPlayerMon, u8 whichInGameTrade)
     struct MailStruct mail;
     u8 metLocation = METLOC_IN_GAME_TRADE;
     u8 isMail;
+    u32 monId;
     struct Pokemon *pokemon = &gEnemyParty[0];
 
     CreateMon(pokemon, inGameTrade->species, level, USE_RANDOM_IVS, TRUE, inGameTrade->personality, OT_ID_PRESET, inGameTrade->otId);
@@ -4544,6 +4545,9 @@ static void _CreateInGameTradePokemon(u8 whichPlayerMon, u8 whichInGameTrade)
     SetMonData(pokemon, MON_DATA_TOUGH, &inGameTrade->conditions[4]);
     SetMonData(pokemon, MON_DATA_SHEEN, &inGameTrade->sheen);
     SetMonData(pokemon, MON_DATA_MET_LOCATION, &metLocation);
+
+    monId = MonCounterIncr();
+    SetMonData(pokemon, MON_DATA_ID, &monId);
 
     isMail = FALSE;
     if (inGameTrade->heldItem != ITEM_NONE)

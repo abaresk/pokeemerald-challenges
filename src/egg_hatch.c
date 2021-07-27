@@ -296,7 +296,7 @@ static const s16 sEggShardVelocities[][2] =
 static void CreateHatchedMon(struct Pokemon *egg, struct Pokemon *temp)
 {
     u16 species;
-    u32 personality, pokerus;
+    u32 personality, pokerus, monId;
     u8 i, friendship, language, gameMet, markings, isEventLegal;
     u16 moves[MAX_MON_MOVES];
     u32 ivs[NUM_STATS];
@@ -320,6 +320,7 @@ static void CreateHatchedMon(struct Pokemon *egg, struct Pokemon *temp)
     gameMet = GetMonData(egg, MON_DATA_MET_GAME);
     markings = GetMonData(egg, MON_DATA_MARKINGS);
     pokerus = GetMonData(egg, MON_DATA_POKERUS);
+    monId = GetMonData(egg, MON_DATA_ID);
     isEventLegal = GetMonData(egg, MON_DATA_EVENT_LEGAL);
 
     CreateMon(temp, species, EGG_HATCH_LEVEL, USE_RANDOM_IVS, TRUE, personality, OT_ID_PLAYER_ID, 0);
@@ -342,6 +343,7 @@ static void CreateHatchedMon(struct Pokemon *egg, struct Pokemon *temp)
     friendship = 120;
     SetMonData(temp, MON_DATA_FRIENDSHIP, &friendship);
     SetMonData(temp, MON_DATA_POKERUS, &pokerus);
+    SetMonData(temp, MON_DATA_ID, &monId);
     SetMonData(temp, MON_DATA_EVENT_LEGAL, &isEventLegal);
 
     *egg = *temp;

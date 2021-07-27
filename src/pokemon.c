@@ -3985,6 +3985,9 @@ u32 GetBoxMonData(struct BoxPokemon *boxMon, s32 field, u8 *data)
                 | (substruct3->worldRibbon << 26);
         }
         break;
+    case MON_DATA_ID:
+        retVal = boxMon->monId;
+        break;
     default:
         break;
     }
@@ -4303,6 +4306,9 @@ void SetBoxMonData(struct BoxPokemon *boxMon, s32 field, const void *dataArg)
         substruct3->spDefenseIV = (ivs >> 25) & MAX_IV_MASK;
         break;
     }
+    case MON_DATA_ID:
+        SET32(boxMon->monId);
+        break;
     default:
         break;
     }
@@ -4322,10 +4328,14 @@ void CopyMon(void *dest, void *src, size_t size)
 u8 GiveMonToPlayer(struct Pokemon *mon)
 {
     s32 i;
+    u32 monId;
 
     SetMonData(mon, MON_DATA_OT_NAME, gSaveBlock2Ptr->playerName);
     SetMonData(mon, MON_DATA_OT_GENDER, &gSaveBlock2Ptr->playerGender);
     SetMonData(mon, MON_DATA_OT_ID, gSaveBlock2Ptr->playerTrainerId);
+
+    monId = MonCounterIncr();
+    SetMonData(mon, MON_DATA_ID, &monId);
 
     for (i = 0; i < PARTY_SIZE; i++)
     {
@@ -6800,6 +6810,10 @@ void HandleSetPokedexFlag(u16 nationalNum, u8 caseId, u32 personality)
         if (NationalPokedexNumToSpecies(nationalNum) == SPECIES_SPINDA)
             gSaveBlock2Ptr->pokedex.spindaPersonality = personality;
     }
+}
+
+u32 MonCounterIncr(void) {
+    return gSaveBlock2Ptr->monsCaught++;
 }
 
 const u8 *GetTrainerClassNameFromId(u16 trainerId)

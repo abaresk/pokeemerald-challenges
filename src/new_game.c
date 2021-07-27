@@ -161,6 +161,7 @@ void NewGameInitData(void)
     ClearMailData();
     gSaveBlock2Ptr->specialSaveWarpFlags = 0;
     gSaveBlock2Ptr->gcnLinkFlags = 0;
+    gSaveBlock2Ptr->monsCaught = 0;
     InitPlayerTrainerId();
     PlayTimeCounter_Reset();
     ClearPokedexFlags();

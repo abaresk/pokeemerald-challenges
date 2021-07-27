@@ -89,6 +89,7 @@ struct BoxPokemon
 {
     u32 personality;
     u32 otId;
+    u32 monId;
     u8 nickname[POKEMON_NAME_LENGTH];
     u8 language;
     u8 isBadEgg:1;
@@ -433,5 +434,6 @@ bool8 HasTwoFramesAnimation(u16 species);
 struct Unknown_806F160_Struct *sub_806F2AC(u8 id, u8 arg1);
 void sub_806F47C(u8 id);
 u8 *sub_806F4F8(u8 id, u8 arg1);
+u32 MonCounterIncr(void);
 
 #endif // GUARD_POKEMON_H
