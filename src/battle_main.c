@@ -83,7 +83,7 @@ static void TryStealMonFromPlayer(u16 trainerId, OpponentType type);
 static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType type);
 static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest);
 static void GiveMonToOpponent(Pokemon *mon, OpponentType type, u32 trainerPersonality);
-static void GetMonToReturn(u32 trainerPersonality, Pokemon *dest, OpponentType type, bool8 playerWon);
+static void GetMonToReturn(u32 trainerId, Pokemon *dest, OpponentType type, bool8 playerWon);
 static void GiveTrainerMonToPlayer(Pokemon *mon);
 static Pokemon *FavoritePartyMon(u32 trainerPersonality, u16 first, u16 last);
 static Pokemon *LeastFavoritePartyMon(u32 trainerPersonality, u16 first, u16 last);
@@ -2144,15 +2144,15 @@ static void GiveMonToOpponent(Pokemon *mon, OpponentType type, u32 trainerPerson
 
 void TryReturnMonToPlayer(u32 trainerId, OpponentType type, bool8 playerWon) {
     Pokemon mon;
-    u32 trainerPersonality = GetTrainerPersonality(trainerId);
 
-    GetMonToReturn(trainerPersonality, &mon, type, playerWon);
+    GetMonToReturn(trainerId, &mon, type, playerWon);
     HealPokemon(&mon);
     GiveTrainerMonToPlayer(&mon);    
 }
 
-static void GetMonToReturn(u32 trainerPersonality, Pokemon *dest, OpponentType type, bool8 playerWon) {
+static void GetMonToReturn(u32 trainerId, Pokemon *dest, OpponentType type, bool8 playerWon) {
     Pokemon *mon;
+    u32 trainerPersonality = GetTrainerPersonality(trainerId);
     u16 first = 0; u16 last = OPPONENT_PARTY_SIZE;
     u16 slot;
 
@@ -2162,6 +2162,7 @@ static void GetMonToReturn(u32 trainerPersonality, Pokemon *dest, OpponentType t
     }
 
     mon = LeastFavoritePartyMon(trainerPersonality, first, last);
+    SetMonData(mon, MON_DATA_OT_NAME, gTrainers[trainerId].trainerName);
 
     // Return trainer's original mon if they lost. Otherwise, there's still a
     // small chance (1/32) that the trainer returns the original mon anyway.
