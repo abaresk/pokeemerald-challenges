@@ -719,7 +719,7 @@ static void CB2_InitBattleInternal(void)
         } else if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE) {
             TryStealMonFromPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT);
             TryStealMonFromPlayer(gTrainerBattleOpponent_A, SECOND_OPPONENT);
-        } else {
+        } else if (gBattleTypeFlags & BATTLE_TYPE_TRAINER) {
             TryStealMonFromPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT);
         }
 
