@@ -33,14 +33,20 @@ u16 Random2(void)
     return gRng2Value >> 16;
 }
 
-u32 AdvanceSeed(u32 seed, u32 frames) {
+u16 AdvanceSeed(u32 seed, u32 frames) {
     s32 i;
     u32 value = seed;
 
     for (i = 0; i < frames; i++) {
         value = ISO_RANDOMIZE1(value);
     }
-    return value;
+    return value >> 16;
+}
+
+// Get the randomly generated u32 returned after the given number of frames. 
+u32 AdvanceSeed32(u32 seed, u32 frames) {
+    return AdvanceSeed(seed, frames * 2) << 16 |
+           AdvanceSeed(seed, frames * 2 + 1);
 }
 
 void EnableTimerRNG(void) {

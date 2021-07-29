@@ -1997,8 +1997,8 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum, bool8 fir
         for (i = 0; i < monsCount; i++)
         {
             personalityValue =
-                AdvanceSeed(SeedGet(SEED_TRAINER_MON_A), trainerNum) ^
-                AdvanceSeed(SeedGet(SEED_TRAINER_MON_B), i);
+                AdvanceSeed32(SeedGet(SEED_TRAINER_MON_A), trainerNum) ^
+                AdvanceSeed32(SeedGet(SEED_TRAINER_MON_B), i);
             if (gTrainers[trainerNum].encounterMusic_gender & 0x80)
                 personalityValue &= ~0x80;
             else
@@ -2258,7 +2258,7 @@ static void LeastFavoriteBoxMon_iter(BoxPokemon *mon, void * data) {
 }
 
 static u32 GetTrainerPersonality(u16 trainerId) {
-    return AdvanceSeed(SeedGet(SEED_TRAINER_PERSONALITY), trainerId);
+    return AdvanceSeed32(SeedGet(SEED_TRAINER_PERSONALITY), trainerId);
 }
 
 void sub_8038A04(void) // unused
