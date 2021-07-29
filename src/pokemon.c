@@ -6453,21 +6453,11 @@ bool8 IsTradedMon(struct Pokemon *mon)
 
 bool8 IsOtherTrainer(u32 otId, u8 *otName)
 {
-    if (otId ==
+    return !(otId ==
         (gSaveBlock2Ptr->playerTrainerId[0]
          | (gSaveBlock2Ptr->playerTrainerId[1] << 8)
          | (gSaveBlock2Ptr->playerTrainerId[2] << 16)
-         | (gSaveBlock2Ptr->playerTrainerId[3] << 24)))
-    {
-        int i;
-
-        for (i = 0; otName[i] != EOS; i++)
-            if (otName[i] != gSaveBlock2Ptr->playerName[i])
-                return TRUE;
-        return FALSE;
-    }
-
-    return TRUE;
+         | (gSaveBlock2Ptr->playerTrainerId[3] << 24)));
 }
 
 void MonRestorePP(struct Pokemon *mon)
