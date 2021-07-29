@@ -2145,6 +2145,8 @@ static void GiveMonToOpponent(Pokemon *mon, OpponentType type, u32 trainerPerson
 void TryReturnMonToPlayer(u32 trainerId, OpponentType type, bool8 playerWon) {
     Pokemon mon;
 
+    if (!FlagGet(FLAG_SYS_POKEDEX_GET)) return;
+
     GetMonToReturn(trainerId, &mon, type, playerWon);
     HealPokemon(&mon);
     GiveTrainerMonToPlayer(&mon);    
