@@ -4297,7 +4297,7 @@ void SetBoxMonData(struct BoxPokemon *boxMon, s32 field, const void *dataArg)
         break;
     }
     case MON_DATA_ID:
-        SET32(boxMon->monId);
+        SET16(boxMon->monId);
         break;
     default:
         break;
@@ -4318,7 +4318,7 @@ void CopyMon(void *dest, void *src, size_t size)
 u8 GiveMonToPlayer(struct Pokemon *mon)
 {
     s32 i;
-    u32 monId;
+    u16 monId;
 
     SetMonData(mon, MON_DATA_OT_NAME, gSaveBlock2Ptr->playerName);
     SetMonData(mon, MON_DATA_OT_GENDER, &gSaveBlock2Ptr->playerGender);
@@ -6792,7 +6792,7 @@ void HandleSetPokedexFlag(u16 nationalNum, u8 caseId, u32 personality)
     }
 }
 
-u32 MonCounterIncr(void) {
+u16 MonCounterIncr(void) {
     return gSaveBlock2Ptr->monsCaught++;
 }
 

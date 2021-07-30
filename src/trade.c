@@ -4523,7 +4523,7 @@ static void _CreateInGameTradePokemon(u8 whichPlayerMon, u8 whichInGameTrade)
     struct MailStruct mail;
     u8 metLocation = METLOC_IN_GAME_TRADE;
     u8 isMail;
-    u32 monId;
+    u16 monId;
     struct Pokemon *pokemon = &gEnemyParty[0];
 
     CreateMon(pokemon, inGameTrade->species, level, USE_RANDOM_IVS, TRUE, inGameTrade->personality, OT_ID_PRESET, inGameTrade->otId);
