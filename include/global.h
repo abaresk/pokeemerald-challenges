@@ -11,6 +11,7 @@
 #include "constants/vars.h"
 #include "constants/species.h"
 #include "constants/berry.h"
+#include "global.steal_queue.h"
 
 // Prevent cross-jump optimization.
 #define BLOCK_CROSS_JUMP asm("");
@@ -494,8 +495,8 @@ struct SaveBlock2
     /*0x624*/ u16 contestLinkResults[CONTEST_CATEGORIES_COUNT][CONTESTANT_COUNT];
     /*0x64C*/ struct BattleFrontier frontier;
     /*0xF2C*/ u16 monsCaught;
-    /*0xF2E*/ u16 stealQueue[STEAL_QUEUE_COUNT];
-}; // sizeof=0x1286
+    /*0xF2E*/ StealQueue stealQueue;
+}; // sizeof=0x1288
 
 extern struct SaveBlock2 *gSaveBlock2Ptr;
 
