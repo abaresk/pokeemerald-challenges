@@ -2165,6 +2165,7 @@ static void GetMonToReturn(u32 trainerId, Pokemon *dest, OpponentType type, bool
     Pokemon *mon;
     u32 trainerPersonality = GetTrainerPersonality(trainerId);
     u16 first = 0; u16 last = OPPONENT_PARTY_SIZE;
+    u8 otGender;
     u16 slot;
     u8 data;
     u16 monId;
@@ -2178,6 +2179,8 @@ static void GetMonToReturn(u32 trainerId, Pokemon *dest, OpponentType type, bool
 
     mon = LeastFavoritePartyMon(trainerPersonality, first, last);
     SetMonData(mon, MON_DATA_OT_NAME, gTrainers[trainerId].trainerName);
+    otGender = (gTrainers[trainerId].encounterMusic_gender & F_TRAINER_FEMALE) >> 7;
+    SetMonData(mon, MON_DATA_OT_GENDER, &otGender);
 
     // Return trainer's original mon if they lost. Otherwise, there's still a
     // small chance (1/32) that the trainer returns the original mon anyway.
