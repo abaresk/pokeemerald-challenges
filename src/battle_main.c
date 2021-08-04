@@ -43,6 +43,7 @@
 #include "script_pokemon_util.h"
 #include "sound.h"
 #include "sprite.h"
+#include "steal_queue.h"
 #include "string_util.h"
 #include "strings.h"
 #include "task.h"
@@ -2079,6 +2080,8 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType t
     Pokemon *mon;
     u16 first = 0; u16 last = PARTY_SIZE;
     u16 slot;
+    u16 monId;
+    u8 data;
 
     if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) {
         first = type == FIRST_OPPONENT ? 0              : PARTY_SIZE / 2;
@@ -2089,9 +2092,15 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType t
     // Copy mon data
     *dest = *mon;
 
-    // Store stolen mon in case we return to player
+    // Remove monId from steal queue
+    monId = GetMonData(mon, MON_DATA_ID, &data);
+
+    // Store stolen mon and its queue index in case we return to player
     slot = type == SECOND_OPPONENT ? 1 : 0;
-    gStolenMons[slot] = *mon;
+    gStolenMons[slot].mon = *mon;
+    gStolenMons[slot].queueIndex = Queue_IndexOf(&gSaveBlock2Ptr->stealQueue, monId);
+
+    Queue_Remove(&gSaveBlock2Ptr->stealQueue, monId);
 
     // Remove mon from party
     ZeroMonData(mon);
@@ -2157,6 +2166,10 @@ static void GetMonToReturn(u32 trainerId, Pokemon *dest, OpponentType type, bool
     u32 trainerPersonality = GetTrainerPersonality(trainerId);
     u16 first = 0; u16 last = OPPONENT_PARTY_SIZE;
     u16 slot;
+    u8 data;
+    u16 monId;
+    u16 queueIndex;
+    bool8 returnStolenMon = FALSE;
 
     if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) {
         first = type == FIRST_OPPONENT ? 0                       : OPPONENT_PARTY_SIZE / 2;
@@ -2170,7 +2183,22 @@ static void GetMonToReturn(u32 trainerId, Pokemon *dest, OpponentType type, bool
     // small chance (1/32) that the trainer returns the original mon anyway.
     if (!playerWon || Random() % 32 == 0) {
         slot = type == SECOND_OPPONENT ? 1 : 0;
-        mon = &gStolenMons[slot];
+        mon = &gStolenMons[slot].mon;
+        monId = GetMonData(mon, MON_DATA_ID, &data);
+        queueIndex = gStolenMons[slot].queueIndex;
+        returnStolenMon = TRUE;
+    }
+
+    if (!returnStolenMon) {
+        // Assign mon a new monId and add to queue
+        monId = MonCounterIncr();
+        SetMonData(mon, MON_DATA_ID, &monId);
+        PlaceMonInStealQueue(monId);
+    } else {
+        // TODO: Check that this wouldn't flip two mons' orders in double
+        // battles.
+        // Add mon back where it previously was in queue
+        Queue_InsertAt(&gSaveBlock2Ptr->stealQueue, monId, queueIndex);
     }
 
     // Copy mon data

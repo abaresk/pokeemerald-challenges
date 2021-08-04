@@ -163,7 +163,8 @@ void NewGameInitData(void)
     ClearMailData();
     gSaveBlock2Ptr->specialSaveWarpFlags = 0;
     gSaveBlock2Ptr->gcnLinkFlags = 0;
-    gSaveBlock2Ptr->monsCaught = 0;
+    gSaveBlock2Ptr->monsCaught = 1; // We'll use 0 as a sentinel to tell whether
+                                    // a mon was added to the queue.
     InitPlayerTrainerId();
     PlayTimeCounter_Reset();
     ClearPokedexFlags();

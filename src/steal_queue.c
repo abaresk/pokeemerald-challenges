@@ -8,20 +8,20 @@ void InitStealQueue(StealQueue *queue) {
 }
 
 // Return current length of the queue.
-u16 GetLength(StealQueue *queue) {
+u16 Queue_GetLength(StealQueue *queue) {
     return queue->length;
 }
 
 // Return mon at the given index, or -1 if the index is greater than the
 // queue's length.
-u16 Index(StealQueue *queue, u16 index) {
+u16 Queue_Index(StealQueue *queue, u16 index) {
     if (index >= queue->length) return -1;
 
     return queue->queue[index];
 }
 
 // Return the index of a mon in the queue.
-u16 IndexOf(StealQueue *queue, u16 monId) {
+u16 Queue_IndexOf(StealQueue *queue, u16 monId) {
     u16 i;
 
     for (i = 0; i < queue->length; i++) {
@@ -34,7 +34,7 @@ u16 IndexOf(StealQueue *queue, u16 monId) {
 
 // Append a mon to the end of the queue. Returns the index it was inserted at,
 // or -1 if the queue is full.
-u16 Push(StealQueue *queue, u16 monId) {
+u16 Queue_Push(StealQueue *queue, u16 monId) {
     u16 index;
 
     if (queue->length == STEAL_QUEUE_SIZE) return -1;
@@ -48,7 +48,7 @@ u16 Push(StealQueue *queue, u16 monId) {
 
 // Insert the mon at the given index. Returns the index it was inserted at, or
 // -1 if the queue is full.
-u16 InsertAt(StealQueue *queue, u16 monId, u16 index) {
+u16 Queue_InsertAt(StealQueue *queue, u16 monId, u16 index) {
     u16 *buffer;
     u16 copySize;
 
@@ -70,9 +70,18 @@ u16 InsertAt(StealQueue *queue, u16 monId, u16 index) {
     return index;
 }
 
+// Remove the mon from the queue. Returns the index it was at or -1 if it wasn't
+// in the queue.
+u16 Queue_Remove(StealQueue *queue, u16 monId) {
+    u16 index = Queue_IndexOf(queue, monId);
+    if (index == 0xFFFF) return index;
+
+    return Queue_RemoveAt(queue, index);
+}
+
 // Remove the mon at the given index. Returns the mon at the given index, or
 // -1 if the queue is empty.
-u16 RemoveAt(StealQueue *queue, u16 index)
+u16 Queue_RemoveAt(StealQueue *queue, u16 index)
 {
     u16 *buffer;
     u16 copySize;
@@ -99,26 +108,25 @@ u16 RemoveAt(StealQueue *queue, u16 index)
 }
 
 // Pops and returns mon at front of the queue. Returns -1 if queue is empty.
-u16 PopFront(StealQueue *queue) {
-    return RemoveAt(queue, 0);
+u16 Queue_PopFront(StealQueue *queue) {
+    return Queue_RemoveAt(queue, 0);
 }
 
-// Returns the mon in the given list that is closest to the front of the queue.
-u16 FurthestInLine(StealQueue *queue, u16 *mons, u16 monsSize) {
+// Returns the mon in the given list that is closest to the front of the queue
+// and its index in the queue.
+ValueIndex Queue_FurthestInLine(StealQueue *queue, u16 *mons, u16 monsSize) {
     u16 i;
     u16 idx;
-    u16 minIndex = -1;
-    u16 furthestMon = -1;
+    ValueIndex ret = { .value = -1, .index = -1};
 
     for (i = 0; i < monsSize; i++) {
-        idx = IndexOf(queue, mons[i]);
-        if (idx < minIndex) {
-            minIndex = idx;
-            furthestMon = mons[i];
+        idx = Queue_IndexOf(queue, mons[i]);
+        if (idx < ret.index) {
+            ret = (ValueIndex) { .value = mons[i], .index = idx};
         }
     }
 
-    return furthestMon;
+    return ret;
 }
 
 // Maybe Purge(), which removes mons from queue that aren't in given list.

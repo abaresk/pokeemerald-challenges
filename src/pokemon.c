@@ -29,6 +29,7 @@
 #include "recorded_battle.h"
 #include "rtc.h"
 #include "sound.h"
+#include "steal_queue.h"
 #include "string_util.h"
 #include "strings.h"
 #include "task.h"
@@ -72,7 +73,7 @@ EWRAM_DATA struct Pokemon gEnemyParty[OPPONENT_PARTY_SIZE] = {0};
 // The opponent's original party, before adding stolen mons.
 EWRAM_DATA struct Pokemon gEnemyPartyOriginal[OPPONENT_PARTY_SIZE] = {0};
 // Mons stolen from the player.
-EWRAM_DATA struct Pokemon gStolenMons[2] = {0};
+EWRAM_DATA StolenMon gStolenMons[2] = {0};
 EWRAM_DATA struct SpriteTemplate gMultiuseSpriteTemplate = {0};
 EWRAM_DATA struct Unknown_806F160_Struct *gUnknown_020249B4[2] = {NULL};
 
@@ -4326,6 +4327,7 @@ u8 GiveMonToPlayer(struct Pokemon *mon)
 
     monId = MonCounterIncr();
     SetMonData(mon, MON_DATA_ID, &monId);
+    PlaceMonInStealQueue(monId);
 
     for (i = 0; i < PARTY_SIZE; i++)
     {
@@ -4373,6 +4375,42 @@ u8 SendMonToPC(struct Pokemon* mon)
     } while (boxNo != StorageGetCurrentBox());
 
     return MON_CANT_GIVE;
+}
+
+void PlaceMonInStealQueue(u16 monId) {
+    s32 i, insertAfter, insertIdx;
+    u32 rng;
+    u16 partyMonIds[PARTY_SIZE];
+    ValueIndex furthest, secondFurthest;
+    u8 data;
+    StealQueue *queue = &gSaveBlock2Ptr->stealQueue;
+
+    // Get furthest mon
+    for (i = 0; i < PARTY_SIZE; i++) {
+        partyMonIds[i] = GetMonData(&gPlayerParty[i], MON_DATA_ID, &data);
+    }
+    furthest = Queue_FurthestInLine(queue, partyMonIds, PARTY_SIZE);
+
+    // Get second furthest mon
+    for (i = 0; i < PARTY_SIZE; i++) {
+        if (furthest.value == GetMonData(&gPlayerParty[i], MON_DATA_ID, &data)) {
+            partyMonIds[i] = 0;
+        }
+    }
+    secondFurthest = Queue_FurthestInLine(queue, partyMonIds, PARTY_SIZE);
+
+    if (secondFurthest.index != 0xFFFF) {
+        insertAfter = secondFurthest.index;
+    } else if (furthest.index != 0xFFFF) {
+        insertAfter = furthest.index;
+    } else {
+        insertAfter = -1;
+    }
+
+    // TODO: Maybe make this randomly generated
+    rng = Random32();
+    insertIdx = (insertAfter + 1) + rng % (Queue_GetLength(queue) - insertAfter);
+    Queue_InsertAt(queue, monId, insertIdx);
 }
 
 u8 CalculatePlayerPartyCount(void)

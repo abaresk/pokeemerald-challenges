@@ -33,6 +33,7 @@
 #include "save.h"
 #include "script.h"
 #include "sound.h"
+#include "steal_queue.h"
 #include "string_util.h"
 #include "strings.h"
 #include "task.h"
@@ -3063,6 +3064,7 @@ static void TryEnableNationalDexFromLinkPartner(void)
 static void TradeMons(u8 playerPartyIdx, u8 partnerPartyIdx)
 {
     u8 friendship;
+    u16 monId;
 
     struct Pokemon *playerMon = &gPlayerParty[playerPartyIdx];
     u16 playerMail = GetMonData(playerMon, MON_DATA_MAIL);
@@ -3072,6 +3074,11 @@ static void TradeMons(u8 playerPartyIdx, u8 partnerPartyIdx)
 
     if (playerMail != MAIL_NONE)
         ClearMailStruct(&gSaveBlock1Ptr->mail[playerMail]);
+
+    monId = GetMonData(playerMon, MON_DATA_ID);
+    if (monId != 0) {
+        Queue_Remove(&gSaveBlock2Ptr->stealQueue, monId);
+    }
 
     sTradeData->mon = *playerMon;
     *playerMon = *partnerMon;
@@ -4548,6 +4555,7 @@ static void _CreateInGameTradePokemon(u8 whichPlayerMon, u8 whichInGameTrade)
 
     monId = MonCounterIncr();
     SetMonData(pokemon, MON_DATA_ID, &monId);
+    PlaceMonInStealQueue(monId);
 
     isMail = FALSE;
     if (inGameTrade->heldItem != ITEM_NONE)

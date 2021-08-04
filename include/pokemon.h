@@ -242,6 +242,11 @@ struct Evolution
     u16 targetSpecies;
 };
 
+typedef struct {
+    struct Pokemon mon;
+    u16 queueIndex;
+} StolenMon;
+
 #define NUM_UNOWN_FORMS 28
 
 #define GET_UNOWN_LETTER(personality) ((   \
@@ -256,7 +261,7 @@ extern struct Pokemon gPlayerParty[PARTY_SIZE];
 extern u8 gEnemyPartyCount;
 extern struct Pokemon gEnemyParty[OPPONENT_PARTY_SIZE];
 extern struct Pokemon gEnemyPartyOriginal[OPPONENT_PARTY_SIZE];
-extern struct Pokemon gStolenMons[2];
+extern StolenMon gStolenMons[2];
 extern struct SpriteTemplate gMultiuseSpriteTemplate;
 
 extern const struct BattleMove gBattleMoves[];
@@ -435,5 +440,6 @@ struct Unknown_806F160_Struct *sub_806F2AC(u8 id, u8 arg1);
 void sub_806F47C(u8 id);
 u8 *sub_806F4F8(u8 id, u8 arg1);
 u16 MonCounterIncr(void);
+void PlaceMonInStealQueue(u16 monId);
 
 #endif // GUARD_POKEMON_H

@@ -30,6 +30,7 @@
 #include "pokemon_storage_system.h"
 #include "script.h"
 #include "sound.h"
+#include "steal_queue.h"
 #include "string_util.h"
 #include "strings.h"
 #include "text.h"
@@ -657,6 +658,7 @@ static void RefreshDisplayMon(void);
 static void SetMovingMonData(u8, u8);
 static void SetPlacedMonData(u8, u8);
 static void PurgeMonOrBoxMon(u8, u8);
+static void RemoveReleasedMonFromQueue(u8 boxId, u8 position);
 static void SetShiftedMonData(u8, u8);
 static bool8 TryStorePartyMonInBox(u8);
 static void ResetSelectionAfterDeposit(void);
@@ -6392,10 +6394,25 @@ static void SetPlacedMonData(u8 boxId, u8 position)
 
 static void PurgeMonOrBoxMon(u8 boxId, u8 position)
 {
-    if (boxId == TOTAL_BOXES_COUNT)
+    if (boxId == TOTAL_BOXES_COUNT) {
         ZeroMonData(&gPlayerParty[position]);
-    else
+    }
+    else {
         ZeroBoxMonAt(boxId, position);
+    }
+}
+
+static void RemoveReleasedMonFromQueue(u8 boxId, u8 position) {
+    u8 data;
+    u16 monId;
+
+    monId = boxId == TOTAL_BOXES_COUNT ? 
+            GetMonData(&gPlayerParty[position], MON_DATA_ID, &data) :
+            GetBoxMonDataAt(boxId, position, MON_DATA_ID);
+
+    if (monId != 0) {
+        Queue_Remove(&gSaveBlock2Ptr->stealQueue, monId);
+    }
 }
 
 static void SetShiftedMonData(u8 boxId, u8 position)
@@ -6488,8 +6505,10 @@ static void ReleaseMon(void)
         else
             boxId = StorageGetCurrentBox();
 
+        RemoveReleasedMonFromQueue(boxId, sCursorPosition);
         PurgeMonOrBoxMon(boxId, sCursorPosition);
     }
+
     TryRefreshDisplayMon();
 }
 
