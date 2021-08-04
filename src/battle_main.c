@@ -2186,6 +2186,16 @@ static void GetMonToReturn(u32 trainerId, Pokemon *dest, OpponentType type, bool
         mon = &gStolenMons[slot].mon;
         monId = GetMonData(mon, MON_DATA_ID, &data);
         queueIndex = gStolenMons[slot].queueIndex;
+
+        // This will restore the queue to the correct order in double battles.
+        if (type == FIRST_OPPONENT &&
+            gStolenMons[slot].queueIndex > gStolenMons[1].queueIndex) {
+                queueIndex--;
+            }
+        if (type == SECOND_OPPONENT &&
+            gStolenMons[slot].queueIndex >= gStolenMons[0].queueIndex) {
+                queueIndex++;
+            }
         returnStolenMon = TRUE;
     }
 
@@ -2195,8 +2205,6 @@ static void GetMonToReturn(u32 trainerId, Pokemon *dest, OpponentType type, bool
         SetMonData(mon, MON_DATA_ID, &monId);
         PlaceMonInStealQueue(monId);
     } else {
-        // TODO: Check that this wouldn't flip two mons' orders in double
-        // battles.
         // Add mon back where it previously was in queue
         Queue_InsertAt(&gSaveBlock2Ptr->stealQueue, monId, queueIndex);
     }
