@@ -712,6 +712,12 @@ static void CB2_InitBattleInternal(void)
         for (i = 0; i < OPPONENT_PARTY_SIZE; i++) {
             gEnemyPartyOriginal[i] = gEnemyParty[i];
         }
+
+        // Reset steal mons
+        for (i = 0; i < 2; i++) {
+            gStolenMons[i] = (StolenMon) {0};
+            gStolenMons[i].queueIndex = 0xFFFF;
+        }
         
         // Steal mons from player
         if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) {
@@ -2208,11 +2214,11 @@ static void GetMonToReturn(u32 trainerId, Pokemon *dest, OpponentType type, bool
         queueIndex = gStolenMons[slot].queueIndex;
 
         // This will restore the queue to the correct order in double battles.
-        if (type == FIRST_OPPONENT &&
+        if (type == FIRST_OPPONENT && gStolenMons[1].queueIndex != 0xFFFF &&
             gStolenMons[slot].queueIndex > gStolenMons[1].queueIndex) {
                 queueIndex--;
             }
-        if (type == SECOND_OPPONENT &&
+        if (type == SECOND_OPPONENT && gStolenMons[0].queueIndex != 0xFFFF &&
             gStolenMons[slot].queueIndex >= gStolenMons[0].queueIndex) {
                 queueIndex++;
             }
