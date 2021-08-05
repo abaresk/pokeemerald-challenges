@@ -37,4 +37,8 @@
 // Uncomment to stop trainers from giving you a mon back after battle.
 #define REPLACE_MONS
 
+// Trainers steal the mon furthest in the steal queue. Uncomment to have
+// trainers just steal their favorite mon.
+#define STEAL_FROM_QUEUE
+
 #endif // GUARD_CONFIG_H

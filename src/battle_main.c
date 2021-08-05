@@ -2079,6 +2079,9 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType t
     // Pick a mon
     Pokemon *mon;
     u16 first = 0; u16 last = PARTY_SIZE;
+    s32 i;
+    u16 partyMonIds[PARTY_SIZE] = {0};
+    ValueIndex furthest;
     u16 slot;
     u16 monId;
     u8 data;
@@ -2087,7 +2090,21 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType t
         first = type == FIRST_OPPONENT ? 0              : PARTY_SIZE / 2;
         last = type == FIRST_OPPONENT  ? PARTY_SIZE / 2 : PARTY_SIZE;
     }
+
+    #ifdef STEAL_FROM_QUEUE
+    for (i = first; i < last; i++) {
+        partyMonIds[i] = GetMonData(&gPlayerParty[i], MON_DATA_ID, &data);
+    }
+    furthest = Queue_FurthestInLine(&gSaveBlock2Ptr->stealQueue, partyMonIds, PARTY_SIZE);
+    for (i = 0; i < PARTY_SIZE; i++) {
+        if (furthest.value == GetMonData(&gPlayerParty[i], MON_DATA_ID, &data)) {
+            mon = &gPlayerParty[i];
+            break;
+        }
+    }
+    #else
     mon = FavoritePartyMon(trainerPersonality, first, last);
+    #endif
 
     // Copy mon data
     *dest = *mon;
