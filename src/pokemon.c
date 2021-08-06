@@ -4407,8 +4407,8 @@ void PlaceMonInStealQueue(u16 monId) {
         insertAfter = -1;
     }
 
-    // TODO: Maybe make this randomly generated
-    rng = Random32();
+    rng = AdvanceSeed32(SeedGet(SEED_QUEUE_INSERTION), 1);
+    SeedSet(SEED_QUEUE_INSERTION, rng);
     insertIdx = (insertAfter + 1) + rng % (Queue_GetLength(queue) - insertAfter);
     Queue_InsertAt(queue, monId, insertIdx);
 }
