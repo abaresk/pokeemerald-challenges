@@ -1,5 +1,6 @@
 #include "gba/gba.h"
 #include "gba/flash_internal.h"
+#include "random.h"
 
 static const char AgbLibFlashVersion[] = "FLASH1M_V103";
 
@@ -81,6 +82,9 @@ u16 WaitForFlashWrite_Common(u8 phase, u8 *addr, u8 lastData)
     }
 
     StopFlashTimer();
+
+    // Start timers up again
+    EnableTimerRNG();
 
     return result;
 }
