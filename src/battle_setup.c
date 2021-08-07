@@ -1415,7 +1415,6 @@ static void CB2_EndTrainerBattle(void)
         }
     }
         
-    #ifdef REPLACE_MONS
     // If you win, replace stolen mon with one of theirs. If you lose, get your
     // mon back.
     if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) {
@@ -1427,7 +1426,6 @@ static void CB2_EndTrainerBattle(void)
     } else {
         TryReturnMonToPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT, playerWon);
     }
-    #endif
 }
 
 static void CB2_EndRematchBattle(void)

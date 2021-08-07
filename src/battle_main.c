@@ -2179,6 +2179,10 @@ void TryReturnMonToPlayer(u32 trainerId, OpponentType type, bool8 playerWon) {
 
     if (!FlagGet(FLAG_SYS_POKEDEX_GET)) return;
 
+    #ifndef REPLACE_MONS
+    if (playerWon) return;
+    #endif
+
     GetMonToReturn(trainerId, &mon, type, playerWon);
     HealPokemon(&mon);
     GiveTrainerMonToPlayer(&mon);    
