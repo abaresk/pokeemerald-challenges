@@ -34,11 +34,16 @@
 #endif
 #endif
 
+// Uncomment to activate CHALLENGE mode
+// #define EASY
+
+#ifdef EASY
 // Uncomment to stop trainers from giving you a mon back after battle.
 #define REPLACE_MONS
-
+#else
 // Trainers steal the mon furthest in the steal queue. Uncomment to have
 // trainers just steal their favorite mon.
 #define STEAL_FROM_QUEUE
+#endif
 
 #endif // GUARD_CONFIG_H
