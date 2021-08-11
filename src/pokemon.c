@@ -62,6 +62,8 @@ static void Task_PlayMapChosenOrBattleBGM(u8 taskId);
 static bool8 ShouldGetStatBadgeBoost(u16 flagId, u8 battlerId);
 static u16 GiveMoveToBoxMon(struct BoxPokemon *boxMon, u16 move);
 static bool8 ShouldSkipFriendshipChange(void);
+static void OrderMonsByFurthest(u16 *partyMonIds, u16 size);
+static u16 GetNthFurthestMon(u16 *partyMonIds, u16 size, u16 n);
 
 // EWRAM vars
 EWRAM_DATA static u8 sLearningMoveTableID = 0;
@@ -4381,36 +4383,49 @@ void PlaceMonInStealQueue(u16 monId) {
     s32 i, insertAfter, insertIdx;
     u32 rng;
     u16 partyMonIds[PARTY_SIZE];
-    ValueIndex furthest, secondFurthest;
+    u16 nthFurthest;
     u8 data;
     StealQueue *queue = &gSaveBlock2Ptr->stealQueue;
 
-    // Get furthest mon
     for (i = 0; i < PARTY_SIZE; i++) {
         partyMonIds[i] = GetMonData(&gPlayerParty[i], MON_DATA_ID, &data);
     }
-    furthest = Queue_FurthestInLine(queue, partyMonIds, PARTY_SIZE);
+    OrderMonsByFurthest(partyMonIds, PARTY_SIZE);
 
-    // Get second furthest mon
-    for (i = 0; i < PARTY_SIZE; i++) {
-        if (furthest.value == GetMonData(&gPlayerParty[i], MON_DATA_ID, &data)) {
-            partyMonIds[i] = 0;
-        }
-    }
-    secondFurthest = Queue_FurthestInLine(queue, partyMonIds, PARTY_SIZE);
-
-    if (secondFurthest.index != 0xFFFF) {
-        insertAfter = secondFurthest.index;
-    } else if (furthest.index != 0xFFFF) {
-        insertAfter = furthest.index;
-    } else {
-        insertAfter = -1;
-    }
+    nthFurthest = GetNthFurthestMon(partyMonIds, PARTY_SIZE, PARTY_INSERT_AFTER);
+    insertAfter = Queue_IndexOf(queue, nthFurthest);
 
     rng = AdvanceSeed32(SeedGet(SEED_QUEUE_INSERTION), 1);
     SeedSet(SEED_QUEUE_INSERTION, rng);
     insertIdx = (insertAfter + 1) + rng % (Queue_GetLength(queue) - insertAfter);
     Queue_InsertAt(queue, monId, insertIdx);
+}
+
+static void OrderMonsByFurthest(u16 *partyMonIds, u16 size) {
+    u16 i, j;
+    u16 temp;
+    StealQueue *queue = &gSaveBlock2Ptr->stealQueue;
+
+    for (i = 0; i < size - 1; i++) {
+        for (j = 0; j < size - i - 1; j++) {
+            if (Queue_IndexOf(queue, partyMonIds[j]) > Queue_IndexOf(queue, partyMonIds[j+1])) {
+                SWAP(partyMonIds[j], partyMonIds[j+1], temp);
+            }
+        }
+    }
+}
+
+static u16 GetNthFurthestMon(u16 *partyMonIds, u16 size, u16 n) {
+    s32 i;
+
+    if (n > size) return 0;
+
+    for (i = n - 1; i >= 0; i--) {
+        if (partyMonIds[i] != 0) {
+            return partyMonIds[i];
+        }
+    }
+    return 0;
 }
 
 u8 CalculatePlayerPartyCount(void)

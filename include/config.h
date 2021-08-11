@@ -44,6 +44,7 @@
 // Trainers steal the mon furthest in the steal queue. Uncomment to have
 // trainers just steal their favorite mon.
 #define STEAL_FROM_QUEUE
+#define PARTY_INSERT_AFTER 3
 #endif
 
 #endif // GUARD_CONFIG_H
