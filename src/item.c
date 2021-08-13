@@ -20,6 +20,8 @@ extern u16 gUnknown_0203CF30[];
 // this file's functions
 static bool8 CheckPyramidBagHasItem(u16 itemId, u16 count);
 static bool8 CheckPyramidBagHasSpace(u16 itemId, u16 count);
+static bool8 IsPokeBall(u16 itemId);
+static s32 NumBadges(void);
 
 // EWRAM variables
 EWRAM_DATA struct BagPocket gBagPockets[POCKETS_COUNT] = {0};
@@ -895,7 +897,15 @@ u16 ItemId_GetId(u16 itemId)
 
 u16 ItemId_GetPrice(u16 itemId)
 {
-    return gItems[SanitizeItemId(itemId)].price;
+    u16 price = gItems[SanitizeItemId(itemId)].price;
+
+    #ifdef SCALING_POKE_BALL_MULTIPLIER
+    u16 numBadges = NumBadges();
+    if (IsPokeBall(itemId)) {
+        price += SCALING_POKE_BALL_MULTIPLIER * numBadges;
+    }
+    #endif
+    return price;
 }
 
 u8 ItemId_GetHoldEffect(u16 itemId)
@@ -952,4 +962,20 @@ ItemUseFunc ItemId_GetBattleFunc(u16 itemId)
 u8 ItemId_GetSecondaryId(u16 itemId)
 {
     return gItems[SanitizeItemId(itemId)].secondaryId;
+}
+
+static bool8 IsPokeBall(u16 itemId) {
+    return itemId >= FIRST_BALL && itemId <= LAST_BALL;
+}
+
+static s32 NumBadges(void) {
+    s32 flag;
+    s32 count = 0;
+
+    for (flag = FLAG_BADGE01_GET; flag <= FLAG_BADGE08_GET; flag++) {
+        if (FlagGet(flag)) {
+            count++;
+        }
+    }
+    return count;
 }
