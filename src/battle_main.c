@@ -2099,6 +2099,10 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType t
 
     #ifdef STEAL_FROM_QUEUE
     for (i = first; i < last; i++) {
+        if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES, NULL) == SPECIES_NONE ||
+            GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2, NULL) == SPECIES_EGG) {
+                continue;
+            }
         partyMonIds[i] = GetMonData(&gPlayerParty[i], MON_DATA_ID, &data);
     }
     furthest = Queue_FurthestInLine(&gSaveBlock2Ptr->stealQueue, partyMonIds, PARTY_SIZE);
