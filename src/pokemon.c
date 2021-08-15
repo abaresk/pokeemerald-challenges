@@ -4395,6 +4395,12 @@ void PlaceMonInStealQueue(u16 monId) {
     nthFurthest = GetNthFurthestMon(partyMonIds, PARTY_SIZE, PARTY_INSERT_AFTER);
     insertAfter = Queue_IndexOf(queue, nthFurthest);
 
+    // First mon
+    if (insertAfter == 0xFFFF) {
+        Queue_InsertAt(queue, monId, 0);
+        return;
+    }
+
     rng = AdvanceSeed32(SeedGet(SEED_QUEUE_INSERTION), 1);
     SeedSet(SEED_QUEUE_INSERTION, rng);
     insertIdx = (insertAfter + 1) + rng % (Queue_GetLength(queue) - insertAfter);
