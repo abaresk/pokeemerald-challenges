@@ -13,6 +13,9 @@ FortreeCity_Mart_EventScript_Clerk:: @ 8217666
 
 	.align 2
 FortreeCity_Mart_Pokemart: @ 8217680
+#ifdef SCALING_POKE_BALL_MULTIPLIER
+	.2byte ITEM_POKE_BALL
+#endif
 	.2byte ITEM_GREAT_BALL
 	.2byte ITEM_ULTRA_BALL
 	.2byte ITEM_SUPER_POTION

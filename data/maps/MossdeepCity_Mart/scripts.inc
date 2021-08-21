@@ -13,6 +13,10 @@ MossdeepCity_Mart_EventScript_Clerk:: @ 82223C8
 
 	.align 2
 MossdeepCity_Mart_Pokemart: @ 82223E0
+#ifdef SCALING_POKE_BALL_MULTIPLIER
+	.2byte ITEM_POKE_BALL
+	.2byte ITEM_GREAT_BALL
+#endif
 	.2byte ITEM_ULTRA_BALL
 	.2byte ITEM_NET_BALL
 	.2byte ITEM_DIVE_BALL

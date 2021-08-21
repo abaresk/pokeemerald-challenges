@@ -13,6 +13,9 @@ FallarborTown_Mart_EventScript_Clerk:: @ 81FFCBF
 
 	.align 2
 FallarborTown_Mart_Pokemart: @ 81FFCD8
+#ifdef SCALING_POKE_BALL_MULTIPLIER
+	.2byte ITEM_POKE_BALL
+#endif
 	.2byte ITEM_GREAT_BALL
 	.2byte ITEM_SUPER_POTION
 	.2byte ITEM_ANTIDOTE

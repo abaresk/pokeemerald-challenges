@@ -13,6 +13,9 @@ LavaridgeTown_Mart_EventScript_Clerk:: @ 81FF9CE
 
 	.align 2
 LavaridgeTown_Mart_Pokemart: @ 81FF9E8
+#ifdef SCALING_POKE_BALL_MULTIPLIER
+	.2byte ITEM_POKE_BALL
+#endif
 	.2byte ITEM_GREAT_BALL
 	.2byte ITEM_SUPER_POTION
 	.2byte ITEM_ANTIDOTE
