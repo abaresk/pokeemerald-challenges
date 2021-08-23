@@ -15,6 +15,10 @@ BattleFrontier_Mart_EventScript_Clerk:: @ 8267ACC
 
 	.align 2
 BattleFrontier_Mart_Pokemart: @ 8267AE4
+#ifdef SCALING_POKE_BALL_MULTIPLIER
+	.2byte ITEM_POKE_BALL
+	.2byte ITEM_GREAT_BALL
+#endif
 	.2byte ITEM_ULTRA_BALL
 	.2byte ITEM_HYPER_POTION
 	.2byte ITEM_MAX_POTION

@@ -6180,6 +6180,12 @@ u32 CanMonLearnTMHM(struct Pokemon *mon, u8 tm)
     {
         return 0;
     }
+    #ifndef EASY
+    else if (tm >= ITEM_HM01_CUT - ITEM_TM01_FOCUS_PUNCH 
+            && tm <= ITEM_HM08_DIVE - ITEM_TM01_FOCUS_PUNCH) {
+        return TRUE;
+    }
+    #endif
     else if (tm < 32)
     {
         u32 mask = 1 << tm;
@@ -6198,6 +6204,12 @@ u32 CanSpeciesLearnTMHM(u16 species, u8 tm)
     {
         return 0;
     }
+    #ifndef EASY
+    else if (tm >= ITEM_HM01_CUT - ITEM_TM01_FOCUS_PUNCH 
+            && tm <= ITEM_HM08_DIVE - ITEM_TM01_FOCUS_PUNCH) {
+        return TRUE;
+    }
+    #endif
     else if (tm < 32)
     {
         u32 mask = 1 << tm;
