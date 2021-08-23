@@ -45,7 +45,7 @@
 // trainers just steal their favorite mon.
 #define STEAL_FROM_QUEUE
 #define PARTY_INSERT_AFTER 3
-#define SCALING_POKE_BALL_MULTIPLIER 300
+#define SCALING_POKE_BALL_MULTIPLIER 250
 #endif
 
 #endif // GUARD_CONFIG_H
