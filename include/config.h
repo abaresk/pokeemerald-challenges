@@ -37,6 +37,9 @@
 // Uncomment to activate CHALLENGE mode
 // #define EASY
 
+// Uncomment to disable trainers from returning stolen items after battle.
+#define RETURN_ITEMS
+
 #ifdef EASY
 // Uncomment to stop trainers from giving you a mon back after battle.
 #define REPLACE_MONS

@@ -84,6 +84,7 @@ static void TryStealMonFromPlayer(u16 trainerId, OpponentType type);
 static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType type);
 static void StealFromBoxes(u32 trainerPersonality, Pokemon *dest);
 static void GiveMonToOpponent(Pokemon *mon, OpponentType type, u32 trainerPersonality);
+static void ReturnStolenItem(OpponentType type);
 static void GetMonToReturn(u32 trainerId, Pokemon *dest, OpponentType type, bool8 playerWon);
 static void GiveTrainerMonToPlayer(Pokemon *mon);
 static Pokemon *FavoritePartyMon(u32 trainerPersonality, u16 first, u16 last);
@@ -2183,6 +2184,12 @@ void TryReturnMonToPlayer(u32 trainerId, OpponentType type, bool8 playerWon) {
 
     if (!FlagGet(FLAG_SYS_POKEDEX_GET)) return;
 
+    #ifdef RETURN_ITEMS
+    if (playerWon) {
+        ReturnStolenItem(type);
+    }
+    #endif
+
     #ifndef REPLACE_MONS
     if (playerWon) return;
     #endif
@@ -2190,6 +2197,19 @@ void TryReturnMonToPlayer(u32 trainerId, OpponentType type, bool8 playerWon) {
     GetMonToReturn(trainerId, &mon, type, playerWon);
     HealPokemon(&mon);
     GiveTrainerMonToPlayer(&mon);    
+}
+
+static void ReturnStolenItem(OpponentType type) {
+    Pokemon *mon;
+    u16 slot;
+    u16 itemId;
+
+    slot = type == SECOND_OPPONENT ? 1 : 0;
+    mon = &gStolenMons[slot].mon;
+
+    itemId = GetMonData(mon, MON_DATA_HELD_ITEM, 0);
+
+    AddItemToBagOrPC(itemId);
 }
 
 static void GetMonToReturn(u32 trainerId, Pokemon *dest, OpponentType type, bool8 playerWon) {

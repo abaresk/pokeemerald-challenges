@@ -243,6 +243,14 @@ bool8 CheckBagHasSpace(u16 itemId, u16 count)
     return TRUE;
 }
 
+bool8 AddItemToBagOrPC(u16 itemId) {
+    bool8 added = AddBagItem(itemId, 1);
+    if (!added) {
+        added = AddPCItem(itemId, 1);
+    }
+    return added;
+}
+
 bool8 AddBagItem(u16 itemId, u16 count)
 {
     u8 i;
