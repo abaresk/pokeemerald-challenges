@@ -82,7 +82,7 @@
 #define PARTY_PAL_SWITCHING    (1 << 4)
 #define PARTY_PAL_TO_SOFTBOIL  (1 << 5)
 #define PARTY_PAL_NO_MON       (1 << 6)
-#define PARTY_PAL_UNUSED       (1 << 7)
+#define PARTY_PAL_NEXT_STOLEN  (1 << 7)
 
 #define MENU_DIR_DOWN     1
 #define MENU_DIR_UP      -1
@@ -670,8 +670,8 @@ static bool8 AllocPartyMenuBgGfx(void)
         }
         break;
     case 2:
-        LoadCompressedPalette(gPartyMenuBg_Pal, 0, 0x160);
-        CpuCopy16(gPlttBufferUnfaded, sPartyMenuInternal->palBuffer, 0x160);
+        LoadCompressedPalette(gPartyMenuBg_Pal, 0, 0x180);
+        CpuCopy16(gPlttBufferUnfaded, sPartyMenuInternal->palBuffer, 0x180);
         sPartyMenuInternal->data[0]++;
         break;
     case 3:
@@ -1105,6 +1105,13 @@ static u8 GetPartyBoxPaletteFlags(u8 slot, u8 animNum)
     }
     if (gPartyMenu.action == PARTY_ACTION_SOFTBOILED && slot == gPartyMenu.slotId )
         palFlags |= PARTY_PAL_TO_SOFTBOIL;
+
+    #ifdef PREVIEW_NEXT_STEAL
+    if (FlagGet(FLAG_SYS_POKEDEX_GET) && !gMain.inBattle &&
+        GetMonData(&gPlayerParty[slot], MON_DATA_ID) == FurthestPartyMon(0, PARTY_SIZE)) {
+        palFlags |= PARTY_PAL_NEXT_STOLEN;
+    }
+    #endif
 
     return palFlags;
 }
@@ -2163,6 +2170,18 @@ static void LoadPartyBoxPalette(struct PartyMenuBox *menuBox, u8 palFlags)
         {
             LOAD_PARTY_BOX_PAL(sPartyBoxSelectedForActionPalIds1, sPartyBoxPalOffsets1);
             LOAD_PARTY_BOX_PAL(sPartyBoxSelectedForActionPalIds2, sPartyBoxPalOffsets2);
+        }
+    }
+    else if (palFlags & PARTY_PAL_NEXT_STOLEN)
+    {
+        if (palFlags & PARTY_PAL_SELECTED)
+        {
+            LOAD_PARTY_BOX_PAL(sPartyBoxCurrSelectionNextStolenPalIds1, sPartyBoxPalOffsets1);
+            LOAD_PARTY_BOX_PAL(sPartyBoxCurrSelectionPalIds2, sPartyBoxPalOffsets2);
+        }
+        else {
+            LOAD_PARTY_BOX_PAL(sPartyBoxNextStolenPalIds1, sPartyBoxPalOffsets1);
+            LOAD_PARTY_BOX_PAL(sPartyBoxNextStolenPalIds1, sPartyBoxPalOffsets2);
         }
     }
     else if (palFlags & PARTY_PAL_FAINTED)

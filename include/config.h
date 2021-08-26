@@ -47,8 +47,15 @@
 // Trainers steal the mon furthest in the steal queue. Uncomment to have
 // trainers just steal their favorite mon.
 #define STEAL_FROM_QUEUE
+#define PREVIEW_NEXT_STEAL
 #define PARTY_INSERT_AFTER 3
 #define SCALING_POKE_BALL_MULTIPLIER 250
+#endif
+
+
+// Flag logic enforcement -- keep at end of file
+#ifndef STEAL_FROM_QUEUE
+#undef PREVIEW_NEXT_STEAL
 #endif
 
 #endif // GUARD_CONFIG_H

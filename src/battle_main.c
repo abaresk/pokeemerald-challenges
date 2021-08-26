@@ -2091,6 +2091,7 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType t
     ValueIndex furthest;
     u16 slot;
     u16 monId;
+    u16 furthestMonId;
     u8 data;
 
     if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) {
@@ -2099,16 +2100,9 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType t
     }
 
     #ifdef STEAL_FROM_QUEUE
-    for (i = first; i < last; i++) {
-        if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES, NULL) == SPECIES_NONE ||
-            GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2, NULL) == SPECIES_EGG) {
-                continue;
-            }
-        partyMonIds[i] = GetMonData(&gPlayerParty[i], MON_DATA_ID, &data);
-    }
-    furthest = Queue_FurthestInLine(&gSaveBlock2Ptr->stealQueue, partyMonIds, PARTY_SIZE);
+    furthestMonId = FurthestPartyMon(first, last);
     for (i = 0; i < PARTY_SIZE; i++) {
-        if (furthest.value == GetMonData(&gPlayerParty[i], MON_DATA_ID, &data)) {
+        if (GetMonData(&gPlayerParty[i], MON_DATA_ID, &data) == furthestMonId) {
             mon = &gPlayerParty[i];
             break;
         }
@@ -2345,6 +2339,24 @@ static void LeastFavoriteBoxMon_iter(BoxPokemon *mon, void * data) {
         iter->mon = mon;
         iter->value = value;
     }
+}
+
+// Returns monId of furthest mon in party in the given slot range.
+u16 FurthestPartyMon(u16 first, u16 last) {
+    s32 i;
+    u16 partyMonIds[PARTY_SIZE] = {0};
+    ValueIndex furthest;
+    u8 data;
+
+    for (i = first; i < last; i++) {
+        if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES, NULL) == SPECIES_NONE ||
+            GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2, NULL) == SPECIES_EGG) {
+                continue;
+            }
+        partyMonIds[i] = GetMonData(&gPlayerParty[i], MON_DATA_ID, &data);
+    }
+    furthest = Queue_FurthestInLine(&gSaveBlock2Ptr->stealQueue, partyMonIds, PARTY_SIZE);
+    return furthest.value;
 }
 
 static u32 GetTrainerPersonality(u16 trainerId) {
