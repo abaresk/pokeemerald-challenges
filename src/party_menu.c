@@ -1108,7 +1108,7 @@ static u8 GetPartyBoxPaletteFlags(u8 slot, u8 animNum)
 
     #ifdef PREVIEW_NEXT_STEAL
     if (FlagGet(FLAG_SYS_POKEDEX_GET) && !gMain.inBattle &&
-        GetMonData(&gPlayerParty[slot], MON_DATA_ID) == FurthestPartyMon(0, PARTY_SIZE)) {
+        GetMonData(&gPlayerParty[slot], MON_DATA_ID) == FurthestPartyMonId(0, PARTY_SIZE)) {
         palFlags |= PARTY_PAL_NEXT_STOLEN;
     }
     #endif

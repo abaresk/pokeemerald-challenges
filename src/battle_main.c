@@ -139,6 +139,7 @@ static void HandleEndTurn_BattleLost(void);
 static void HandleEndTurn_RanFromBattle(void);
 static void HandleEndTurn_MonFled(void);
 static void HandleEndTurn_FinishBattle(void);
+static Pokemon *FurthestPartyMon(u16 first, u16 last, OpponentType type);
 
 // EWRAM vars
 EWRAM_DATA u16 gBattle_BG0_X = 0;
@@ -2083,15 +2084,12 @@ static void TryStealMonFromPlayer(u16 trainerId, OpponentType type) {
 }
 
 static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType type) {
-    // Pick a mon
     Pokemon *mon;
     u16 first = 0; u16 last = PARTY_SIZE;
-    s32 i;
     u16 partyMonIds[PARTY_SIZE] = {0};
     ValueIndex furthest;
     u16 slot;
     u16 monId;
-    u16 furthestMonId;
     u8 data;
 
     if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER) {
@@ -2100,13 +2098,7 @@ static void StealFromParty(u32 trainerPersonality, Pokemon *dest, OpponentType t
     }
 
     #ifdef STEAL_FROM_QUEUE
-    furthestMonId = FurthestPartyMon(first, last);
-    for (i = 0; i < PARTY_SIZE; i++) {
-        if (GetMonData(&gPlayerParty[i], MON_DATA_ID, &data) == furthestMonId) {
-            mon = &gPlayerParty[i];
-            break;
-        }
-    }
+    mon = FurthestPartyMon(first, last, type);
     #else
     mon = FavoritePartyMon(trainerPersonality, first, last);
     #endif
@@ -2341,8 +2333,28 @@ static void LeastFavoriteBoxMon_iter(BoxPokemon *mon, void * data) {
     }
 }
 
+static Pokemon *FurthestPartyMon(u16 first, u16 last, OpponentType type) {
+    u16 furthestMonId;
+    s32 i;
+    Pokemon *mon;
+    u8 data;
+
+    if (gBattleTypeFlags & BATTLE_TYPE_INGAME_PARTNER && type == SECOND_OPPONENT) {
+        return &gPlayerParty[first];
+    }
+
+    furthestMonId = FurthestPartyMonId(first, last);
+    for (i = 0; i < PARTY_SIZE; i++) {
+        if (GetMonData(&gPlayerParty[i], MON_DATA_ID, &data) == furthestMonId) {
+            mon = &gPlayerParty[i];
+            break;
+        }
+    }
+    return mon;
+}
+
 // Returns monId of furthest mon in party in the given slot range.
-u16 FurthestPartyMon(u16 first, u16 last) {
+u16 FurthestPartyMonId(u16 first, u16 last) {
     s32 i;
     u16 partyMonIds[PARTY_SIZE] = {0};
     ValueIndex furthest;

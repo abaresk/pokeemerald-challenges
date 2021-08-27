@@ -87,7 +87,7 @@ void RunBattleScriptCommands(void);
 bool8 TryRunFromBattle(u8 battlerId);
 void SpecialStatusesClear(void);
 void TryReturnMonToPlayer(u32 trainerId, OpponentType type, bool8 playerWon);
-u16 FurthestPartyMon(u16 first, u16 last);
+u16 FurthestPartyMonId(u16 first, u16 last);
 
 extern struct UnknownPokemonStruct4 gMultiPartnerParty[MULTI_PARTY_SIZE];
 
