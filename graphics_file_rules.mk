@@ -15,6 +15,7 @@ SLOTMACHINEGFXDIR := graphics/slot_machine
 PKNAVGFXDIR := graphics/pokenav
 PKNAVOPTIONSGFXDIR := graphics/pokenav/options
 WALLPAPERGFXDIR := graphics/pokemon_storage/wallpapers
+POKEMONSTORAGEDIR := graphics/pokemon_storage
 OBJEVENTGFXDIR := graphics/object_events
 MISCGFXDIR := graphics/misc
 
@@ -521,6 +522,8 @@ $(UNUSEDGFXDIR)/intro_birch_beauty.4bpp: %.4bpp: %.png
 
 
 ### Pokémon Storage System ###
+$(POKEMONSTORAGEDIR)/menu_stolen.4bpp: %.4bpp: %.png
+	$(GFX) $< $@ -num_tiles 9
 
 $(WALLPAPERGFXDIR)/forest/frame.4bpp: %.4bpp: %.png
 	$(GFX) $< $@ -num_tiles 55

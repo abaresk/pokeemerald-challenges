@@ -551,6 +551,7 @@ struct PokemonStorageSystemData
     u8 itemIconBuffer[0x800];
     u8 wallpaperBgTilemapBuffer[0x1000];
     u8 displayMenuTilemapBuffer[0x800];
+    u16 stolenSlotTilemapBuffer[0x108];
 };
 
 static u32 sItemIconGfxBuffer[98];
@@ -973,6 +974,10 @@ static const u16 sPartySlotFilled_Tilemap[] =
 {
     0x1140, 0x1141, 0x1141, 0x1142, 0x1150, 0x1151, 0x1151, 0x1152, 0x1160, 0x1161, 0x1161, 0x1162,
 };
+static const u16 sPartySlotNextStolen_Tilemap[] =
+{
+    0xF190, 0xF191, 0xF191, 0xF192, 0xF193, 0xF194, 0xF194, 0xF195, 0xF196, 0xF197, 0xF197, 0xF198,
+};
 static const u16 sPartySlotEmpty_Tilemap[] =
 {
     0x1143, 0x1144, 0x1144, 0x1145, 0x1153, 0x1154, 0x1154, 0x1155, 0x1163, 0x1164, 0x1164, 0x1165,
@@ -1334,6 +1339,9 @@ static const u16 sHandCursor_Pal[] = INCBIN_U16("graphics/pokemon_storage/hand_c
 static const u8 sHandCursor_Gfx[] = INCBIN_U8("graphics/pokemon_storage/hand_cursor.4bpp");
 static const u8 sHandCursorShadow_Gfx[] = INCBIN_U8("graphics/pokemon_storage/hand_cursor_shadow.4bpp");
 
+static const u16 sMenuStolen_Pal[] = INCBIN_U16("graphics/pokemon_storage/menu_stolen.gbapal");
+static const u8 sMenuStolen_Gfx[] = INCBIN_U8("graphics/pokemon_storage/menu_stolen.4bpp.lz");
+const u32 sMenuStolen_Tilemap[] = INCBIN_U32("graphics/pokemon_storage/menu_stolen.bin.lz");
 
 //------------------------------------------------------------------------------
 //  SECTION: Misc utility
@@ -2802,6 +2810,7 @@ static void Task_ShiftMon(u8 taskId)
     case 1:
         if (!DoMonPlaceChange())
         {
+            UpdatePartySlotColors();
             StartDisplayMonMosaicEffect();
             SetPokeStorageTask(Task_PokeStorageMain);
         }
@@ -3838,6 +3847,7 @@ static void LoadPokeStorageMenuGfx(void)
 {
     InitBgsFromTemplates(0, sBgTemplates, ARRAY_COUNT(sBgTemplates));
     DecompressAndLoadBgGfxUsingHeap(1, gStorageSystemMenu_Gfx, 0, 0, 0);
+    DecompressAndLoadBgGfxUsingHeap(1, sMenuStolen_Gfx, 0, 0x1090, 0);
     LZ77UnCompWram(sDisplayMenu_Tilemap, sStorage->displayMenuTilemapBuffer);
     SetBgTilemapBuffer(1, sStorage->displayMenuTilemapBuffer);
     ShowBg(1);
@@ -4061,6 +4071,8 @@ static void InitSupplementalTilemaps(void)
 {
     LZ77UnCompWram(gStorageSystemPartyMenu_Tilemap, sStorage->partyMenuTilemapBuffer);
     LoadPalette(gStorageSystemPartyMenu_Pal, 0x10, 0x20);
+    LZ77UnCompWram(sMenuStolen_Tilemap, sStorage->stolenSlotTilemapBuffer);
+    LoadPalette(sMenuStolen_Pal, 0xF0, 0x20);
     TilemapUtil_SetMap(TILEMAPID_PARTY_MENU, 1, sStorage->partyMenuTilemapBuffer, 12, 22);
     TilemapUtil_SetMap(TILEMAPID_CLOSE_BUTTON, 1, sCloseBoxButton_Tilemap, 9, 4);
     TilemapUtil_SetPos(TILEMAPID_PARTY_MENU, 10, 0);
@@ -4200,7 +4212,7 @@ static void SetPartySlotTilemaps(void)
 
     // Skips first party slot, it should always be drawn
     // as if it has a Pokémon in it
-    for (i = 1; i < PARTY_SIZE; i++)
+    for (i = 0; i < PARTY_SIZE; i++)
     {
         s32 species = GetMonData(&gPlayerParty[i], MON_DATA_SPECIES);
         SetPartySlotTilemap(i, species != SPECIES_NONE);
@@ -4212,14 +4224,27 @@ static void SetPartySlotTilemap(u8 partyId, bool8 hasMon)
     u16 i, j, index;
     const u16 *data;
 
-    if (hasMon)
-        data = sPartySlotFilled_Tilemap;
-    else
+    if (!hasMon) {
         data = sPartySlotEmpty_Tilemap;
+    } 
+    #ifdef PREVIEW_NEXT_STEAL
+    else if (FlagGet(FLAG_SYS_POKEDEX_GET) && 
+             GetMonData(&gPlayerParty[partyId], MON_DATA_ID) == FurthestPartyMonId(0, PARTY_SIZE)) {
+                data = sPartySlotNextStolen_Tilemap;
+            }
+    #endif
+    else {
+        data = sPartySlotFilled_Tilemap;
+    }
 
-    index = 3 * (3 * (partyId - 1) + 1);
-    index *= 4;
-    index += 7;
+    if (partyId == 0) {
+        index = 85;
+    } else {
+        index = 3 * (3 * (partyId - 1) + 1);
+        index *= 4;
+        index += 7;
+    }
+
     for (i = 0; i < 3; i++)
     {
         for (j = 0; j < 4; j++)
