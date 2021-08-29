@@ -2810,7 +2810,9 @@ static void Task_ShiftMon(u8 taskId)
     case 1:
         if (!DoMonPlaceChange())
         {
-            UpdatePartySlotColors();
+            if (sInPartyMenu) {
+                UpdatePartySlotColors();
+            }
             StartDisplayMonMosaicEffect();
             SetPokeStorageTask(Task_PokeStorageMain);
         }
