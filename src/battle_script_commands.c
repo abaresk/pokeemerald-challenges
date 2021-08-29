@@ -7151,6 +7151,7 @@ static void Cmd_forcerandomswitch(void)
     s32 battler1PartyId = 0;
     s32 battler2PartyId = 0;
 
+    s32 size;
     s32 firstMonId;
     s32 lastMonId = 0; // + 1
     s32 monsCount;
@@ -7160,10 +7161,14 @@ static void Cmd_forcerandomswitch(void)
 
     if ((gBattleTypeFlags & BATTLE_TYPE_TRAINER))
     {
-        if (GetBattlerSide(gBattlerTarget) == B_SIDE_PLAYER)
+        if (GetBattlerSide(gBattlerTarget) == B_SIDE_PLAYER) {
             party = gPlayerParty;
-        else
+            size = PARTY_SIZE;
+        }
+        else {
             party = gEnemyParty;
+            size = OPPONENT_PARTY_SIZE;
+        }
 
         if ((gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER && gBattleTypeFlags & BATTLE_TYPE_LINK)
             || (gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER && gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK)
@@ -7171,15 +7176,15 @@ static void Cmd_forcerandomswitch(void)
         {
             if ((gBattlerTarget & BIT_FLANK) != 0)
             {
-                firstMonId = 3;
-                lastMonId = 6;
+                firstMonId = size / 2;
+                lastMonId = size;
             }
             else
             {
                 firstMonId = 0;
-                lastMonId = 3;
+                lastMonId = size / 2;
             }
-            monsCount = 3;
+            monsCount = size / 2;
             minNeeded = 1;
             battler2PartyId = gBattlerPartyIndexes[gBattlerTarget];
             battler1PartyId = gBattlerPartyIndexes[gBattlerTarget ^ BIT_FLANK];
@@ -7207,23 +7212,23 @@ static void Cmd_forcerandomswitch(void)
             if (GetBattlerSide(gBattlerTarget) == B_SIDE_PLAYER)
             {
                 firstMonId = 0;
-                lastMonId = 6;
-                monsCount = 6;
+                lastMonId = size;
+                monsCount = size;
                 minNeeded = 2; // since there are two opponents, it has to be a double battle
             }
             else
             {
                 if ((gBattlerTarget & BIT_FLANK) != 0)
                 {
-                    firstMonId = 3;
-                    lastMonId = 6;
+                    firstMonId = size / 2;
+                    lastMonId = size;
                 }
                 else
                 {
                     firstMonId = 0;
-                    lastMonId = 3;
+                    lastMonId = size / 2;
                 }
-                monsCount = 3;
+                monsCount = size / 2;
                 minNeeded = 1;
             }
             battler2PartyId = gBattlerPartyIndexes[gBattlerTarget];
@@ -7232,8 +7237,8 @@ static void Cmd_forcerandomswitch(void)
         else if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
         {
             firstMonId = 0;
-            lastMonId = 6;
-            monsCount = 6;
+            lastMonId = size;
+            monsCount = size;
             minNeeded = 2;
             battler2PartyId = gBattlerPartyIndexes[gBattlerTarget];
             battler1PartyId = gBattlerPartyIndexes[gBattlerTarget ^ BIT_FLANK];
@@ -7241,8 +7246,8 @@ static void Cmd_forcerandomswitch(void)
         else
         {
             firstMonId = 0;
-            lastMonId = 6;
-            monsCount = 6;
+            lastMonId = size;
+            monsCount = size;
             minNeeded = 1;
             battler2PartyId = gBattlerPartyIndexes[gBattlerTarget]; // there is only one pokemon out in single battles
             battler1PartyId = gBattlerPartyIndexes[gBattlerTarget];
