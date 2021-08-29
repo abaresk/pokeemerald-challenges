@@ -404,6 +404,7 @@ static bool8 SetUpFieldMove_Surf(void);
 static bool8 SetUpFieldMove_Fly(void);
 static bool8 SetUpFieldMove_Waterfall(void);
 static bool8 SetUpFieldMove_Dive(void);
+static bool8 PreviewNextSteal(u8 slot);
 
 // static const data
 #include "data/pokemon/tutor_learnsets.h"
@@ -1107,13 +1108,22 @@ static u8 GetPartyBoxPaletteFlags(u8 slot, u8 animNum)
         palFlags |= PARTY_PAL_TO_SOFTBOIL;
 
     #ifdef PREVIEW_NEXT_STEAL
-    if (FlagGet(FLAG_SYS_POKEDEX_GET) && !gMain.inBattle &&
-        GetMonData(&gPlayerParty[slot], MON_DATA_ID) == FurthestPartyMonId(0, PARTY_SIZE)) {
+    if (PreviewNextSteal(slot)) {
         palFlags |= PARTY_PAL_NEXT_STOLEN;
     }
     #endif
 
     return palFlags;
+}
+
+static bool8 PreviewNextSteal(u8 slot) {
+    #ifndef PREVIEW_NEXT_STEAL
+    return FALSE;
+    #else
+    return (FlagGet(FLAG_SYS_POKEDEX_GET) &&
+            (!gMain.inBattle || !(gBattleTypeFlags & BATTLE_TYPE_TRAINER)) &&
+            GetMonData(&gPlayerParty[slot], MON_DATA_ID) == FurthestPartyMonId(0, PARTY_SIZE));
+    #endif
 }
 
 static bool8 PartyBoxPal_ParnterOrDisqualifiedInArena(u8 slot)
