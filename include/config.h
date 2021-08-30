@@ -35,7 +35,9 @@
 #endif
 
 // Uncomment to activate CHALLENGE mode
-// #define EASY
+#define EASY
+
+#define PARTY_INSERT_AFTER 3
 
 // Uncomment to disable trainers from returning stolen items after battle.
 #define RETURN_ITEMS
@@ -48,7 +50,6 @@
 // trainers just steal their favorite mon.
 #define STEAL_FROM_QUEUE
 #define PREVIEW_NEXT_STEAL
-#define PARTY_INSERT_AFTER 3
 #define SCALING_POKE_BALL_MULTIPLIER 250
 #endif
 
