@@ -19,6 +19,7 @@
 #include "random.h"
 #include "script.h"
 #include "sprite.h"
+#include "steal_queue.h"
 #include "string_util.h"
 #include "tv.h"
 #include "constants/items.h"
@@ -117,12 +118,21 @@ u8 ScriptGiveEgg(u16 species)
 {
     struct Pokemon mon;
     u8 isEgg;
+    u8 retVal;
+    u16 monId;
 
     CreateEgg(&mon, species, TRUE);
     isEgg = TRUE;
     SetMonData(&mon, MON_DATA_IS_EGG, &isEgg);
 
-    return GiveMonToPlayer(&mon);
+    retVal = GiveMonToPlayer(&mon);
+
+    monId = GetMonData(&mon, MON_DATA_ID);
+    if (monId != 0) {
+        Queue_Remove(&gSaveBlock2Ptr->stealQueue, monId);
+    }
+
+    return retVal;
 }
 
 void HasEnoughMonsForDoubleBattle(void)
