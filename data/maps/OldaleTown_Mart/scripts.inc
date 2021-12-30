@@ -17,6 +17,7 @@ OldaleTown_Mart_Pokemart_Basic: @ 81FC260
 	.2byte ITEM_ANTIDOTE
 	.2byte ITEM_PARALYZE_HEAL
 	.2byte ITEM_AWAKENING
+	.2byte ITEM_RARE_CANDY
 	.2byte ITEM_NONE
 	release
 	end
@@ -34,6 +35,7 @@ OldaleTown_Mart_Pokemart_Expanded: @ 81FC27C
 	.2byte ITEM_ANTIDOTE
 	.2byte ITEM_PARALYZE_HEAL
 	.2byte ITEM_AWAKENING
+	.2byte ITEM_RARE_CANDY
 	.2byte ITEM_NONE
 	release
 	end
