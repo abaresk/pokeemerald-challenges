@@ -34,25 +34,31 @@
 #endif
 #endif
 
-// Uncomment to activate CHALLENGE mode
-#define EASY
+// Uncomment the difficulty setting you'd like to build.
+#define SOFT
+// #define HARD
+// #define HARDCORE
 
 #define PARTY_INSERT_AFTER 3
 
 // Uncomment to disable trainers from returning stolen items after battle.
 #define RETURN_ITEMS
 
-#ifdef EASY
+#ifdef SOFT
 // Uncomment to stop trainers from giving you a mon back after battle.
 #define REPLACE_MONS
+
 #else
 // Trainers steal the mon furthest in the steal queue. Uncomment to have
 // trainers just steal their favorite mon.
 #define STEAL_FROM_QUEUE
 #define PREVIEW_NEXT_STEAL
+
+#ifdef HARDCORE
 #define SCALING_POKE_BALL_MULTIPLIER 250
 #endif
 
+#endif
 
 // Flag logic enforcement -- keep at end of file
 #ifndef STEAL_FROM_QUEUE
