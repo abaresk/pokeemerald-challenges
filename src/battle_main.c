@@ -3757,14 +3757,14 @@ static void BattleIntroDrawTrainersOrMonsSprites(void)
 static void BattleIntroDrawPartySummaryScreens(void)
 {
     s32 i;
-    struct HpAndStatus hpStatus[PARTY_SIZE];
+    struct HpAndStatus hpStatus[OPPONENT_PARTY_SIZE] = {0};
 
     if (gBattleControllerExecFlags)
         return;
 
     if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
     {
-        for (i = 0; i < PARTY_SIZE; i++)
+        for (i = 0; i < OPPONENT_PARTY_SIZE; i++)
         {
             if (GetMonData(&gEnemyParty[i], MON_DATA_SPECIES2) == SPECIES_NONE
              || GetMonData(&gEnemyParty[i], MON_DATA_SPECIES2) == SPECIES_EGG)
@@ -3782,10 +3782,11 @@ static void BattleIntroDrawPartySummaryScreens(void)
         BtlController_EmitDrawPartyStatusSummary(0, hpStatus, 0x80);
         MarkBattlerForControllerExec(gActiveBattler);
 
-        for (i = 0; i < PARTY_SIZE; i++)
+        for (i = 0; i < OPPONENT_PARTY_SIZE; i++)
         {
-            if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2) == SPECIES_NONE
-             || GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2) == SPECIES_EGG)
+            if (i >= PARTY_SIZE ||
+                GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2) == SPECIES_NONE ||
+                GetMonData(&gPlayerParty[i], MON_DATA_SPECIES2) == SPECIES_EGG)
             {
                 hpStatus[i].hp = 0xFFFF;
                 hpStatus[i].status = 0;

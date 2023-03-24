@@ -5676,23 +5676,29 @@ static void Cmd_incrementgamestat(void)
 static void Cmd_drawpartystatussummary(void)
 {
     s32 i;
+    s32 size;
     struct Pokemon *party;
-    struct HpAndStatus hpStatuses[PARTY_SIZE];
+    struct HpAndStatus hpStatuses[OPPONENT_PARTY_SIZE];
 
     if (gBattleControllerExecFlags)
         return;
 
     gActiveBattler = GetBattlerForBattleScript(gBattlescriptCurrInstr[1]);
 
-    if (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER)
+    if (GetBattlerSide(gActiveBattler) == B_SIDE_PLAYER) {
         party = gPlayerParty;
-    else
+        size = PARTY_SIZE;
+    }
+    else {
         party = gEnemyParty;
+        size = OPPONENT_PARTY_SIZE;
+    }
 
-    for (i = 0; i < PARTY_SIZE; i++)
+    for (i = 0; i < OPPONENT_PARTY_SIZE; i++)
     {
-        if (GetMonData(&party[i], MON_DATA_SPECIES2) == SPECIES_NONE
-            || GetMonData(&party[i], MON_DATA_SPECIES2) == SPECIES_EGG)
+        if (i >= size ||
+            GetMonData(&party[i], MON_DATA_SPECIES2) == SPECIES_NONE || 
+            GetMonData(&party[i], MON_DATA_SPECIES2) == SPECIES_EGG)
         {
             hpStatuses[i].hp = 0xFFFF;
             hpStatuses[i].status = 0;
