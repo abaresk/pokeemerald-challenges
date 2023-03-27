@@ -1984,9 +1984,7 @@ static void HandleSpecialTrainerBattleEnd(void)
         break;
     }
 
-    #ifdef REPLACE_MONS
     TryReturnMonToPlayer(gTrainerBattleOpponent_A, FIRST_OPPONENT, playerWon);
-    #endif
 
     SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic);
 }
