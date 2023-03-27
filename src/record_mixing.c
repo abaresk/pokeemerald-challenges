@@ -35,6 +35,9 @@
 #include "constants/battle_frontier.h"
 #include "dewford_trend.h"
 
+#define PLAYER_APPRENTICE (*((struct PlayersApprentice *) &gSaveBlock2Ptr->playerApprentice))
+#define APPRENTICES (*(struct Apprentice **) &gSaveBlock2Ptr->apprentices)
+#define HALL_RECORDS_1P (*(struct RankingHall1P ****)&gSaveBlock2Ptr->hallRecords1P)
 
 // Static type declarations
 
@@ -183,7 +186,7 @@ static void SetSrcLookupPointers(void)
     sDaycareMailSave = &sDaycareMail;
     sBattleTowerSave = &gSaveBlock2Ptr->frontier.towerPlayer;
     sLilycoveLadySave = &gSaveBlock1Ptr->lilycoveLady;
-    sApprenticesSave = gSaveBlock2Ptr->apprentices;
+    sApprenticesSave = APPRENTICES;
     sBattleTowerSave_Duplicate = &gSaveBlock2Ptr->frontier.towerPlayer;
 }
 
@@ -1031,7 +1034,7 @@ static void GetSavedApprentices(struct Apprentice *dst, struct Apprentice *src)
     numMixApprentices = 0;
     for (i = 0; i < 2; i++)
     {
-        id = ((i + gSaveBlock2Ptr->playerApprentice.saveId) % (APPRENTICE_COUNT - 1)) + 1;
+        id = ((i + PLAYER_APPRENTICE.saveId) % (APPRENTICE_COUNT - 1)) + 1;
         if (src[id].playerName[0] != EOS)
         {
             if (GetTrainerId(src[id].playerId) != GetTrainerId(gSaveBlock2Ptr->playerTrainerId))
@@ -1061,9 +1064,9 @@ static void GetSavedApprentices(struct Apprentice *dst, struct Apprentice *src)
         break;
     case 2:
         if (Random2() > 0x3333)
-            dst[1] = src[gSaveBlock2Ptr->playerApprentice.saveId + 1];
+            dst[1] = src[PLAYER_APPRENTICE.saveId + 1];
         else
-            dst[1] = src[((gSaveBlock2Ptr->playerApprentice.saveId + 1) % (APPRENTICE_COUNT - 1) + 1)];
+            dst[1] = src[((PLAYER_APPRENTICE.saveId + 1) % (APPRENTICE_COUNT - 1) + 1)];
         break;
     }
 }
@@ -1136,7 +1139,7 @@ static void ReceiveApprenticeData(struct Apprentice *mixApprentice, size_t recor
     apprenticeId = 0;
     for (i = 0; i < 2; i++)
     {
-        if (mixApprenticePtr[i].playerName[0] != EOS && !IsApprenticeAlreadySaved(&mixApprenticePtr[i], &gSaveBlock2Ptr->apprentices[0]))
+        if (mixApprenticePtr[i].playerName[0] != EOS && !IsApprenticeAlreadySaved(&mixApprenticePtr[i], &APPRENTICES[0]))
         {
             numApprentices++;
             apprenticeId = i;
@@ -1146,17 +1149,17 @@ static void ReceiveApprenticeData(struct Apprentice *mixApprentice, size_t recor
     switch (numApprentices)
     {
     case 1:
-        apprenticeSaveId = gSaveBlock2Ptr->playerApprentice.saveId + 1;
-        gSaveBlock2Ptr->apprentices[apprenticeSaveId] = mixApprenticePtr[apprenticeId];
-        gSaveBlock2Ptr->playerApprentice.saveId = (gSaveBlock2Ptr->playerApprentice.saveId + 1) % (APPRENTICE_COUNT - 1);
+        apprenticeSaveId = PLAYER_APPRENTICE.saveId + 1;
+        APPRENTICES[apprenticeSaveId] = mixApprenticePtr[apprenticeId];
+        PLAYER_APPRENTICE.saveId = (PLAYER_APPRENTICE.saveId + 1) % (APPRENTICE_COUNT - 1);
         break;
     case 2:
         for (i = 0; i < 2; i++)
         {
-            apprenticeSaveId = ((i ^ 1) + gSaveBlock2Ptr->playerApprentice.saveId) % (APPRENTICE_COUNT - 1) + 1;
-            gSaveBlock2Ptr->apprentices[apprenticeSaveId] = mixApprenticePtr[i];
+            apprenticeSaveId = ((i ^ 1) + PLAYER_APPRENTICE.saveId) % (APPRENTICE_COUNT - 1) + 1;
+            APPRENTICES[apprenticeSaveId] = mixApprenticePtr[i];
         }
-        gSaveBlock2Ptr->playerApprentice.saveId = (gSaveBlock2Ptr->playerApprentice.saveId + 2) % (APPRENTICE_COUNT - 1);
+        PLAYER_APPRENTICE.saveId = (PLAYER_APPRENTICE.saveId + 2) % (APPRENTICE_COUNT - 1);
         break;
     }
 }
@@ -1186,7 +1189,7 @@ static void sub_80E8578(struct RecordMixingHallRecords *dst, void *hallRecords, 
         for (j = 0; j < 2; j++)
         {
             for (k = 0; k < 3; k++)
-                dst->hallRecords1P[i][j][k] = gSaveBlock2Ptr->hallRecords1P[i][j][k];
+                dst->hallRecords1P[i][j][k] = HALL_RECORDS_1P[i][j][k];
 
             for (k = 0; k < linkPlayerCount - 1; k++)
             {
@@ -1287,7 +1290,7 @@ static void sub_80E8924(struct RecordMixingHallRecords *arg0)
     for (i = 0; i < HALL_FACILITIES_COUNT; i++)
     {
         for (j = 0; j < 2; j++)
-            sub_80E8880(gSaveBlock2Ptr->hallRecords1P[i][j], arg0->hallRecords1P[i][j]);
+            sub_80E8880(HALL_RECORDS_1P[i][j], arg0->hallRecords1P[i][j]);
     }
     for (j = 0; j < 2; j++)
         sub_80E88CC(gSaveBlock2Ptr->hallRecords2P[j], arg0->hallRecords2P[j]);

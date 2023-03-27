@@ -25,6 +25,8 @@
 #include "constants/items.h"
 #include "constants/songs.h"
 
+#define BERRY_PICK (*(struct BerryPickingResults *) &gSaveBlock2Ptr->berryPick)
+
 // Note that in this file 'Dodrio Berry Picking' is often
 // shortened to DodrioGame or just Game for convenience
 
@@ -2625,12 +2627,12 @@ static void TryUpdateRecords(void)
     u32 berriesPicked = Min(GetBerriesPicked(sGame->multiplayerId), MAX_BERRIES); // Min here is redundant
     u32 score = Min(GetScore(sGame->multiplayerId), MAX_SCORE);
 
-    if (gSaveBlock2Ptr->berryPick.bestScore < score)
-        gSaveBlock2Ptr->berryPick.bestScore = score;
-    if (gSaveBlock2Ptr->berryPick.berriesPicked < berriesPicked)
-        gSaveBlock2Ptr->berryPick.berriesPicked = berriesPicked;
-    if (gSaveBlock2Ptr->berryPick.berriesPickedInRow < sGame->maxBerriesPickedInRow)
-        gSaveBlock2Ptr->berryPick.berriesPickedInRow = sGame->maxBerriesPickedInRow;
+    if (BERRY_PICK.bestScore < score)
+        BERRY_PICK.bestScore = score;
+    if (BERRY_PICK.berriesPicked < berriesPicked)
+        BERRY_PICK.berriesPicked = berriesPicked;
+    if (BERRY_PICK.berriesPickedInRow < sGame->maxBerriesPickedInRow)
+        BERRY_PICK.berriesPickedInRow = sGame->maxBerriesPickedInRow;
 }
 
 // Enqueue the given state, and dequeue and return
@@ -3001,9 +3003,9 @@ static void PrintRecordsText(u8 windowId, s32 width)
 {
     s32 i, x, numWidth;
     s32 recordNums[NUM_RECORD_TYPES];
-    recordNums[0] = gSaveBlock2Ptr->berryPick.berriesPicked;
-    recordNums[1] = gSaveBlock2Ptr->berryPick.bestScore;
-    recordNums[2] = gSaveBlock2Ptr->berryPick.berriesPickedInRow;
+    recordNums[0] = BERRY_PICK.berriesPicked;
+    recordNums[1] = BERRY_PICK.bestScore;
+    recordNums[2] = BERRY_PICK.berriesPickedInRow;
 
     LoadUserWindowBorderGfx_(windowId, 0x21D, 0xD0);
     DrawTextBorderOuter(windowId, 0x21D, 0xD);

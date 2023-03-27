@@ -10,6 +10,8 @@
 #include "text_window.h"
 #include "window.h"
 
+#define BERRY_CRUSH (*((struct BerryCrush *) &gSaveBlock2Ptr->berryCrush))
+
 #define MAX_BERRY_POWDER 99999
 
 static EWRAM_DATA u8 sBerryPowderVendorWindowId = 0;
@@ -138,13 +140,13 @@ void SetBerryPowder(u32 *powder, u32 amount)
 
 void ApplyNewEncryptionKeyToBerryPowder(u32 encryptionKey)
 {
-    u32 *powder = &gSaveBlock2Ptr->berryCrush.berryPowderAmount;
+    u32 *powder = &BERRY_CRUSH.berryPowderAmount;
     ApplyNewEncryptionKeyToWord(powder, encryptionKey);
 }
 
 static bool8 HasEnoughBerryPowder_(u32 cost)
 {
-    u32 *powder = &gSaveBlock2Ptr->berryCrush.berryPowderAmount;
+    u32 *powder = &BERRY_CRUSH.berryPowderAmount;
     if (DecryptBerryPowder(powder) < cost)
         return FALSE;
     else
@@ -153,7 +155,7 @@ static bool8 HasEnoughBerryPowder_(u32 cost)
 
 bool8 HasEnoughBerryPowder(void)
 {
-    u32 *powder = &gSaveBlock2Ptr->berryCrush.berryPowderAmount;
+    u32 *powder = &BERRY_CRUSH.berryPowderAmount;
     if (DecryptBerryPowder(powder) < gSpecialVar_0x8004)
         return FALSE;
     else
@@ -162,7 +164,7 @@ bool8 HasEnoughBerryPowder(void)
 
 bool8 GiveBerryPowder(u32 amountToAdd)
 {
-    u32 *powder = &gSaveBlock2Ptr->berryCrush.berryPowderAmount;
+    u32 *powder = &BERRY_CRUSH.berryPowderAmount;
     u32 amount = DecryptBerryPowder(powder) + amountToAdd;
     if (amount > MAX_BERRY_POWDER)
     {
@@ -178,7 +180,7 @@ bool8 GiveBerryPowder(u32 amountToAdd)
 
 static bool8 TakeBerryPowder_(u32 cost)
 {
-    u32 *powder = &gSaveBlock2Ptr->berryCrush.berryPowderAmount;
+    u32 *powder = &BERRY_CRUSH.berryPowderAmount;
     if (!HasEnoughBerryPowder_(cost))
         return FALSE;
 
@@ -188,7 +190,7 @@ static bool8 TakeBerryPowder_(u32 cost)
 
 bool8 TakeBerryPowder(void)
 {
-    u32 *powder = &gSaveBlock2Ptr->berryCrush.berryPowderAmount;
+    u32 *powder = &BERRY_CRUSH.berryPowderAmount;
     if (!HasEnoughBerryPowder_(gSpecialVar_0x8004))
         return FALSE;
 
@@ -198,7 +200,7 @@ bool8 TakeBerryPowder(void)
 
 u32 GetBerryPowder(void)
 {
-    u32 *powder = &gSaveBlock2Ptr->berryCrush.berryPowderAmount;
+    u32 *powder = &BERRY_CRUSH.berryPowderAmount;
     return DecryptBerryPowder(powder);
 }
 

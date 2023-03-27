@@ -37,6 +37,8 @@
 #include "constants/moves.h"
 #include "constants/easy_chat.h"
 
+#define APPRENTICES (*(struct Apprentice **)&gSaveBlock2Ptr->apprentices)
+
 extern const u8 MossdeepCity_SpaceCenter_2F_EventScript_MaxieTrainer[];
 extern const u8 MossdeepCity_SpaceCenter_2F_EventScript_TabithaTrainer[];
 
@@ -1028,9 +1030,9 @@ static bool8 ChooseSpecialBattleTowerTrainer(void)
         ValidateApprenticesChecksums();
         for (i = 0; i < APPRENTICE_COUNT; i++)
         {
-            if (gSaveBlock2Ptr->apprentices[i].lvlMode != 0
-                && sApprenticeChallengeThreshold[gSaveBlock2Ptr->apprentices[i].numQuestions] == winStreak
-                && gSaveBlock2Ptr->apprentices[i].lvlMode - 1 == lvlMode)
+            if (APPRENTICES[i].lvlMode != 0
+                && sApprenticeChallengeThreshold[APPRENTICES[i].numQuestions] == winStreak
+                && APPRENTICES[i].lvlMode - 1 == lvlMode)
             {
                 trainerIds[idsCount] = i + TRAINER_RECORD_MIXING_APPRENTICE;
                 idsCount++;
@@ -1186,7 +1188,7 @@ void SetBattleFacilityTrainerGfxId(u16 trainerId, u8 tempVarId)
     }
     else
     {
-        facilityClass = gApprentices[gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass;
+        facilityClass = gApprentices[APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass;
     }
 
     // Search male classes.
@@ -1278,7 +1280,7 @@ u8 GetBattleFacilityTrainerGfxId(u16 trainerId)
     }
     else
     {
-        facilityClass = gApprentices[gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass;
+        facilityClass = gApprentices[APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass;
     }
 
     // Search male classes.
@@ -1431,7 +1433,7 @@ u8 GetFrontierTrainerFrontSpriteId(u16 trainerId)
         if (gBattleTypeFlags & BATTLE_TYPE_RECORDED)
             return gFacilityClassToPicIndex[gApprentices[GetRecordedBattleApprenticeId()].facilityClass];
         else
-            return gFacilityClassToPicIndex[gApprentices[gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass];
+            return gFacilityClassToPicIndex[gApprentices[APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass];
     }
 }
 
@@ -1475,7 +1477,7 @@ u8 GetFrontierOpponentClass(u16 trainerId)
         }
         else
         {
-            trainerClass = gFacilityClassToTrainerClass[gApprentices[gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass];
+            trainerClass = gFacilityClassToTrainerClass[gApprentices[APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass];
         }
     }
 
@@ -1507,7 +1509,7 @@ static u8 GetFrontierTrainerFacilityClass(u16 trainerId)
         if (gBattleTypeFlags & BATTLE_TYPE_RECORDED)
             facilityClass = gApprentices[GetRecordedBattleApprenticeId()].facilityClass;
         else
-            facilityClass = gApprentices[gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass;
+            facilityClass = gApprentices[APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass;
     }
 
     return facilityClass;
@@ -1563,7 +1565,7 @@ void GetFrontierTrainerName(u8 *dst, u16 trainerId)
         }
         else
         {
-            struct Apprentice *apprentice = &gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE];
+            struct Apprentice *apprentice = &APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE];
             id = apprentice->id;
             language = apprentice->language;
         }
@@ -1598,7 +1600,7 @@ static bool8 IsFrontierTrainerFemale(u16 trainerId)
     }
     else
     {
-        facilityClass = gApprentices[gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass;
+        facilityClass = gApprentices[APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass;
     }
 
     // Search female classes.
@@ -1677,7 +1679,7 @@ static void FillTrainerParty(u16 trainerId, u8 firstMonId, u8 monCount)
     {
         // Apprentice.
         for (i = firstMonId; i < firstMonId + 3; i++)
-            CreateApprenticeMon(&gEnemyParty[i], &gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE], i - firstMonId);
+            CreateApprenticeMon(&gEnemyParty[i], &APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE], i - firstMonId);
         return;
     }
 
@@ -1760,7 +1762,7 @@ static void Unused_CreateApprenticeMons(u16 trainerId, u8 firstMonId)
     u8 friendship = MAX_FRIENDSHIP;
     u8 level = 0;
     u8 fixedIV = 0;
-    struct Apprentice *apprentice = &gSaveBlock2Ptr->apprentices[0];
+    struct Apprentice *apprentice = &APPRENTICES[0];
 
     if (apprentice->numQuestions < 5)
         fixedIV = 6;
@@ -2221,7 +2223,7 @@ static void GetApprenticeMultiPartnerParty(u16 trainerId)
     count = 0;
     for (i = 0; i < MULTI_PARTY_SIZE; i++)
     {
-        u16 apprenticeSpecies = gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].party[i].species;
+        u16 apprenticeSpecies = APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].party[i].species;
         if (apprenticeSpecies != species1 && apprenticeSpecies != species2)
         {
             validSpecies[count] = i;
@@ -2338,15 +2340,15 @@ static void LoadMultiPartnerCandidatesData(void)
     ValidateApprenticesChecksums();
     for (i = 0; i < APPRENTICE_COUNT; i++)
     {
-        if (gSaveBlock2Ptr->apprentices[i].lvlMode != 0
-            && sApprenticeChallengeThreshold[gSaveBlock2Ptr->apprentices[i].numQuestions] / 7 <= challengeNum
-            && gSaveBlock2Ptr->apprentices[i].lvlMode - 1 == lvlMode)
+        if (APPRENTICES[i].lvlMode != 0
+            && sApprenticeChallengeThreshold[APPRENTICES[i].numQuestions] / 7 <= challengeNum
+            && APPRENTICES[i].lvlMode - 1 == lvlMode)
         {
             k = 0;
             for (j = 0; j < MULTI_PARTY_SIZE; j++)
             {
-                if (species1 != gSaveBlock2Ptr->apprentices[i].party[j].species
-                    && species2 != gSaveBlock2Ptr->apprentices[i].party[j].species)
+                if (species1 != APPRENTICES[i].party[j].species
+                    && species2 != APPRENTICES[i].party[j].species)
                 {
                     k++;
                 }
@@ -2432,12 +2434,12 @@ static void GetPotentialPartnerMoveAndSpecies(u16 trainerId, u16 monId)
         {
             s32 i;
 
-            move = gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].party[gFrontierTempParty[gSpecialVar_0x8005 - 1]].moves[0];
-            species = gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].party[gFrontierTempParty[gSpecialVar_0x8005 - 1]].species;
+            move = APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].party[gFrontierTempParty[gSpecialVar_0x8005 - 1]].moves[0];
+            species = APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].party[gFrontierTempParty[gSpecialVar_0x8005 - 1]].species;
             for (i = 0; i < PLAYER_NAME_LENGTH; i++)
-                gStringVar3[i] = gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].playerName[i];
+                gStringVar3[i] = APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].playerName[i];
             gStringVar3[i] = EOS;
-            ConvertInternationalString(gStringVar3, gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].language);
+            ConvertInternationalString(gStringVar3, APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].language);
         }
     }
 
@@ -2486,10 +2488,10 @@ static void ShowPartnerCandidateMessage(void)
         {
             s32 i;
             for (i = 0; i < PLAYER_NAME_LENGTH; i++)
-                gStringVar1[i] = gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].playerName[i];
+                gStringVar1[i] = APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].playerName[i];
             gStringVar1[i] = EOS;
-            ConvertInternationalString(gStringVar1, gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].language);
-            ConvertIntToDecimalStringN(gStringVar2, gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].number, STR_CONV_MODE_LEFT_ALIGN, 3);
+            ConvertInternationalString(gStringVar1, APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].language);
+            ConvertIntToDecimalStringN(gStringVar2, APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].number, STR_CONV_MODE_LEFT_ALIGN, 3);
             GetFrontierTrainerName(gStringVar3, trainerId);
         }
         break;
@@ -2557,7 +2559,7 @@ static void ShowPartnerCandidateMessage(void)
     // Trainer is a former/record-mixed Apprentice, do Apprentice message
     else
     {
-        u8 apprenticeId = gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id;
+        u8 apprenticeId = APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id;
         ShowFieldMessage(sPartnerApprenticeTextTables[apprenticeId][gSpecialVar_0x8005]);
     }
 }
@@ -3058,7 +3060,7 @@ static void FillPartnerParty(u16 trainerId)
         trainerId -= TRAINER_RECORD_MIXING_APPRENTICE;
         for (i = 0; i < FRONTIER_MULTI_PARTY_SIZE; i++)
         {
-            CreateApprenticeMon(&gPlayerParty[MULTI_PARTY_SIZE + i], &gSaveBlock2Ptr->apprentices[trainerId], gSaveBlock2Ptr->frontier.trainerIds[18 + i]);
+            CreateApprenticeMon(&gPlayerParty[MULTI_PARTY_SIZE + i], &APPRENTICES[trainerId], gSaveBlock2Ptr->frontier.trainerIds[18 + i]);
             j = IsFrontierTrainerFemale(trainerId + TRAINER_RECORD_MIXING_APPRENTICE);
             SetMonData(&gPlayerParty[MULTI_PARTY_SIZE + i], MON_DATA_OT_GENDER, &j);
         }
@@ -3190,12 +3192,12 @@ static void ValidateApprenticesChecksums(void)
 
     for (i = 0; i < APPRENTICE_COUNT; i++)
     {
-        u32 *data = (u32*) &gSaveBlock2Ptr->apprentices[i];
+        u32 *data = (u32*) &APPRENTICES[i];
         u32 checksum = 0;
         for (j = 0; j < (sizeof(struct Apprentice) - 4) / 4; j++)
             checksum += data[j];
-        if (gSaveBlock2Ptr->apprentices[i].checksum != checksum)
-            ClearApprentice(&gSaveBlock2Ptr->apprentices[i]);
+        if (APPRENTICES[i].checksum != checksum)
+            ClearApprentice(&APPRENTICES[i]);
     }
 }
 
@@ -3221,7 +3223,7 @@ void GetBattleTowerTrainerLanguage(u8 *dst, u16 trainerId)
         if (gBattleTypeFlags & BATTLE_TYPE_RECORDED)
             *dst = GetRecordedBattleApprenticeLanguage();
         else
-            *dst = gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].language;
+            *dst = APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].language;
     }
 }
 

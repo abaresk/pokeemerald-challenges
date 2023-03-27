@@ -37,6 +37,9 @@
 #include "constants/event_objects.h"
 #include "party_menu.h"
 
+#define APPRENTICES (*(struct Apprentice **)&gSaveBlock2Ptr->apprentices)
+#define HALL_RECORDS_1P (*(struct RankingHall1P ****)&gSaveBlock2Ptr->hallRecords1P)
+
 struct FrontierBrainMon
 {
     u16 species;
@@ -1732,7 +1735,7 @@ void CopyFrontierTrainerText(u8 whichText, u16 trainerId)
             if (gBattleTypeFlags & BATTLE_TYPE_RECORDED)
                 FrontierSpeechToString(GetRecordedBattleEasyChatSpeech());
             else
-                FrontierSpeechToString(gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].speechWon);
+                FrontierSpeechToString(APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].speechWon);
         }
         break;
     case FRONTIER_PLAYER_WON_TEXT:
@@ -1764,7 +1767,7 @@ void CopyFrontierTrainerText(u8 whichText, u16 trainerId)
             }
             else
             {
-                trainerId = gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id;
+                trainerId = APPRENTICES[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id;
                 FrontierSpeechToString(gApprentices[trainerId].speechLost);
             }
         }
@@ -2274,7 +2277,7 @@ static void Fill1PRecords(struct RankingHall1P *dst, s32 hallFacilityId, s32 lvl
     GetPlayerHallRecords(playerHallRecords);
 
     for (i = 0; i < 3; i++)
-        record1P[i] = gSaveBlock2Ptr->hallRecords1P[hallFacilityId][lvlMode][i];
+        record1P[i] = HALL_RECORDS_1P[hallFacilityId][lvlMode][i];
 
     record1P[3] = playerHallRecords->onePlayer[hallFacilityId][lvlMode];
 
@@ -2397,9 +2400,9 @@ void ClearRankingHallRecords(void)
         {
             for (k = 0; k < 3; k++)
             {
-                CopyTrainerId(gSaveBlock2Ptr->hallRecords1P[i][j][k].id, ZERO); 
-                gSaveBlock2Ptr->hallRecords1P[i][j][k].name[0] = EOS;
-                gSaveBlock2Ptr->hallRecords1P[i][j][k].winStreak = 0;
+                CopyTrainerId(HALL_RECORDS_1P[i][j][k].id, ZERO); 
+                HALL_RECORDS_1P[i][j][k].name[0] = EOS;
+                HALL_RECORDS_1P[i][j][k].winStreak = 0;
             }
         }
     }

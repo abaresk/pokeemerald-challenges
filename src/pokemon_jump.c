@@ -31,6 +31,8 @@
 #include "constants/songs.h"
 #include "constants/items.h"
 
+#define POKE_JUMP (*(struct PokemonJumpRecords *) &gSaveBlock2Ptr->pokeJump)
+
 #define MAX_JUMP_SCORE 99990
 #define MAX_JUMPS 9999
 
@@ -4094,7 +4096,7 @@ static bool32 RecvPacket_MemberStateToMember(struct PokemonJump_Player *player, 
 
 static struct PokemonJumpRecords *GetPokeJumpRecords(void)
 {
-    return &gSaveBlock2Ptr->pokeJump;
+    return &POKE_JUMP;
 }
 
 void ResetPokemonJumpRecords(void)

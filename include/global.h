@@ -462,6 +462,7 @@ struct RankingHall2P
     u8 language;
 };
 
+// Limited to 0xF80 bytes.
 struct SaveBlock2
 {
     /*0x00*/ u8 playerName[PLAYER_NAME_LENGTH + 1];
@@ -485,18 +486,20 @@ struct SaveBlock2
     /*0xA0*/ struct Time lastBerryTreeUpdate;
     /*0xA8*/ u32 gcnLinkFlags; // Read by Pokemon Colosseum/XD
     /*0xAC*/ u32 encryptionKey;
-    /*0xB0*/ struct PlayersApprentice playerApprentice;
-    /*0xDC*/ struct Apprentice apprentices[APPRENTICE_COUNT];
-    /*0x1EC*/ struct BerryCrush berryCrush;
-    /*0x1FC*/ struct PokemonJumpRecords pokeJump;
-    /*0x20C*/ struct BerryPickingResults berryPick;
-    /*0x21C*/ struct RankingHall1P hallRecords1P[HALL_FACILITIES_COUNT][2][3]; // From record mixing.
+    // REMOVED THE FOLLOWING SAVE DATA
+    /*0xB0*/ void *playerApprentice;
+    /*0xDC*/ void *apprentices;
+    /*0x1EC*/ void *berryCrush;
+    /*0x1FC*/ void *pokeJump;
+    /*0x20C*/ void *berryPick;
+    /*0x21C*/ void* hallRecords1P; // From record mixing.
+    // END OF DELETED SAVE DATA
     /*0x57C*/ struct RankingHall2P hallRecords2P[2][3]; // From record mixing.
     /*0x624*/ u16 contestLinkResults[CONTEST_CATEGORIES_COUNT][CONTESTANT_COUNT];
     /*0x64C*/ struct BattleFrontier frontier;
     /*0xF2C*/ u16 monsCaught;
     /*0xF2E*/ StealQueue stealQueue;
-}; // sizeof=0x1288
+};
 
 extern struct SaveBlock2 *gSaveBlock2Ptr;
 
